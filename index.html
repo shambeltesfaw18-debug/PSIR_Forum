@@ -8,10 +8,14 @@
     body { font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 16px; color: #1b2a41; background: #f7f8fa; }
     h1 { color: #1b2a41; }
     h2 { margin-top: 28px; border-bottom: 2px solid #c9a227; padding-bottom: 4px; }
+    h3 { margin-top: 24px; color: #1b2a41; }
     form { display: flex; flex-direction: column; gap: 8px; background: white; padding: 16px; border-radius: 8px; }
-    input, button { padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #ccc; }
+    input, textarea, button { padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit; }
     button { background: #1b2a41; color: white; border: none; cursor: pointer; }
-    .card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; }
+    .back { background: none; color: #1b2a41; padding: 4px 0; text-decoration: underline; }
+    .card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
+    .card small, .meta { color: #666; font-size: 13px; }
+    .post { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; white-space: pre-wrap; }
     .msg { color: #b00020; min-height: 20px; }
   </style>
 </head>
@@ -39,8 +43,48 @@
 
   <div id="forum-section" style="display:none">
     <button id="logout-btn">Log out</button>
-    <h2>Discussion categories</h2>
-    <div id="categories"></div>
+
+    <!-- Screen 1: categories -->
+    <div id="list-view">
+      <h2>Discussion categories</h2>
+      <div id="categories"></div>
+    </div>
+
+    <!-- Screen 2: one category, with live video and threads -->
+    <div id="category-view" style="display:none">
+      <button class="back" id="back-categories">← All categories</button>
+      <h2 id="cat-title"></h2>
+      <p id="cat-desc"></p>
+
+      <h3>Live video discussion</h3>
+      <button id="join-video">Join live discussion</button>
+      <div id="video-box"></div>
+
+      <h3>Start a thread</h3>
+      <form id="thread-form">
+        <input id="thread-title" placeholder="Title (at least 5 characters)" required minlength="5">
+        <textarea id="thread-body" placeholder="Write your question or argument..." required rows="4"></textarea>
+        <button type="submit">Post thread</button>
+      </form>
+      <p class="msg" id="thread-msg"></p>
+
+      <h3>Threads</h3>
+      <div id="threads"></div>
+    </div>
+
+    <!-- Screen 3: one thread with replies -->
+    <div id="thread-view" style="display:none">
+      <button class="back" id="back-threads">← Back to threads</button>
+      <div id="thread-detail"></div>
+
+      <h3>Replies</h3>
+      <div id="replies"></div>
+      <form id="reply-form">
+        <textarea id="reply-body" placeholder="Write a reply..." required rows="3"></textarea>
+        <button type="submit">Post reply</button>
+      </form>
+      <p class="msg" id="reply-msg"></p>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -49,58 +93,191 @@
     const SUPABASE_KEY = 'sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const msg = document.getElementById('msg');
-    const status = document.getElementById('status');
+    let currentUser = null;
+    let currentCategory = null;
+    let currentThread = null;
 
-    async function showForum(user) {
-      document.getElementById('auth-section').style.display = 'none';
-      document.getElementById('forum-section').style.display = 'block';
-      status.textContent = 'Signed in as ' + user.email;
+    const $ = id => document.getElementById(id);
+    const status = $('status');
 
-      const { data, error } = await db.from('categories').select('*').order('id');
-      const box = document.getElementById('categories');
-      if (error) { box.textContent = 'Could not load categories: ' + error.message; return; }
-      box.innerHTML = '';
-      data.forEach(c => {
-        const div = document.createElement('div');
-        div.className = 'card';
-        div.innerHTML = '<strong></strong><br><small></small>';
-        div.querySelector('strong').textContent = c.name;
-        div.querySelector('small').textContent = c.description || '';
-        box.appendChild(div);
+    function showScreen(id) {
+      ['list-view', 'category-view', 'thread-view'].forEach(v => {
+        $(v).style.display = v === id ? 'block' : 'none';
       });
+    }
+
+    function makeCard(title, meta, onClick) {
+      const div = document.createElement('div');
+      div.className = 'card';
+      const strong = document.createElement('strong');
+      strong.textContent = title;
+      const small = document.createElement('small');
+      small.textContent = meta;
+      div.append(strong, document.createElement('br'), small);
+      if (onClick) div.onclick = onClick;
+      return div;
+    }
+
+    function makePost(text, meta) {
+      const div = document.createElement('div');
+      div.className = 'post';
+      div.textContent = text;
+      const small = document.createElement('div');
+      small.className = 'meta';
+      small.textContent = meta;
+      div.appendChild(small);
+      return div;
+    }
+
+    function authorName(row) {
+      return (row.profiles && row.profiles.full_name) || 'Student';
+    }
+
+    function showForum(user) {
+      currentUser = user;
+      $('auth-section').style.display = 'none';
+      $('forum-section').style.display = 'block';
+      status.textContent = 'Signed in as ' + user.email;
+      showScreen('list-view');
+      loadCategories();
     }
 
     function showAuth() {
-      document.getElementById('auth-section').style.display = 'block';
-      document.getElementById('forum-section').style.display = 'none';
+      currentUser = null;
+      $('auth-section').style.display = 'block';
+      $('forum-section').style.display = 'none';
       status.textContent = 'Welcome. Sign up or log in to join the discussion.';
     }
 
-    document.getElementById('signup-form').addEventListener('submit', async e => {
-      e.preventDefault();
-      msg.textContent = 'Creating account...';
-      const { error } = await db.auth.signUp({
-        email: document.getElementById('signup-email').value,
-        password: document.getElementById('signup-password').value,
-        options: { data: { full_name: document.getElementById('signup-name').value } }
+    async function loadCategories() {
+      const box = $('categories');
+      const { data, error } = await db.from('categories').select('*').order('id');
+      if (error) { box.textContent = 'Could not load categories: ' + error.message; return; }
+      box.innerHTML = '';
+      data.forEach(c => box.appendChild(makeCard(c.name, c.description || '', () => openCategory(c))));
+    }
+
+    function openCategory(c) {
+      currentCategory = c;
+      $('cat-title').textContent = c.name;
+      $('cat-desc').textContent = c.description || '';
+      $('video-box').innerHTML = '';
+      $('thread-msg').textContent = '';
+      showScreen('category-view');
+      loadThreads();
+    }
+
+    async function loadThreads() {
+      const box = $('threads');
+      box.textContent = 'Loading...';
+      const { data, error } = await db.from('threads')
+        .select('id, title, body, created_at, profiles(full_name)')
+        .eq('category_id', currentCategory.id)
+        .order('created_at', { ascending: false });
+      if (error) { box.textContent = 'Could not load threads: ' + error.message; return; }
+      box.innerHTML = '';
+      if (!data.length) { box.textContent = 'No threads yet. Be the first to post.'; return; }
+      data.forEach(t => {
+        box.appendChild(makeCard(t.title, authorName(t) + ' · ' + new Date(t.created_at).toLocaleDateString(), () => openThread(t)));
       });
-      msg.textContent = error ? error.message : 'Account created. Check your email to confirm, then log in.';
+    }
+
+    function openThread(t) {
+      currentThread = t;
+      const detail = $('thread-detail');
+      detail.innerHTML = '';
+      const title = document.createElement('h2');
+      title.textContent = t.title;
+      detail.append(title, makePost(t.body, authorName(t) + ' · ' + new Date(t.created_at).toLocaleString()));
+      $('reply-msg').textContent = '';
+      showScreen('thread-view');
+      loadReplies();
+    }
+
+    async function loadReplies() {
+      const box = $('replies');
+      box.textContent = 'Loading...';
+      const { data, error } = await db.from('replies')
+        .select('id, body, created_at, profiles(full_name)')
+        .eq('thread_id', currentThread.id)
+        .order('created_at', { ascending: true });
+      if (error) { box.textContent = 'Could not load replies: ' + error.message; return; }
+      box.innerHTML = '';
+      if (!data.length) { box.textContent = 'No replies yet.'; return; }
+      data.forEach(r => box.appendChild(makePost(r.body, authorName(r) + ' · ' + new Date(r.created_at).toLocaleString())));
+    }
+
+    // Live video: Jitsi room named after the category
+    $('join-video').onclick = () => {
+      const box = $('video-box');
+      box.innerHTML = '';
+      const frame = document.createElement('iframe');
+      frame.src = 'https://meet.jit.si/PSIR-' + currentCategory.slug;
+      frame.allow = 'camera; microphone; fullscreen; display-capture; autoplay';
+      frame.style.cssText = 'width:100%;height:420px;border:0;border-radius:8px;margin-top:8px';
+      box.appendChild(frame);
+    };
+
+    // Navigation
+    $('back-categories').onclick = () => showScreen('list-view');
+    $('back-threads').onclick = () => { showScreen('category-view'); loadThreads(); };
+
+    // Post a thread
+    $('thread-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      $('thread-msg').textContent = 'Posting...';
+      const { error } = await db.from('threads').insert({
+        category_id: currentCategory.id,
+        author_id: currentUser.id,
+        title: $('thread-title').value.trim(),
+        body: $('thread-body').value.trim()
+      });
+      if (error) { $('thread-msg').textContent = error.message; return; }
+      $('thread-msg').textContent = '';
+      e.target.reset();
+      loadThreads();
     });
 
-    document.getElementById('login-form').addEventListener('submit', async e => {
+    // Post a reply
+    $('reply-form').addEventListener('submit', async e => {
       e.preventDefault();
-      msg.textContent = 'Logging in...';
-      const { data, error } = await db.auth.signInWithPassword({
-        email: document.getElementById('login-email').value,
-        password: document.getElementById('login-password').value
+      $('reply-msg').textContent = 'Posting...';
+      const { error } = await db.from('replies').insert({
+        thread_id: currentThread.id,
+        author_id: currentUser.id,
+        body: $('reply-body').value.trim()
       });
-      if (error) { msg.textContent = error.message; return; }
-      msg.textContent = '';
+      if (error) { $('reply-msg').textContent = error.message; return; }
+      $('reply-msg').textContent = '';
+      e.target.reset();
+      loadReplies();
+    });
+
+    // Sign up, log in, log out
+    $('signup-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      $('msg').textContent = 'Creating account...';
+      const { error } = await db.auth.signUp({
+        email: $('signup-email').value,
+        password: $('signup-password').value,
+        options: { data: { full_name: $('signup-name').value } }
+      });
+      $('msg').textContent = error ? error.message : 'Account created. Check your email to confirm, then log in.';
+    });
+
+    $('login-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      $('msg').textContent = 'Logging in...';
+      const { data, error } = await db.auth.signInWithPassword({
+        email: $('login-email').value,
+        password: $('login-password').value
+      });
+      if (error) { $('msg').textContent = error.message; return; }
+      $('msg').textContent = '';
       showForum(data.user);
     });
 
-    document.getElementById('logout-btn').addEventListener('click', async () => {
+    $('logout-btn').addEventListener('click', async () => {
       await db.auth.signOut();
       showAuth();
     });
