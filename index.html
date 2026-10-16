@@ -189,6 +189,11 @@
         <h3>Hands raised</h3>
         <div id="hands"></div>
       </div>
+      <div class="note" id="jitsi-box">
+  <strong>Audio not working?</strong>
+  <p class="meta">If you can't hear each other in the room, open this category's Jitsi call in a new tab.</p>
+  <button type="button" id="open-jitsi" class="secondary">Open Jitsi call</button>
+      </div>
       <h3>In the room</h3>
       <div id="participants"></div>
 
@@ -1631,7 +1636,10 @@
     $('leave-room').onclick = () => leaveRoom(false);
     $('mic-btn').onclick = onMicButton;
     $('hand-btn').onclick = onHandButton;
-
+$('open-jitsi').onclick = () => {
+  if (!currentCategory) return;
+  window.open('https://meet.jit.si/PSIR-' + currentCategory.slug, '_blank', 'noopener');
+};
     // ============ ACCOUNT FORMS ============
 
     $('signup-form').addEventListener('submit', async e => {
