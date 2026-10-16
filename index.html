@@ -95,6 +95,18 @@
     const SUPABASE_KEY = 'sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // Daily video room for each category (keys match category slugs)
+    const VIDEO_ROOMS = {
+      'horn-of-africa-diplomacy': 'https://shambel.daily.co/psir-horn-of-africa-diplomacy',
+      'african-union': 'https://shambel.daily.co/psir-african-union',
+      'international-law': 'https://shambel.daily.co/psir-international-law',
+      'ethiopian-political-thought': 'https://shambel.daily.co/psir-ethiopian-political-thought',
+      'global-governance': 'https://shambel.daily.co/psir-global-governance',
+      'career-scholarships': 'https://shambel.daily.co/psir-career-scholarships',
+      'hub-of-idea': 'https://shambel.daily.co/psir-hub-of-idea',
+      'other': 'https://shambel.daily.co/psir-other'
+    };
+
     const LEADER_ROLES = ['admin', 'moderator', 'scholar'];
     const LEADER_ONLY_SLUGS = ['hub-of-idea'];
 
@@ -229,13 +241,18 @@
       data.forEach(r => box.appendChild(makePost(r.body, authorName(r) + ' · ' + new Date(r.created_at).toLocaleString())));
     }
 
-    // Live video: Jitsi room named after the category
+    // Live video: opens the Daily room for this category inside the forum
     $('join-video').onclick = () => {
+      const url = VIDEO_ROOMS[currentCategory.slug];
       const box = $('video-box');
       box.innerHTML = '';
+      if (!url) {
+        box.textContent = 'No live room is set up for this category yet.';
+        return;
+      }
       const frame = document.createElement('iframe');
-      frame.src = 'https://meet.jit.si/PSIR-' + currentCategory.slug;
-      frame.allow = 'camera; microphone; fullscreen; display-capture; autoplay';
+      frame.src = url;
+      frame.allow = 'camera; microphone; fullscreen; speaker; display-capture; autoplay';
       frame.style.cssText = 'width:100%;height:420px;border:0;border-radius:8px;margin-top:8px';
       box.appendChild(frame);
     };
@@ -311,4 +328,4 @@
     });
   </script>
 </body>
-  </html>
+</html>
