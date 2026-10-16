@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PSIR Forum</title>
+  <style>
+    :root { --navy: #1b2a41; --gold: #c9a227; --bg: #f5f6f8; --line: #dde1e7; --muted: #5b6573; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; margin: 0; color: var(--navy); background: var(--bg); line-height: 1.6; }
+    header.site { background: var(--navy); color: #fff; padding: 12px 16px; }
+    .site-inner { max-width: 760px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .brand { font-weight: 700; font-size: 18px; color: #fff; text-decoration: none; }
+    .home-link { color: #fff; border: 1px solid rgba(255,255,255,.5); padding: 8px 12px; border-radius: 6px; text-decoration: none; }
+    main { max-width: 760px; margin: 0 auto; padding: 16px; }
+    h1 { font-size: 26px; margin: 12px 0 4px; }
+    h2 { font-size: 19px; margin: 26px 0 8px; padding-bottom: 4px; border-bottom: 2px solid var(--gold); }
+    p, li { font-size: 16px; }
+    ul { padding-left: 22px; }
+    li { margin-bottom: 6px; }
+    .updated { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+    .box { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin: 12px 0; }
+    .pages { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; padding: 0; list-style: none; }
+    .pages a { display: inline-block; padding: 6px 10px; border-radius: 6px; background: #e7eaf0; color: var(--navy); text-decoration: none; font-size: 14px; }
+    .pages a[aria-current="page"] { background: var(--navy); color: #fff; }
+    a { color: var(--navy); }
+    a:focus-visible, .home-link:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+    footer.site { border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; text-align: center; padding: 20px 16px; margin-top: 24px; }
+    footer.site a { color: var(--muted); margin: 0 6px; }
+    @media (max-width: 480px) { h1 { font-size: 22px; } }
+  </style>
+</head>
+<body>
+  <header class="site">
+    <div class="site-inner">
+      <a class="brand" href="index.html">PSIR Forum</a>
+      <a class="home-link" href="index.html">Back to forum</a>
+    </div>
+  </header>
+
+  <main id="content">
+    <p id="fallback">Loading...</p>
+  </main>
+
+  <footer class="site">
+    <nav aria-label="Information pages">
+      <a href="info.html?page=about">About</a>
+      <a href="info.html?page=guidelines">Community Guidelines</a>
+      <a href="info.html?page=privacy">Privacy Policy</a>
+      <a href="info.html?page=terms">Terms of Service</a>
+      <a href="info.html?page=contact">Contact</a>
+    </nav>
+    <p>PSIR Forum. Content is posted by its members. Please respect copyright when sharing material.</p>
+  </footer>
+
+  <script>
+    const pages = {
+      about: {
+        title: 'About PSIR Forum',
+        html: `
+          <p>PSIR Forum is an online community for students, researchers, and people interested in Political Science and International Relations. It was started to give members a place to discuss politics, diplomacy, governance, and international affairs in a respectful, evidence-based way.</p>
+          <h2>What you can do here</h2>
+          <ul>
+            <li>Read discussions in each academic category, without an account.</li>
+            <li>Log in to start discussions, reply, and join live audio rooms.</li>
+            <li>Follow the Hub of Idea category, where the club's weekly programs and selected articles are posted.</li>
+            <li>Search discussions by title and text, and sort them by newest or most replied.</li>
+          </ul>
+          <h2>Who runs it</h2>
+          <p>The Hub of Idea category is run by the club's leaders. Moderators review reports from members and apply the community guidelines.</p>
+        `
+      },
+      guidelines: {
+        title: 'Community Guidelines',
+        updated: 'Last updated: October 2026',
+        html: `
+          <p>PSIR Forum is for serious discussion of politics and international affairs. Disagreement is welcome. Personal attacks and abuse are not.</p>
+          <h2>Please</h2>
+          <ul>
+            <li>Disagree respectfully. Argue about ideas and evidence, not about people.</li>
+            <li>Support claims with sources, and cite them accurately.</li>
+            <li>Separate facts, interpretations, and opinions, and say which you are offering.</li>
+            <li>Accept constructive criticism, and give it in the same spirit.</li>
+          </ul>
+          <h2>Please do not</h2>
+          <ul>
+            <li>Harass, threaten, or target anyone, including with repeated unwanted messages.</li>
+            <li>Call for or encourage violence against any person or group.</li>
+            <li>Use hateful or discriminatory language about people's ethnicity, religion, nationality, gender, or other identity.</li>
+            <li>Impersonate another person or organization.</li>
+            <li>Post spam, fraudulent offers, or unwanted advertising.</li>
+            <li>Share malicious links or software.</li>
+            <li>Publish someone's private information, such as a phone number or home address, without their permission.</li>
+            <li>Post copyrighted books, articles, or other material you do not have the right to share.</li>
+            <li>Deliberately disrupt discussions or audio rooms.</li>
+          </ul>
+          <h2>Controversial opinions</h2>
+          <p>Political views are not removed just because they are controversial or unpopular. Content is reviewed for conduct and for the rules above, and the same rules apply to everyone.</p>
+          <h2>Reporting and moderation</h2>
+          <p>If you see content that breaks these guidelines, report it. Moderators review reports and may hide content or restrict an account. Moderators record each action, with a reason, in an audit log.</p>
+        `
+      },
+      privacy: {
+        title: 'Privacy Policy',
+        updated: 'Last updated: October 2026',
+        html: `
+          <p>This page explains what information PSIR Forum collects, why, and how it is used. We collect only what the forum needs to work.</p>
+          <h2>Information you give us</h2>
+          <ul>
+            <li><strong>Account details:</strong> your full name and email address, when you create an account.</li>
+            <li><strong>Password:</strong> stored securely by our authentication provider, Supabase, in a form that cannot be read back. We never see or store your password in plain text.</li>
+            <li><strong>Content you post:</strong> discussions, replies, and any files you upload.</li>
+            <li><strong>Reports you make</strong> about content, and the reasons you give.</li>
+          </ul>
+          <h2>Information collected automatically</h2>
+          <ul>
+            <li><strong>Moderation records:</strong> when a moderator hides or restores content, the action, the reason, and the moderator's name are recorded.</li>
+            <li><strong>Audio rooms:</strong> when you join an audio room, your name and room status are shared with others in that room. Audio travels directly between participants' phones, so your device connects to them. Connections also use a public connection service (Google's STUN server), which can see your device's network address.</li>
+            <li><strong>Technical data:</strong> standard server logs maintained by our hosting provider, Vercel, and database provider, Supabase.</li>
+          </ul>
+          <h2>How we use it</h2>
+          <p>We use this information to run your account, show your content to other members, keep the forum safe, and handle reports. We do not sell personal information and we do not use it for advertising.</p>
+          <h2>Who can see what</h2>
+          <ul>
+            <li>Discussions, replies, and their author names are visible to everyone, including visitors who are not logged in.</li>
+            <li>Files attached to discussions are visible to logged-in members only.</li>
+            <li>Email addresses are not shown on the forum.</li>
+            <li>Moderators can see reports and the moderation log.</li>
+          </ul>
+          <h2>Service providers</h2>
+          <p>The forum runs on Vercel (hosting), Supabase (accounts, database, and file storage), and uses the public connection service described above.</p>
+          <h2>Your choices</h2>
+          <ul>
+            <li>You can edit your name and your own posts at any time.</li>
+            <li>You can delete your own posts, replies, and attached files.</li>
+            <li>To delete your account and the personal details we hold, contact us using the Contact page. Account deletion will be available in the account settings in a later update.</li>
+          </ul>
+          <h2>Children</h2>
+          <p>PSIR Forum is intended for people aged 16 and over, typically university students and those interested in the subject.</p>
+          <h2>Changes</h2>
+          <p>If this policy changes, the date at the top will be updated.</p>
+        `
+      },
+      terms: {
+        title: 'Terms of Service',
+        updated: 'Last updated: October 2026',
+        html: `
+          <p>By using PSIR Forum you agree to these terms and to the Community Guidelines.</p>
+          <h2>Your account</h2>
+          <ul>
+            <li>You must give accurate information when you register and keep your password private.</li>
+            <li>You are responsible for activity on your account.</li>
+            <li>Confirm your email address when asked, to help keep the forum genuine.</li>
+          </ul>
+          <h2>Your content</h2>
+          <ul>
+            <li>You keep ownership of what you post. By posting it, you allow PSIR Forum to display it to members and visitors as part of the service.</li>
+            <li>You are responsible for what you post. Only share material you have the right to share.</li>
+            <li>Do not post anything that breaks the Community Guidelines.</li>
+          </ul>
+          <h2>Moderation</h2>
+          <p>Moderators may hide or remove content, and may restrict or suspend accounts that break these terms or the guidelines. Significant actions are recorded with a reason.</p>
+          <h2>Live audio rooms</h2>
+          <p>Audio rooms are for discussion. Hosts may invite speakers, remove participants, and end sessions. Please do not record others without their permission.</p>
+          <h2>Availability</h2>
+          <p>The forum is provided as it is, and we work to keep it available. We do not guarantee that it will always be available or free of errors.</p>
+          <h2>Liability</h2>
+          <p>Discussions reflect the views of their authors and are not professional or official advice. PSIR Forum is not responsible for opinions posted by members.</p>
+          <h2>Ending the service</h2>
+          <p>You may stop using the forum at any time. We may suspend or end access for people who break these terms.</p>
+        `
+      },
+      contact: {
+        title: 'Contact',
+        html: `
+          <p>For questions, reports you cannot submit through the forum, privacy requests, or account problems, contact the club's leaders.</p>
+          <div class="box">
+            <p><strong>Email:</strong> <span id="contact-email">to be confirmed</span></p>
+          </div>
+          <h2>Before you write</h2>
+          <ul>
+            <li>To report a post, use the report option on the post when it is available. Email is for other matters.</li>
+            <li>For a privacy request, say which account you mean and what you would like us to do.</li>
+            <li>Allow a few working days for a reply.</li>
+          </ul>
+        `
+      }
+    };
+
+    const key = new URLSearchParams(location.search).get('page') || 'about';
+    const page = pages[key] || pages.about;
+
+    document.title = page.title + ' · PSIR Forum';
+    const main = document.getElementById('content');
+    main.innerHTML = '';
+
+    const h = document.createElement('h1');
+    h.textContent = page.title;
+    main.appendChild(h);
+
+    if (page.updated) {
+      const u = document.createElement('p');
+      u.className = 'updated';
+      u.textContent = page.updated;
+      main.appendChild(u);
+    }
+
+    const body = document.createElement('div');
+    body.innerHTML = page.html;
+    main.appendChild(body);
+
+    // Mark the current page in the footer for keyboard and screen-reader users
+    document.querySelectorAll('footer nav a').forEach(a => {
+      if (a.getAttribute('href') === 'info.html?page=' + key) a.setAttribute('aria-current', 'page');
+    });
+  </script>
+</body>
+</html>
