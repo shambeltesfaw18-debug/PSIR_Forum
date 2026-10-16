@@ -11,10 +11,17 @@
     h3 { margin-top: 24px; color: #1b2a41; }
     form { display: flex; flex-direction: column; gap: 8px; background: white; padding: 16px; border-radius: 8px; }
     input, textarea, button { padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit; }
-    button { background: #1b2a41; color: white; border: none; cursor: pointer; }
+    button { background: #1b2a41; color: white; border: none; cursor: pointer; margin: 4px 4px 4px 0; }
+    button.secondary { background: #e5e7eb; color: #1b2a41; }
+    button.danger { background: #b00020; }
+    button:disabled { opacity: .5; }
     .back { background: none; color: #1b2a41; padding: 4px 0; text-decoration: underline; }
     .card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
     .card small, .meta { color: #666; font-size: 13px; }
+    .row { background: white; padding: 10px 12px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .tag { font-size: 12px; padding: 2px 8px; border-radius: 10px; background: #e5e7eb; margin-left: 4px; }
+    .tag.speaker { background: #c8f7d4; }
+    .tag.hand { background: #fff3c4; }
     .post { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; white-space: pre-wrap; }
     .note { background: #fff8e1; padding: 12px; border-radius: 8px; color: #6b5300; }
     .msg { color: #b00020; min-height: 20px; }
@@ -43,7 +50,7 @@
   </div>
 
   <div id="forum-section" style="display:none">
-    <button id="logout-btn">Log out</button>
+    <button id="logout-btn" class="secondary">Log out</button>
 
     <!-- Screen 1: categories -->
     <div id="list-view">
@@ -51,15 +58,29 @@
       <div id="categories"></div>
     </div>
 
-    <!-- Screen 2: one category, with live video and threads -->
+    <!-- Screen 2: one category, with audio room and threads -->
     <div id="category-view" style="display:none">
       <button class="back" id="back-categories">← All categories</button>
       <h2 id="cat-title"></h2>
       <p id="cat-desc"></p>
 
-      <h3>Live video discussion</h3>
-      <button id="join-video">Join live discussion</button>
-      <div id="video-box"></div>
+      <h3>Live audio room</h3>
+      <p class="meta" id="room-desc">Join to listen. Speakers are invited by a host.</p>
+      <div>
+        <button id="join-room">Join room</button>
+        <button id="mic-btn" class="secondary" style="display:none">Turn on mic</button>
+        <button id="hand-btn" class="secondary" style="display:none">Raise hand</button>
+        <button id="leave-room" class="secondary" style="display:none">Leave room</button>
+      </div>
+      <p class="msg" id="room-msg"></p>
+
+      <div id="hands-panel" style="display:none">
+        <h3>Hands raised</h3>
+        <div id="hands"></div>
+      </div>
+
+      <h3>In the room</h3>
+      <div id="participants"></div>
 
       <h3>Start a thread</h3>
       <form id="thread-form">
@@ -95,28 +116,31 @@
     const SUPABASE_KEY = 'sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Daily video room for each category (keys match category slugs)
-    const VIDEO_ROOMS = {
-      'horn-of-africa-diplomacy': 'https://shambel.daily.co/psir-horn-of-africa-diplomacy',
-      'african-union': 'https://shambel.daily.co/psir-african-union',
-      'international-law': 'https://shambel.daily.co/psir-international-law',
-      'ethiopian-political-thought': 'https://shambel.daily.co/psir-ethiopian-political-thought',
-      'global-governance': 'https://shambel.daily.co/psir-global-governance',
-      'career-scholarships': 'https://shambel.daily.co/psir-career-scholarships',
-      'hub-of-idea': 'https://shambel.daily.co/psir-hub-of-idea',
-      'other': 'https://shambel.daily.co/psir-other'
-    };
-
     const LEADER_ROLES = ['admin', 'moderator', 'scholar'];
     const LEADER_ONLY_SLUGS = ['hub-of-idea'];
+    const ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
 
     let currentUser = null;
     let currentRole = 'student';
     let currentCategory = null;
     let currentThread = null;
 
+    // Audio room state
+    let channel = null;
+    let inRoom = false;
+    const peers = new Map();      // userId -> RTCPeerConnection
+    const audioEls = new Map();   // userId -> <audio> element
+    let micStream = null;
+    let micTrack = null;
+    let canSpeak = false;         // true after a host invites this user
+    let muted = false;
+    let handUp = false;
+
     const $ = id => document.getElementById(id);
     const status = $('status');
+
+    function isHost() { return LEADER_ROLES.includes(currentRole); }
+    function myName() { return (currentUser && currentUser.user_metadata && currentUser.user_metadata.full_name) || 'Student'; }
 
     function showScreen(id) {
       ['list-view', 'category-view', 'thread-view'].forEach(v => {
@@ -171,6 +195,7 @@
     }
 
     function showAuth() {
+      leaveRoom(true);
       currentUser = null;
       currentRole = 'student';
       $('auth-section').style.display = 'block';
@@ -187,10 +212,10 @@
     }
 
     function openCategory(c) {
+      if (inRoom && currentCategory && currentCategory.slug !== c.slug) leaveRoom(true);
       currentCategory = c;
       $('cat-title').textContent = c.name;
       $('cat-desc').textContent = c.description || '';
-      $('video-box').innerHTML = '';
       $('thread-msg').textContent = '';
 
       const allowed = canPostIn(c);
@@ -198,6 +223,9 @@
       $('thread-note').style.display = allowed ? 'none' : 'block';
 
       showScreen('category-view');
+      setRoomMsg('');
+      updateRoomUI();
+      renderParticipants();
       loadThreads();
     }
 
@@ -241,27 +269,324 @@
       data.forEach(r => box.appendChild(makePost(r.body, authorName(r) + ' · ' + new Date(r.created_at).toLocaleString())));
     }
 
-    // Live video: opens the Daily room for this category inside the forum
-    $('join-video').onclick = () => {
-      const url = VIDEO_ROOMS[currentCategory.slug];
-      const box = $('video-box');
-      box.innerHTML = '';
-      if (!url) {
-        box.textContent = 'No live room is set up for this category yet.';
+    // ============ AUDIO ROOM ============
+    // Each category has its own room. Phones connect directly to each other (peer-to-peer).
+    // Supabase Realtime carries the room list (presence) and the connection setup messages.
+
+    function setRoomMsg(text) { $('room-msg').textContent = text; }
+
+    async function joinRoom() {
+      if (inRoom || !currentCategory) return;
+      setRoomMsg('Connecting...');
+      channel = db.channel('psir-room-' + currentCategory.slug, {
+        config: { presence: { key: currentUser.id }, broadcast: { self: false } }
+      });
+      channel.on('presence', { event: 'sync' }, syncPeers);
+      channel.on('broadcast', { event: 'signal' }, ({ payload }) => handleSignal(payload));
+      channel.on('broadcast', { event: 'control' }, ({ payload }) => handleControl(payload));
+      channel.subscribe(async s => {
+        if (s === 'SUBSCRIBED') {
+          inRoom = true;
+          await publish();
+          setRoomMsg('You joined. You are listening.');
+          updateRoomUI();
+        } else if (s === 'CHANNEL_ERROR' || s === 'TIMED_OUT') {
+          setRoomMsg('Could not connect. Check your internet and try again.');
+          leaveRoom(true);
+        }
+      });
+    }
+
+    function leaveRoom(silent) {
+      if (!channel) return;
+      peers.forEach((pc, id) => dropPeer(id));
+      if (micTrack) micTrack.stop();
+      micTrack = null;
+      micStream = null;
+      canSpeak = false;
+      muted = false;
+      handUp = false;
+      inRoom = false;
+      const ch = channel;
+      channel = null;
+      ch.untrack().catch(() => {});
+      db.removeChannel(ch);
+      if (!silent) setRoomMsg('You left the room.');
+      updateRoomUI();
+      renderParticipants();
+    }
+
+    async function publish() {
+      if (!channel) return;
+      await channel.track({ name: myName(), role: currentRole, canSpeak, muted, hand: handUp });
+      renderParticipants();
+    }
+
+    function currentPresence() {
+      return channel ? channel.presenceState() : {};
+    }
+
+    function roleOf(id) {
+      const e = currentPresence()[id];
+      return e && e[0] ? e[0].role : null;
+    }
+
+    // Connect to everyone else in the room. The person with the smaller id starts each connection.
+    function syncPeers() {
+      if (!channel) return;
+      const st = currentPresence();
+      const me = currentUser.id;
+      Object.keys(st).forEach(id => {
+        if (id === me) return;
+        if (!peers.has(id) && me < id) makeOffer(id);
+      });
+      peers.forEach((pc, id) => { if (!st[id]) dropPeer(id); });
+      renderParticipants();
+    }
+
+    function makePeer(id) {
+      const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+      pc.addTransceiver('audio', { direction: 'sendrecv' });
+      pc.onicecandidate = e => { if (e.candidate) sendSignal(id, 'ice', e.candidate); };
+      pc.ontrack = e => playRemote(id, e.track);
+      peers.set(id, pc);
+      return pc;
+    }
+
+    async function makeOffer(id) {
+      const pc = makePeer(id);
+      attachMic(pc);
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      sendSignal(id, 'offer', pc.localDescription);
+    }
+
+    async function handleSignal(msg) {
+      if (!channel || msg.to !== currentUser.id) return;
+      const from = msg.from;
+      if (msg.kind === 'offer') {
+        const pc = peers.get(from) || makePeer(from);
+        await pc.setRemoteDescription(msg.data);
+        attachMic(pc);
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        sendSignal(from, 'answer', pc.localDescription);
+      } else if (msg.kind === 'answer') {
+        const pc = peers.get(from);
+        if (pc) await pc.setRemoteDescription(msg.data).catch(() => {});
+      } else if (msg.kind === 'ice') {
+        const pc = peers.get(from);
+        if (pc && msg.data) pc.addIceCandidate(msg.data).catch(() => {});
+      }
+    }
+
+    function sendSignal(to, kind, data) {
+      if (!channel) return;
+      channel.send({ type: 'broadcast', event: 'signal', payload: { to, from: currentUser.id, kind, data } });
+    }
+
+    function attachMic(pc) {
+      if (!micTrack) return;
+      const sender = pc.getSenders()[0];
+      if (sender) sender.replaceTrack(micTrack).catch(() => {});
+    }
+
+    function playRemote(id, track) {
+      let el = audioEls.get(id);
+      if (!el) {
+        el = document.createElement('audio');
+        el.autoplay = true;
+        el.playsInline = true;
+        document.body.appendChild(el);
+        audioEls.set(id, el);
+      }
+      el.srcObject = new MediaStream([track]);
+      el.play().catch(() => {});
+    }
+
+    function dropPeer(id) {
+      const pc = peers.get(id);
+      if (pc) pc.close();
+      peers.delete(id);
+      const el = audioEls.get(id);
+      if (el) { el.srcObject = null; el.remove(); audioEls.delete(id); }
+    }
+
+    // Host controls and listener responses
+    function handleControl(msg) {
+      if (!channel || msg.to !== currentUser.id) return;
+      // Only accept control messages from someone with a host role
+      if (!LEADER_ROLES.includes(roleOf(msg.from))) return;
+
+      if (msg.action === 'invite') {
+        canSpeak = true;
+        handUp = false;
+        setRoomMsg('A host invited you to speak. Tap "Turn on mic".');
+        publish();
+      } else if (msg.action === 'revoke') {
+        stopMic();
+        setRoomMsg('A host asked you to stop speaking.');
+      } else if (msg.action === 'remove') {
+        setRoomMsg('A host removed you from the room.');
+        leaveRoom(true);
+      }
+      updateRoomUI();
+    }
+
+    function hostControl(id, action) {
+      if (!isHost() || !channel) return;
+      channel.send({ type: 'broadcast', event: 'control', payload: { to: id, from: currentUser.id, action } });
+    }
+
+    async function startMic() {
+      try {
+        micStream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: true, noiseSuppression: true },
+          video: false
+        });
+      } catch (e) {
+        setRoomMsg('Microphone blocked. Allow microphone access in your browser settings.');
         return;
       }
-      const frame = document.createElement('iframe');
-      frame.src = url;
-      frame.allow = 'camera; microphone; fullscreen; speaker; display-capture; autoplay';
-      frame.style.cssText = 'width:100%;height:420px;border:0;border-radius:8px;margin-top:8px';
-      box.appendChild(frame);
-    };
+      micTrack = micStream.getAudioTracks()[0];
+      muted = false;
+      canSpeak = true;
+      peers.forEach(pc => attachMic(pc));
+      await publish();
+      setRoomMsg('Your mic is on.');
+      updateRoomUI();
+    }
 
-    // Navigation
-    $('back-categories').onclick = () => showScreen('list-view');
+    function stopMic() {
+      if (micTrack) micTrack.stop();
+      micTrack = null;
+      micStream = null;
+      peers.forEach(pc => {
+        const s = pc.getSenders()[0];
+        if (s) s.replaceTrack(null).catch(() => {});
+      });
+      muted = false;
+      canSpeak = false;
+      publish();
+    }
+
+    async function onMicButton() {
+      if (!micTrack) {
+        await startMic();
+      } else {
+        muted = !muted;
+        micTrack.enabled = !muted;
+        setRoomMsg(muted ? 'Muted.' : 'Your mic is on.');
+        publish();
+      }
+      updateRoomUI();
+    }
+
+    async function onHandButton() {
+      handUp = !handUp;
+      await publish();
+      setRoomMsg(handUp ? 'Hand raised. A host will see it.' : 'Hand lowered.');
+      updateRoomUI();
+    }
+
+    function updateRoomUI() {
+      $('join-room').style.display = inRoom ? 'none' : 'inline-block';
+      $('join-room').disabled = false;
+      $('leave-room').style.display = inRoom ? 'inline-block' : 'none';
+      $('hand-btn').style.display = inRoom && !isHost() ? 'inline-block' : 'none';
+      $('hand-btn').textContent = handUp ? 'Lower hand' : 'Raise hand';
+      $('mic-btn').style.display = inRoom && (canSpeak || isHost()) ? 'inline-block' : 'none';
+      $('mic-btn').textContent = !micTrack ? 'Turn on mic' : (muted ? 'Unmute' : 'Mute');
+      $('hands-panel').style.display = inRoom && isHost() ? 'block' : 'none';
+      $('room-desc').textContent = canSpeak
+        ? 'You can speak in this room.'
+        : 'Join to listen. Speakers are invited by a host.';
+    }
+
+    function renderParticipants() {
+      const box = $('participants');
+      box.innerHTML = '';
+      if (!inRoom || !channel) {
+        box.textContent = 'Join the room to see who is here.';
+        renderHands();
+        return;
+      }
+      const st = currentPresence();
+      Object.keys(st).forEach(id => {
+        const e = st[id][0];
+        const isMe = id === currentUser.id;
+        const row = document.createElement('div');
+        row.className = 'row';
+
+        const info = document.createElement('div');
+        const name = document.createElement('strong');
+        name.textContent = (e.name || 'Student') + (isMe ? ' (you)' : '');
+        info.appendChild(name);
+
+        const tag = document.createElement('span');
+        tag.className = 'tag' + (e.canSpeak ? ' speaker' : '');
+        tag.textContent = LEADER_ROLES.includes(e.role) ? 'Host' : (e.canSpeak ? 'Speaker' : 'Listener');
+        info.appendChild(tag);
+
+        if (e.hand) {
+          const hand = document.createElement('span');
+          hand.className = 'tag hand';
+          hand.textContent = 'hand raised';
+          info.appendChild(hand);
+        }
+        row.appendChild(info);
+
+        if (isHost() && !isMe) {
+          const actions = document.createElement('div');
+          const speakBtn = document.createElement('button');
+          speakBtn.textContent = e.canSpeak ? 'Stop speaking' : 'Invite to speak';
+          speakBtn.className = e.canSpeak ? 'secondary' : '';
+          speakBtn.onclick = () => hostControl(id, e.canSpeak ? 'revoke' : 'invite');
+          const removeBtn = document.createElement('button');
+          removeBtn.textContent = 'Remove';
+          removeBtn.className = 'danger';
+          removeBtn.onclick = () => hostControl(id, 'remove');
+          actions.append(speakBtn, removeBtn);
+          row.appendChild(actions);
+        }
+        box.appendChild(row);
+      });
+      renderHands();
+    }
+
+    function renderHands() {
+      if (!isHost()) return;
+      const box = $('hands');
+      box.innerHTML = '';
+      const st = currentPresence();
+      const raised = Object.keys(st).filter(id => st[id][0].hand && !st[id][0].canSpeak);
+      if (!raised.length) {
+        box.textContent = 'No hands raised.';
+        return;
+      }
+      raised.forEach(id => {
+        const row = document.createElement('div');
+        row.className = 'row';
+        const label = document.createElement('strong');
+        label.textContent = st[id][0].name || 'Student';
+        const btn = document.createElement('button');
+        btn.textContent = 'Invite to speak';
+        btn.onclick = () => hostControl(id, 'invite');
+        row.append(label, btn);
+        box.appendChild(row);
+      });
+    }
+
+    // Room buttons
+    $('join-room').onclick = joinRoom;
+    $('leave-room').onclick = () => leaveRoom(false);
+    $('mic-btn').onclick = onMicButton;
+    $('hand-btn').onclick = onHandButton;
+
+    // ============ NAVIGATION, THREADS, REPLIES, AUTH ============
+    $('back-categories').onclick = () => { leaveRoom(true); showScreen('list-view'); };
     $('back-threads').onclick = () => { showScreen('category-view'); loadThreads(); };
 
-    // Post a thread
     $('thread-form').addEventListener('submit', async e => {
       e.preventDefault();
       if (!canPostIn(currentCategory)) return;
@@ -278,7 +603,6 @@
       loadThreads();
     });
 
-    // Post a reply (everyone can comment)
     $('reply-form').addEventListener('submit', async e => {
       e.preventDefault();
       $('reply-msg').textContent = 'Posting...';
@@ -293,7 +617,6 @@
       loadReplies();
     });
 
-    // Sign up, log in, log out
     $('signup-form').addEventListener('submit', async e => {
       e.preventDefault();
       $('msg').textContent = 'Creating account...';
