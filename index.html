@@ -40,8 +40,8 @@
     label { font-size: 14px; }
     input, textarea, button, select { padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #c4cad3; font-family: inherit; max-width: 100%; }
     input[type="file"] { background: #fff; padding: 8px; }
-    button { background: var(--navy); color: #fff; border: none; cursor: pointer; margin: 4px 4px 4px 0; }
-    button.secondary { background: #e7eaf0; color: var(--navy); }
+    button, .btn { background: var(--navy); color: #fff; border: none; cursor: pointer; margin: 4px 4px 4px 0; display: inline-block; padding: 10px 14px; border-radius: 6px; text-decoration: none; font-size: 16px; }
+    button.secondary, .btn.secondary { background: #e7eaf0; color: var(--navy); }
     button.ghost { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.5); }
     button.gold { background: var(--gold); color: var(--navy); font-weight: 600; }
     button.danger { background: #a3172b; }
@@ -55,6 +55,7 @@
     .tag.speaker { background: #c8f7d4; }
     .tag.hand { background: #fff3c4; }
     .note { background: #fff8e1; padding: 12px; border-radius: 8px; color: #6b5300; margin: 8px 0; border: 1px solid #f0e2a6; }
+    .jitsi-box { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin: 12px 0; }
     .msg { color: #a3172b; min-height: 20px; }
     .ok { color: #1b5e20; }
     .error-box { background: #fdecea; color: #611a15; padding: 12px; border-radius: 8px; }
@@ -189,11 +190,13 @@
         <h3>Hands raised</h3>
         <div id="hands"></div>
       </div>
-      <div class="note" id="jitsi-box">
-  <strong>Audio not working?</strong>
-  <p class="meta">If you can't hear each other in the room, open this category's Jitsi call in a new tab.</p>
-  <button type="button" id="open-jitsi" class="secondary">Open Jitsi call</button>
+
+      <div class="jitsi-box" id="jitsi-box">
+        <strong>Audio not working?</strong>
+        <p class="meta">If you can't hear each other in the room, open this category's video call (Jitsi) in a new tab. It opens outside the forum.</p>
+        <a class="btn secondary" id="open-jitsi" href="https://meet.jit.si" target="_blank" rel="noopener noreferrer">Open video call</a>
       </div>
+
       <h3>In the room</h3>
       <div id="participants"></div>
 
@@ -452,6 +455,14 @@
       if (!currentUser || !category) return false;
       if (!LEADER_ONLY_SLUGS.includes(category.slug)) return true;
       return isLeader();
+    }
+
+    // ============ VIDEO CALL LINK (Jitsi) ============
+    // Opens the category's Jitsi room in a new tab. Embedding is avoided because the free
+    // public Jitsi server limits embedded calls to about 5 minutes.
+    function updateVideoLink(category) {
+      const link = $('open-jitsi');
+      link.href = 'https://meet.jit.si/PSIR-' + category.slug;
     }
 
     // ============ DISCUSSION LISTS (search and sorting) ============
@@ -758,6 +769,7 @@
       $('cat-title').textContent = c.name;
       $('cat-desc').textContent = c.description || '';
       $('thread-msg').textContent = '';
+      updateVideoLink(c);
       updateThreadComposer();
       showScreen('category-view');
       setRoomMsg('');
@@ -854,7 +866,6 @@
       addBookmarkButton(card);
     }
 
-    // Save or remove this discussion from the member's bookmarks
     async function addBookmarkButton(card) {
       if (!currentUser || !currentThread) return;
       const wrap = document.createElement('div');
@@ -1013,7 +1024,7 @@
         let shown = 0;
         marks.forEach(m => {
           const t = byId.get(m.thread_id);
-          if (!t) return; // hidden or deleted discussions are skipped
+          if (!t) return;
           shown++;
           const cat = categoryById.get(t.category_id);
           const meta = [cat ? cat.name : '', authorName(t), formatDate(t.created_at)].filter(Boolean).join(' · ');
@@ -1636,10 +1647,7 @@
     $('leave-room').onclick = () => leaveRoom(false);
     $('mic-btn').onclick = onMicButton;
     $('hand-btn').onclick = onHandButton;
-$('open-jitsi').onclick = () => {
-  if (!currentCategory) return;
-  window.open('https://meet.jit.si/PSIR-' + currentCategory.slug, '_blank', 'noopener');
-};
+
     // ============ ACCOUNT FORMS ============
 
     $('signup-form').addEventListener('submit', async e => {
