@@ -25,7 +25,6 @@
     .stat { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
     .stat strong { display: block; font-size: 24px; }
     .stat span { color: var(--muted); font-size: 14px; }
-    .panel { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-bottom: 12px; }
     .card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin-bottom: 10px; cursor: pointer; box-shadow: 0 1px 2px rgba(27,42,65,.06); }
     .card:hover { border-color: var(--gold); }
     .card strong { display: block; margin-bottom: 2px; }
@@ -34,6 +33,9 @@
     .body { white-space: pre-wrap; overflow-wrap: anywhere; }
     .body a { color: var(--navy); }
     .row { background: #fff; border: 1px solid var(--line); padding: 10px 12px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
+    .toolbar input { flex: 1 1 200px; }
+    .toolbar select { padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #c4cad3; background: #fff; font-family: inherit; }
     form { display: flex; flex-direction: column; gap: 8px; background: #fff; border: 1px solid var(--line); padding: 16px; border-radius: 10px; }
     label { font-size: 14px; }
     input, textarea, button, select { padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #c4cad3; font-family: inherit; max-width: 100%; }
@@ -45,7 +47,7 @@
     button.danger { background: #a3172b; }
     button.btn-small { padding: 6px 10px; font-size: 14px; }
     button:disabled { opacity: .5; cursor: default; }
-    button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible, [role="button"]:focus-visible, .card:focus-visible {
+    button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, a:focus-visible, [role="button"]:focus-visible, .card:focus-visible {
       outline: 3px solid var(--gold); outline-offset: 2px;
     }
     .back { background: none; color: var(--navy); padding: 4px 0; text-decoration: underline; margin: 0 0 8px; }
@@ -121,11 +123,26 @@
       <h2>Community at a glance</h2>
       <div class="stats" id="home-stats"></div>
 
-      <h2>Academic categories</h2>
-      <div class="grid" id="home-categories"></div>
+      <h2>Search discussions</h2>
+      <div class="toolbar">
+        <input id="home-search" type="search" placeholder="Search titles and text" aria-label="Search discussions">
+        <select id="home-sort" aria-label="Sort discussions">
+          <option value="newest">Newest first</option>
+          <option value="replied">Most replied</option>
+        </select>
+      </div>
+      <div id="home-results" style="display:none"></div>
+      <button id="home-more" class="secondary" style="display:none">Load more</button>
 
-      <h2>Recent discussions</h2>
-      <div id="home-recent"></div>
+      <div id="home-categories-wrap">
+        <h2>Academic categories</h2>
+        <div class="grid" id="home-categories"></div>
+      </div>
+
+      <div id="home-recent-wrap">
+        <h2>Recent discussions</h2>
+        <div id="home-recent"></div>
+      </div>
 
       <h2>Upcoming events</h2>
       <p class="soon">Scheduled debates, lectures, and audio sessions will appear here in a later update.</p>
@@ -177,7 +194,15 @@
       <p class="msg" id="thread-msg"></p>
 
       <h3>Discussions</h3>
+      <div class="toolbar">
+        <input id="cat-search" type="search" placeholder="Search this category" aria-label="Search this category">
+        <select id="cat-sort" aria-label="Sort discussions">
+          <option value="newest">Newest first</option>
+          <option value="replied">Most replied</option>
+        </select>
+      </div>
       <div id="threads"></div>
+      <button id="threads-more" class="secondary" style="display:none">Load more</button>
     </section>
 
     <!-- ONE DISCUSSION -->
@@ -225,6 +250,8 @@
     const MAX_FILES = 5;
     const MAX_BYTES = 10 * 1024 * 1024;
     const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+    const PAGE_SIZE = 20;
+    const REPLY_SORT_LIMIT = 200;
 
     let currentUser = null;
     let currentRole = 'guest';
@@ -257,6 +284,19 @@
       return iso ? new Date(iso).toLocaleString() : '';
     }
 
+    function debounce(fn, ms) {
+      let timer;
+      return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), ms || 400);
+      };
+    }
+
+    // Removes characters that have special meaning in search filters, and limits length
+    function cleanTerm(raw) {
+      return (raw || '').replace(/[,()"'\\*%_]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100);
+    }
+
     // Adds an author name to each row, using a separate simple query
     async function attachAuthors(rows) {
       const ids = [...new Set(rows.map(r => r.author_id).filter(Boolean))];
@@ -268,6 +308,19 @@
       }
       rows.forEach(r => { r.authorName = names.get(r.author_id) || 'Student'; });
       return rows;
+    }
+
+    // Returns a Map of thread id to number of visible replies
+    async function countReplies(threadIds) {
+      const counts = new Map();
+      if (!threadIds.length) return counts;
+      const { data, error } = await db.from('replies')
+        .select('thread_id')
+        .in('thread_id', threadIds)
+        .eq('is_hidden', false);
+      if (error) throw error;
+      data.forEach(r => counts.set(r.thread_id, (counts.get(r.thread_id) || 0) + 1));
+      return counts;
     }
 
     function authorName(row) {
@@ -324,7 +377,6 @@
       if (retry) el.appendChild(mkBtn('Try again', 'secondary', retry));
     }
 
-    // Turns web addresses in text into clickable links (http and https only)
     function linkify(text) {
       const frag = document.createDocumentFragment();
       const re = /https?:\/\/[^\s<>"']+/g;
@@ -376,6 +428,139 @@
       if (!currentUser || !category) return false;
       if (!LEADER_ONLY_SLUGS.includes(category.slug)) return true;
       return isLeader();
+    }
+
+    // ============ DISCUSSION LISTS (search and sorting) ============
+    // Two lists use this engine: the home page search and the category list.
+
+    const panels = {
+      home: { box: 'home-results', more: 'home-more', search: 'home-search', sort: 'home-sort', categoryId: null, term: '', order: 'newest', offset: 0, rows: [], reqId: 0 },
+      category: { box: 'threads', more: 'threads-more', search: 'cat-search', sort: 'cat-sort', categoryId: null, term: '', order: 'newest', offset: 0, rows: [], reqId: 0 }
+    };
+
+    async function fetchNewest(p) {
+      let q = db.from('threads')
+        .select('id, title, body, created_at, edited_at, author_id, category_id')
+        .eq('is_hidden', false)
+        .order('created_at', { ascending: false })
+        .range(p.offset, p.offset + PAGE_SIZE); // one extra row tells us whether more exist
+      if (p.categoryId) q = q.eq('category_id', p.categoryId);
+      if (p.term) q = q.or('title.ilike.%' + p.term + '%,body.ilike.%' + p.term + '%');
+      const { data, error } = await q;
+      if (error) throw error;
+      const hasMore = data.length > PAGE_SIZE;
+      return { rows: data.slice(0, PAGE_SIZE), hasMore };
+    }
+
+    // Most replied: looks at the newest matching discussions, counts their replies, then sorts
+    async function fetchMostReplied(p) {
+      let q = db.from('threads')
+        .select('id, title, body, created_at, edited_at, author_id, category_id')
+        .eq('is_hidden', false)
+        .order('created_at', { ascending: false })
+        .limit(REPLY_SORT_LIMIT);
+      if (p.categoryId) q = q.eq('category_id', p.categoryId);
+      if (p.term) q = q.or('title.ilike.%' + p.term + '%,body.ilike.%' + p.term + '%');
+      const { data, error } = await q;
+      if (error) throw error;
+      const counts = await countReplies(data.map(t => t.id));
+      data.forEach(t => { t.replyCount = counts.get(t.id) || 0; });
+      data.sort((a, b) => b.replyCount - a.replyCount || new Date(b.created_at) - new Date(a.created_at));
+      return { rows: data.slice(0, PAGE_SIZE), hasMore: false };
+    }
+
+    async function runList(name, reset) {
+      const p = panels[name];
+      const req = ++p.reqId;
+      const box = $(p.box);
+      const more = $(p.more);
+      more.style.display = 'none';
+
+      if (reset) {
+        p.offset = 0;
+        p.rows = [];
+        showLoading(box, 'Loading discussions...');
+      }
+
+      try {
+        const result = p.order === 'replied' ? await fetchMostReplied(p) : await fetchNewest(p);
+        if (req !== p.reqId) return; // a newer search has started; ignore this result
+
+        await attachAuthors(result.rows);
+        if (p.order !== 'replied') {
+          const counts = await countReplies(result.rows.map(t => t.id));
+          result.rows.forEach(t => { t.replyCount = counts.get(t.id) || 0; });
+        }
+        p.rows = p.rows.concat(result.rows);
+        renderList(name, result.hasMore);
+      } catch (err) {
+        if (req !== p.reqId) return;
+        showError(box, 'Could not load discussions: ' + err.message, () => runList(name, reset));
+      }
+    }
+
+    function renderList(name, hasMore) {
+      const p = panels[name];
+      const box = $(p.box);
+      box.innerHTML = '';
+
+      if (p.order === 'replied') {
+        const note = document.createElement('p');
+        note.className = 'meta';
+        note.textContent = 'Sorted by number of replies, among the latest ' + REPLY_SORT_LIMIT + ' matching discussions.';
+        box.appendChild(note);
+      }
+
+      if (!p.rows.length) {
+        showEmpty(box, p.term
+          ? 'No discussions match "' + p.term + '". Try different words.'
+          : 'No discussions yet.');
+      } else {
+        p.rows.forEach(t => {
+          const cat = categoryById.get(t.category_id);
+          const n = t.replyCount || 0;
+          const parts = [];
+          if (name === 'home' && cat) parts.push(cat.name);
+          parts.push(authorName(t));
+          parts.push(formatDate(t.created_at));
+          parts.push(n + ' repl' + (n === 1 ? 'y' : 'ies'));
+          if (t.edited_at) parts.push('edited');
+          box.appendChild(makeCard(t.title, parts.join(' · '), () => openThread(t.id)));
+        });
+      }
+
+      $(p.more).style.display = hasMore ? 'inline-block' : 'none';
+    }
+
+    function setupListControls(name, onFilterChange) {
+      const p = panels[name];
+      $(p.search).addEventListener('input', debounce(() => {
+        p.term = cleanTerm($(p.search).value);
+        onFilterChange();
+      }, 400));
+      $(p.sort).addEventListener('change', () => {
+        p.order = $(p.sort).value;
+        runList(name, true);
+      });
+      $(p.more).addEventListener('click', () => {
+        p.offset += PAGE_SIZE;
+        runList(name, false);
+      });
+    }
+
+    // Home: when searching, show results instead of the recent section
+    function applyHomeSearch() {
+      const p = panels.home;
+      const searching = !!p.term;
+      $('home-results').style.display = searching ? 'block' : 'none';
+      $('home-categories-wrap').style.display = searching ? 'none' : 'block';
+      $('home-recent-wrap').style.display = searching ? 'none' : 'block';
+      if (searching) {
+        runList('home', true);
+      } else {
+        $('home-results').style.display = 'none';
+        $('home-more').style.display = 'none';
+      }
     }
 
     // ============ ACCOUNT STATE AND NAVIGATION ============
@@ -440,6 +625,7 @@
       await loadHomeCategories();
       loadHomeStats();
       loadRecent();
+      applyHomeSearch();
     }
 
     async function loadHomeCategories() {
@@ -501,15 +687,11 @@
         box.innerHTML = '';
         if (!recent.length) { showEmpty(box, 'No discussions yet. Be the first to start one.'); return; }
 
-        const ids = recent.map(t => t.id);
-        const { data: replies } = await db.from('replies').select('thread_id').in('thread_id', ids).eq('is_hidden', false);
-        const replyCount = new Map();
-        (replies || []).forEach(r => replyCount.set(r.thread_id, (replyCount.get(r.thread_id) || 0) + 1));
-
+        const counts = await countReplies(recent.map(t => t.id));
         await attachAuthors(recent);
         recent.forEach(t => {
           const cat = categoryById.get(t.category_id);
-          const n = replyCount.get(t.id) || 0;
+          const n = counts.get(t.id) || 0;
           const meta = [cat ? cat.name : '', authorName(t), formatDate(t.created_at), n + ' repl' + (n === 1 ? 'y' : 'ies')]
             .filter(Boolean).join(' · ');
           box.appendChild(makeCard(t.title, meta, () => openThread(t.id)));
@@ -536,6 +718,13 @@
     function openCategory(c) {
       if (inRoom && currentCategory && currentCategory.slug !== c.slug) leaveRoom(true);
       currentCategory = c;
+      const p = panels.category;
+      p.categoryId = c.id;
+      p.term = '';
+      p.order = 'newest';
+      $(p.search).value = '';
+      $(p.sort).value = 'newest';
+
       $('cat-title').textContent = c.name;
       $('cat-desc').textContent = c.description || '';
       $('thread-msg').textContent = '';
@@ -568,26 +757,8 @@
 
     // ============ DISCUSSIONS ============
 
-    async function loadThreads() {
-      const box = $('threads');
-      showLoading(box, 'Loading discussions...');
-      try {
-        const { data, error } = await db.from('threads')
-          .select('id, title, body, created_at, edited_at, author_id')
-          .eq('category_id', currentCategory.id)
-          .order('created_at', { ascending: false })
-          .limit(50);
-        if (error) throw error;
-        await attachAuthors(data);
-        box.innerHTML = '';
-        if (!data.length) { showEmpty(box, 'No discussions yet.'); return; }
-        data.forEach(t => {
-          const meta = authorName(t) + ' · ' + formatDate(t.created_at) + (t.edited_at ? ' · edited' : '');
-          box.appendChild(makeCard(t.title, meta, () => openThread(t.id)));
-        });
-      } catch (err) {
-        showError(box, 'Could not load discussions: ' + err.message, loadThreads);
-      }
+    function loadThreads() {
+      return runList('category', true);
     }
 
     async function openThread(id) {
@@ -737,6 +908,10 @@
       e.target.reset();
       openThread(data.id);
     });
+
+    // Wire up search and sorting
+    setupListControls('home', applyHomeSearch);
+    setupListControls('category', () => runList('category', true));
 
     // ============ FILES ============
 
