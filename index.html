@@ -12,6 +12,7 @@
     label { font-size: 14px; color: #1b2a41; }
     form { display: flex; flex-direction: column; gap: 8px; background: white; padding: 16px; border-radius: 8px; }
     input, textarea, button { padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit; max-width: 100%; }
+    input[type="file"] { background: white; padding: 8px; }
     button { background: #1b2a41; color: white; border: none; cursor: pointer; margin: 4px 4px 4px 0; }
     button.secondary { background: #e5e7eb; color: #1b2a41; }
     button.danger { background: #b00020; }
@@ -37,6 +38,10 @@
     .error-box { background: #fdecea; color: #611a15; padding: 12px; border-radius: 8px; }
     .loading, .empty { color: #555; }
     .actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .attachment { background: white; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; }
+    .attachment img { max-width: 100%; height: auto; border-radius: 6px; display: block; margin-bottom: 6px; }
+    .attachment a { color: #1b2a41; font-weight: 600; overflow-wrap: anywhere; }
+    .upload-section { background: white; padding: 16px; border-radius: 8px; margin-top: 8px; }
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
   </style>
 </head>
@@ -112,11 +117,23 @@
     <div id="threads"></div>
   </section>
 
-  <!-- Screen 3: one discussion with replies -->
+  <!-- Screen 3: one discussion with replies and files -->
   <section id="thread-view" style="display:none">
     <button class="back" id="back-threads">← Back to discussions</button>
     <div id="thread-detail"></div>
     <p class="msg" id="thread-status" role="status"></p>
+
+    <h3>Files</h3>
+    <div id="attachments"></div>
+
+    <div id="upload-section" class="upload-section" style="display:none">
+      <h3>Attach files</h3>
+      <p class="meta">PDF, JPG, PNG or WebP. Up to 10 MB per file, and 5 files per discussion.</p>
+      <label for="file-input">Choose files</label>
+      <input id="file-input" type="file" multiple accept="application/pdf,image/jpeg,image/png,image/webp">
+      <button type="button" id="upload-btn">Upload files</button>
+      <p class="msg" id="upload-msg" role="status"></p>
+    </div>
 
     <h3>Replies</h3>
     <div id="replies"></div>
@@ -138,6 +155,11 @@
     const LEADER_ROLES = ['admin', 'moderator', 'scholar'];
     const LEADER_ONLY_SLUGS = ['hub-of-idea'];
     const ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
+
+    const BUCKET = 'club-files';
+    const MAX_FILES = 5;
+    const MAX_BYTES = 10 * 1024 * 1024;
+    const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
 
     let currentUser = null;
     let currentRole = 'guest';
@@ -170,8 +192,7 @@
       return iso ? new Date(iso).toLocaleString() : '';
     }
 
-    // Adds an author name to each row. Uses a separate, simple query,
-    // which avoids the ambiguous relationship problem in the database.
+    // Adds an author name to each row, using a separate simple query
     async function attachAuthors(rows) {
       const ids = [...new Set(rows.map(r => r.author_id).filter(Boolean))];
       const names = new Map();
@@ -394,6 +415,7 @@
       showLoading(detail, 'Loading discussion...');
       $('thread-status').textContent = '';
       $('reply-msg').textContent = '';
+      $('upload-msg').textContent = '';
       try {
         const { data, error } = await db.from('threads')
           .select('id, title, body, created_at, edited_at, author_id, category_id')
@@ -403,13 +425,17 @@
         if (!data) {
           showError(detail, 'This discussion is no longer available.');
           $('replies').innerHTML = '';
+          $('attachments').innerHTML = '';
+          $('upload-section').style.display = 'none';
           updateReplyComposer(false);
           return;
         }
         await attachAuthors([data]);
         currentThread = data;
         renderThread();
+        updateUploadSection();
         updateReplyComposer(true);
+        loadThreadAttachments();
         loadReplies();
       } catch (err) {
         showError(detail, 'Could not open discussion: ' + err.message, () => openThread(id));
@@ -496,7 +522,17 @@
     }
 
     async function deleteThread() {
-      if (!confirm('Delete this discussion and all its replies? This cannot be undone.')) return;
+      if (!confirm('Delete this discussion, its replies, and its files? This cannot be undone.')) return;
+
+      // Remove the stored files first. Deleting the discussion removes the file records automatically,
+      // but not the files in storage, so we delete those here.
+      const { data: files } = await db.from('attachments')
+        .select('storage_path')
+        .eq('thread_id', currentThread.id);
+      if (files && files.length) {
+        await db.storage.from(BUCKET).remove(files.map(f => f.storage_path));
+      }
+
       const { data, error } = await db.from('threads')
         .delete()
         .eq('id', currentThread.id)
@@ -527,6 +563,180 @@
       e.target.reset();
       openThread(data.id);
     });
+
+    // ============ FILES ============
+
+    function isImage(type) {
+      return type === 'image/jpeg' || type === 'image/png' || type === 'image/webp';
+    }
+
+    // Only the discussion's author can attach files, and only if they are a club leader.
+    // This matches the database rules.
+    function updateUploadSection() {
+      const canUpload = !!currentUser && !!currentThread && isLeader() && currentThread.author_id === currentUser.id;
+      $('upload-section').style.display = canUpload ? 'block' : 'none';
+      $('file-input').value = '';
+    }
+
+    async function fetchAttachmentRows() {
+      const { data, error } = await db.from('attachments')
+        .select('id, storage_path, file_name, mime_type, size_bytes, uploader_id, created_at')
+        .eq('thread_id', currentThread.id)
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      return data;
+    }
+
+    async function loadThreadAttachments() {
+      const box = $('attachments');
+      if (!currentUser) {
+        box.innerHTML = '';
+        const p = document.createElement('p');
+        p.className = 'meta';
+        p.textContent = 'Files attached to this discussion are visible to logged-in members.';
+        box.appendChild(p);
+        return;
+      }
+      showLoading(box, 'Loading files...');
+      try {
+        const rows = await fetchAttachmentRows();
+        renderAttachments(rows);
+      } catch (err) {
+        showError(box, 'Could not load files: ' + err.message, loadThreadAttachments);
+      }
+    }
+
+    async function renderAttachments(rows) {
+      const box = $('attachments');
+      box.innerHTML = '';
+      if (!rows.length) { showEmpty(box, 'No files attached.'); return; }
+
+      for (const att of rows) {
+        const wrap = document.createElement('div');
+        wrap.className = 'attachment';
+
+        const { data: signed, error } = await db.storage.from(BUCKET).createSignedUrl(att.storage_path, 3600);
+        if (error || !signed) {
+          const p = document.createElement('p');
+          p.className = 'msg';
+          p.textContent = 'Could not open ' + att.file_name + ': ' + (error ? error.message : 'unknown error');
+          wrap.appendChild(p);
+        } else {
+          if (isImage(att.mime_type)) {
+            const img = document.createElement('img');
+            img.src = signed.signedUrl;
+            img.alt = att.file_name;
+            img.loading = 'lazy';
+            wrap.appendChild(img);
+          }
+          const link = document.createElement('a');
+          link.href = signed.signedUrl;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = (att.mime_type === 'application/pdf' ? 'Open PDF: ' : 'Open photo: ') + att.file_name;
+          wrap.appendChild(link);
+        }
+
+        const size = document.createElement('div');
+        size.className = 'meta';
+        size.textContent = (att.size_bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        wrap.appendChild(size);
+
+        if (currentUser && (currentUser.id === att.uploader_id || isLeader())) {
+          const actions = document.createElement('div');
+          actions.className = 'actions';
+          actions.appendChild(mkBtn('Remove file', 'danger btn-small', () => removeAttachment(att)));
+          wrap.appendChild(actions);
+        }
+        box.appendChild(wrap);
+      }
+    }
+
+    async function uploadFiles() {
+      const msg = $('upload-msg');
+      const btn = $('upload-btn');
+      const files = Array.from($('file-input').files || []);
+      msg.className = 'msg';
+      msg.textContent = '';
+
+      if (!files.length) { msg.textContent = 'Choose at least one file.'; return; }
+      if (!currentThread || currentThread.author_id !== currentUser.id || !isLeader()) {
+        msg.textContent = 'Only the club leader who posted this discussion can attach files.';
+        return;
+      }
+      for (const f of files) {
+        if (!ALLOWED_TYPES.includes(f.type)) {
+          msg.textContent = '"' + f.name + '" is not a PDF, JPG, PNG or WebP file.';
+          return;
+        }
+        if (f.size > MAX_BYTES) {
+          msg.textContent = '"' + f.name + '" is larger than 10 MB.';
+          return;
+        }
+      }
+
+      let existing;
+      try {
+        existing = (await fetchAttachmentRows()).length;
+      } catch (err) {
+        msg.textContent = 'Could not check existing files: ' + err.message;
+        return;
+      }
+      if (existing + files.length > MAX_FILES) {
+        msg.textContent = 'A discussion can have at most ' + MAX_FILES + ' files. It already has ' + existing + '.';
+        return;
+      }
+
+      setBusy(btn, true, 'Uploading...');
+      let uploaded = 0;
+      for (const f of files) {
+        const safeName = (f.name || 'file').replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 120) || 'file';
+        const path = currentThread.id + '/' + crypto.randomUUID() + '-' + safeName;
+
+        const { error: upErr } = await db.storage.from(BUCKET).upload(path, f, {
+          contentType: f.type,
+          upsert: false
+        });
+        if (upErr) {
+          msg.textContent = 'Could not upload "' + f.name + '": ' + upErr.message;
+          continue;
+        }
+
+        const { error: rowErr } = await db.from('attachments').insert({
+          thread_id: currentThread.id,
+          uploader_id: currentUser.id,
+          storage_path: path,
+          file_name: (f.name || 'file').slice(0, 200),
+          mime_type: f.type,
+          size_bytes: f.size
+        });
+        if (rowErr) {
+          // Remove the stored file if its record could not be saved
+          await db.storage.from(BUCKET).remove([path]);
+          msg.textContent = 'Could not save "' + f.name + '": ' + rowErr.message;
+          continue;
+        }
+        uploaded++;
+      }
+      setBusy(btn, false);
+      $('file-input').value = '';
+      if (uploaded > 0) {
+        setStatusText(msg, uploaded === files.length ? 'Files uploaded.' : uploaded + ' of ' + files.length + ' files uploaded.', uploaded === files.length);
+      }
+      loadThreadAttachments();
+    }
+
+    async function removeAttachment(att) {
+      if (!confirm('Remove "' + att.file_name + '" from this discussion?')) return;
+      const { data, error } = await db.from('attachments').delete().eq('id', att.id).select('id');
+      if (error) { setStatusText($('upload-msg'), 'Could not remove file: ' + error.message, false); return; }
+      if (!data || !data.length) { setStatusText($('upload-msg'), 'Could not remove file. You may not have permission.', false); return; }
+      await db.storage.from(BUCKET).remove([att.storage_path]);
+      setStatusText($('upload-msg'), 'File removed.', true);
+      loadThreadAttachments();
+    }
+
+    $('upload-btn').addEventListener('click', uploadFiles);
 
     // ============ REPLIES ============
 
