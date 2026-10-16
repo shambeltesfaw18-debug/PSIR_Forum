@@ -37,7 +37,6 @@
     .error-box { background: #fdecea; color: #611a15; padding: 12px; border-radius: 8px; }
     .loading, .empty { color: #555; }
     .actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-    .edit-form { background: #fff; }
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
   </style>
 </head>
@@ -171,8 +170,22 @@
       return iso ? new Date(iso).toLocaleString() : '';
     }
 
+    // Adds an author name to each row. Uses a separate, simple query,
+    // which avoids the ambiguous relationship problem in the database.
+    async function attachAuthors(rows) {
+      const ids = [...new Set(rows.map(r => r.author_id).filter(Boolean))];
+      const names = new Map();
+      if (ids.length) {
+        const { data, error } = await db.from('profiles').select('id, full_name').in('id', ids);
+        if (error) throw error;
+        data.forEach(p => names.set(p.id, p.full_name));
+      }
+      rows.forEach(r => { r.authorName = names.get(r.author_id) || 'Student'; });
+      return rows;
+    }
+
     function authorName(row) {
-      return (row.profiles && row.profiles.full_name) || 'Student';
+      return row.authorName || 'Student';
     }
 
     function showScreen(id) {
@@ -356,18 +369,23 @@
     async function loadThreads() {
       const box = $('threads');
       showLoading(box, 'Loading discussions...');
-      const { data, error } = await db.from('threads')
-        .select('id, title, body, created_at, edited_at, author_id, profiles(full_name)')
-        .eq('category_id', currentCategory.id)
-        .order('created_at', { ascending: false })
-        .limit(50);
-      if (error) { showError(box, 'Could not load discussions: ' + error.message, loadThreads); return; }
-      box.innerHTML = '';
-      if (!data.length) { showEmpty(box, 'No discussions yet.'); return; }
-      data.forEach(t => {
-        const meta = authorName(t) + ' · ' + formatDate(t.created_at) + (t.edited_at ? ' · edited' : '');
-        box.appendChild(makeCard(t.title, meta, () => openThread(t.id)));
-      });
+      try {
+        const { data, error } = await db.from('threads')
+          .select('id, title, body, created_at, edited_at, author_id')
+          .eq('category_id', currentCategory.id)
+          .order('created_at', { ascending: false })
+          .limit(50);
+        if (error) throw error;
+        await attachAuthors(data);
+        box.innerHTML = '';
+        if (!data.length) { showEmpty(box, 'No discussions yet.'); return; }
+        data.forEach(t => {
+          const meta = authorName(t) + ' · ' + formatDate(t.created_at) + (t.edited_at ? ' · edited' : '');
+          box.appendChild(makeCard(t.title, meta, () => openThread(t.id)));
+        });
+      } catch (err) {
+        showError(box, 'Could not load discussions: ' + err.message, loadThreads);
+      }
     }
 
     async function openThread(id) {
@@ -376,21 +394,26 @@
       showLoading(detail, 'Loading discussion...');
       $('thread-status').textContent = '';
       $('reply-msg').textContent = '';
-      const { data, error } = await db.from('threads')
-        .select('id, title, body, created_at, edited_at, author_id, category_id, profiles(full_name)')
-        .eq('id', id)
-        .maybeSingle();
-      if (error) { showError(detail, 'Could not open discussion: ' + error.message, () => openThread(id)); return; }
-      if (!data) {
-        showError(detail, 'This discussion is no longer available.');
-        $('replies').innerHTML = '';
-        updateReplyComposer(false);
-        return;
+      try {
+        const { data, error } = await db.from('threads')
+          .select('id, title, body, created_at, edited_at, author_id, category_id')
+          .eq('id', id)
+          .maybeSingle();
+        if (error) throw error;
+        if (!data) {
+          showError(detail, 'This discussion is no longer available.');
+          $('replies').innerHTML = '';
+          updateReplyComposer(false);
+          return;
+        }
+        await attachAuthors([data]);
+        currentThread = data;
+        renderThread();
+        updateReplyComposer(true);
+        loadReplies();
+      } catch (err) {
+        showError(detail, 'Could not open discussion: ' + err.message, () => openThread(id));
       }
-      currentThread = data;
-      renderThread();
-      updateReplyComposer(true);
-      loadReplies();
     }
 
     function renderThread() {
@@ -528,15 +551,20 @@
     async function loadReplies() {
       const box = $('replies');
       showLoading(box, 'Loading replies...');
-      const { data, error } = await db.from('replies')
-        .select('id, body, created_at, edited_at, author_id, profiles(full_name)')
-        .eq('thread_id', currentThread.id)
-        .order('created_at', { ascending: true })
-        .limit(200);
-      if (error) { showError(box, 'Could not load replies: ' + error.message, loadReplies); return; }
-      box.innerHTML = '';
-      if (!data.length) { showEmpty(box, 'No replies yet.'); return; }
-      data.forEach(r => box.appendChild(renderReply(r)));
+      try {
+        const { data, error } = await db.from('replies')
+          .select('id, body, created_at, edited_at, author_id')
+          .eq('thread_id', currentThread.id)
+          .order('created_at', { ascending: true })
+          .limit(200);
+        if (error) throw error;
+        await attachAuthors(data);
+        box.innerHTML = '';
+        if (!data.length) { showEmpty(box, 'No replies yet.'); return; }
+        data.forEach(r => box.appendChild(renderReply(r)));
+      } catch (err) {
+        showError(box, 'Could not load replies: ' + err.message, loadReplies);
+      }
     }
 
     function renderReply(r) {
