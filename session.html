@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Session · PSIR Forum</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 16px; color: #1b2a41; background: #f7f8fa; }
+    h1 { font-size: 22px; }
+    h2 { margin-top: 24px; border-bottom: 2px solid #c9a227; padding-bottom: 4px; font-size: 18px; }
+    button { padding: 10px 14px; font-size: 15px; border-radius: 6px; border: none; background: #1b2a41; color: white; cursor: pointer; margin: 4px 4px 4px 0; }
+    button.secondary { background: #e5e7eb; color: #1b2a41; }
+    button.danger { background: #b00020; }
+    button:disabled { opacity: .5; }
+    .card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .tag { font-size: 12px; padding: 2px 8px; border-radius: 10px; background: #e5e7eb; }
+    .tag.speaker { background: #c8f7d4; }
+    .tag.hand { background: #fff3c4; }
+    .msg { color: #b00020; min-height: 20px; }
+  </style>
+</head>
+<body>
+  <a href="index.html" style="color:#1b2a41">← Back to forum</a>
+  <h1 id="title">Live session</h1>
+  <p id="status">Connecting...</p>
+
+  <div>
+    <button id="join-btn">Join session</button>
+    <button id="hand-btn" class="secondary" style="display:none">Raise hand</button>
+    <button id="mic-btn" style="display:none">Turn on mic</button>
+    <button id="leave-btn" class="secondary" style="display:none">Leave</button>
+    <button id="end-btn" class="danger" style="display:none">End session</button>
+  </div>
+  <p class="msg" id="msg"></p>
+
+  <div id="host-panel" style="display:none">
+    <h2>Hands raised</h2>
+    <div id="hands"></div>
+  </div>
+
+  <h2>Participants</h2>
+  <div id="participants"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/livekit-client@2.9.0/dist/livekit-client.umd.js"></script>
+  <script>
+    const SUPABASE_URL = 'https://updxillknwufqekfzkur.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const LK = LivekitClient;
+
+    const $ = id => document.getElementById(id);
+    const params = new URLSearchParams(location.search);
+    const slug = (params.get('room') || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+    const roomName = 'psir-' + slug;
+    const enc = new TextEncoder();
+    const dec = new TextDecoder();
+
+    let session = null;
+    let isHost = false;
+    let room = null;
+    const hands = new Map(); // identity -> name
+
+    function setMsg(text) { $('msg').textContent = text; }
+
+    function btn(label, onClick, cls) {
+      const b = document.createElement('button');
+      b.textContent = label;
+      if (cls) b.className = cls;
+      b.onclick = onClick;
+      return b;
+    }
+
+    async function init() {
+      const { data } = await db.auth.getSession();
+      if (!data.session) {
+        $('status').textContent = 'Please log in on the forum first.';
+        $('join-btn').style.display = 'none';
+        return;
+      }
+      session = data.session;
+      if (!slug) {
+        $('status').textContent = 'No room selected.';
+        $('join-btn').style.display = 'none';
+        return;
+      }
+      const { data: profile } = await db.from('profiles').select('role').eq('id', session.user.id).single();
+      isHost = !!profile && ['scholar', 'moderator', 'admin'].includes(profile.role);
+      $('title').textContent = 'Live session: ' + slug.replace(/-/g, ' ');
+      $('status').textContent = isHost
+        ? 'You are a host. You can speak and invite others.'
+        : 'You are a listener. You are muted until a host invites you.';
+      $('host-panel').style.display = isHost ? 'block' : 'none';
+    }
+
+    function showJoined(joined) {
+      $('join-btn').style.display = joined ? 'none' : 'inline-block';
+      $('leave-btn').style.display = joined ? 'inline-block' : 'none';
+      $('hand-btn').style.display = joined && !isHost ? 'inline-block' : 'none';
+      $('mic-btn').style.display = joined && isHost ? 'inline-block' : 'none';
+      $('end-btn').style.display = joined && isHost ? 'inline-block' : 'none';
+    }
+
+    async function join() {
+      setMsg('');
+      $('join-btn').disabled = true;
+      try {
+        const tokenRes = await fetch('/api/token?room=' + encodeURIComponent(slug), {
+          headers: { Authorization: 'Bearer ' + session.access_token }
+        });
+        const info = await tokenRes.json();
+        if (!tokenRes.ok) throw new Error(info.error || 'Could not get access');
+
+        room = new LK.Room();
+        room.on(LK.RoomEvent.TrackSubscribed, track => {
+          if (track.kind === 'audio') document.body.appendChild(track.attach());
+        });
+        room.on(LK.RoomEvent.TrackUnsubscribed, track => track.detach().forEach(el => el.remove()));
+        room.on(LK.RoomEvent.ParticipantConnected, renderAll);
+        room.on(LK.RoomEvent.ParticipantDisconnected, p => { hands.delete(p.identity); renderAll(); });
+        room.on(LK.RoomEvent.ParticipantPermissionsChanged, renderAll);
+        room.on(LK.RoomEvent.DataReceived, onData);
+        room.on(LK.RoomEvent.Disconnected, () => {
+          $('status').textContent = 'The session has ended or you left.';
+          room = null;
+          showJoined(false);
+          renderAll();
+        });
+
+        await room.connect(info.url, info.token);
+        try { await room.startAudio(); } catch (e) { /* browser may need another tap */ }
+        showJoined(true);
+        if (!isHost) $('mic-btn').style.display = 'none';
+        renderAll();
+      } catch (e) {
+        setMsg(e.message);
+        $('join-btn').disabled = false;
+      }
+    }
+
+    function leave() {
+      if (room) room.disconnect();
+    }
+
+    // Messages between participants
+    function sendAll(obj) {
+      room.localParticipant.publishData(enc.encode(JSON.stringify(obj)), { reliable: true });
+    }
+
+    function sendTo(identity, obj) {
+      room.localParticipant.publishData(enc.encode(JSON.stringify(obj)), {
+        reliable: true,
+        destinationIdentities: [identity]
+      });
+    }
+
+    function onData(payload, participant) {
+      let msg;
+      try { msg = JSON.parse(dec.decode(payload)); } catch (e) { return; }
+
+      if (msg.type === 'raise-hand' && participant) {
+        hands.set(participant.identity, msg.name || participant.name || 'Student');
+        renderAll();
+      }
+      if (msg.type === 'lower-hand' && msg.identity) {
+        hands.delete(msg.identity);
+        renderAll();
+      }
+      if (msg.type === 'invite') {
+        $('mic-btn').style.display = 'inline-block';
+        $('mic-btn').textContent = 'Turn on mic';
+        setMsg('A host invited you to speak. Tap "Turn on mic".');
+      }
+      if (msg.type === 'revoke') {
+        room.localParticipant.setMicrophoneEnabled(false).catch(() => {});
+        $('mic-btn').style.display = 'none';
+        setMsg('You can keep listening. The host has asked you to stop speaking.');
+      }
+    }
+
+    // Calls the server endpoint, which checks the host's role
+    async function callRoomAdmin(action, identity) {
+      const res = await fetch('/api/room-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session.access_token },
+        body: JSON.stringify({ action, room: roomName, identity })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Action failed');
+      return data;
+    }
+
+    async function hostAction(action, identity, canSpeak) {
+      setMsg('');
+      try {
+        await callRoomAdmin(action, identity);
+        if (action === 'invite') {
+          hands.delete(identity);
+          sendAll({ type: 'lower-hand', identity });
+          sendTo(identity, { type: 'invite' });
+        }
+        if (action === 'revoke') sendTo(identity, { type: 'revoke' });
+        renderAll();
+      } catch (e) {
+        setMsg(e.message);
+      }
+    }
+
+    async function endSession() {
+      if (!confirm('End this session for everyone?')) return;
+      try {
+        await callRoomAdmin('end', null);
+      } catch (e) {
+        setMsg(e.message);
+      }
+    }
+
+    function renderAll() {
+      if (!room) {
+        $('participants').textContent = 'Join to see who is in the session.';
+        renderHands();
+        return;
+      }
+      const box = $('participants');
+      box.innerHTML = '';
+      const everyone = [room.localParticipant, ...room.remoteParticipants.values()];
+
+      everyone.forEach(p => {
+        const isMe = p === room.localParticipant;
+        const canSpeak = p.permissions ? p.permissions.canPublish : false;
+
+        const row = document.createElement('div');
+        row.className = 'card';
+
+        const info = document.createElement('div');
+        const name = document.createElement('strong');
+        name.textContent = (p.name || 'Student') + (isMe ? ' (you)' : '');
+        const tag = document.createElement('span');
+        tag.className = 'tag' + (canSpeak ? ' speaker' : '');
+        tag.textContent = canSpeak ? 'Speaker' : 'Listener';
+        info.append(name, ' ', tag);
+        if (hands.has(p.identity)) {
+          const hand = document.createElement('span');
+          hand.className = 'tag hand';
+          hand.textContent = 'hand raised';
+          info.append(' ', hand);
+        }
+        row.appendChild(info);
+
+        if (isHost && !isMe) {
+          const actions = document.createElement('div');
+          if (canSpeak) {
+            actions.append(btn('Stop speaking', () => hostAction('revoke', p.identity)));
+          } else {
+            actions.append(btn('Invite to speak', () => hostAction('invite', p.identity)));
+          }
+          actions.append(btn('Remove', () => hostAction('remove', p.identity), 'danger'));
+          row.appendChild(actions);
+        }
+        box.appendChild(row);
+      });
+
+      renderHands();
+    }
+
+    function renderHands() {
+      if (!isHost) return;
+      const box = $('hands');
+      box.innerHTML = '';
+      if (!hands.size) {
+        box.textContent = 'No hands raised.';
+        return;
+      }
+      hands.forEach((name, identity) => {
+        const row = document.createElement('div');
+        row.className = 'card';
+        const label = document.createElement('strong');
+        label.textContent = name;
+        row.append(label, btn('Invite to speak', () => hostAction('invite', identity)));
+        box.appendChild(row);
+      });
+    }
+
+    $('join-btn').onclick = join;
+    $('leave-btn').onclick = leave;
+    $('end-btn').onclick = endSession;
+
+    $('hand-btn').onclick = () => {
+      const name = session.user.user_metadata?.full_name || 'Student';
+      sendAll({ type: 'raise-hand', name });
+      setMsg('Hand raised. A host will see it.');
+    };
+
+    $('mic-btn').onclick = async () => {
+      if (!room) return;
+      const isOn = room.localParticipant.isMicrophoneEnabled;
+      try {
+        await room.localParticipant.setMicrophoneEnabled(!isOn);
+        $('mic-btn').textContent = isOn ? 'Turn on mic' : 'Mute mic';
+        setMsg('');
+      } catch (e) {
+        setMsg('Could not turn on the mic. Ask the host to invite you again.');
+      }
+    };
+
+    // Keep the participant list fresh
+    setInterval(() => { if (room) renderAll(); }, 3000);
+
+    init();
+  </script>
+</body>
+  </html>
