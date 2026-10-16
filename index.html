@@ -5,146 +5,212 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PSIR Forum</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 0 auto; padding: 16px; color: #1b2a41; background: #f7f8fa; line-height: 1.5; }
-    h1 { color: #1b2a41; font-size: 26px; }
-    h2 { margin-top: 28px; border-bottom: 2px solid #c9a227; padding-bottom: 4px; font-size: 20px; }
-    h3 { margin-top: 22px; font-size: 17px; }
-    label { font-size: 14px; color: #1b2a41; }
-    form { display: flex; flex-direction: column; gap: 8px; background: white; padding: 16px; border-radius: 8px; }
-    input, textarea, button { padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit; max-width: 100%; }
-    input[type="file"] { background: white; padding: 8px; }
-    button { background: #1b2a41; color: white; border: none; cursor: pointer; margin: 4px 4px 4px 0; }
-    button.secondary { background: #e5e7eb; color: #1b2a41; }
-    button.danger { background: #b00020; }
+    :root { --navy: #1b2a41; --gold: #c9a227; --bg: #f5f6f8; --line: #dde1e7; --muted: #5b6573; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; margin: 0; color: var(--navy); background: var(--bg); line-height: 1.55; }
+    header.site { background: var(--navy); color: #fff; padding: 12px 16px; }
+    .site-inner { max-width: 960px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .brand { font-weight: 700; font-size: 18px; color: #fff; text-decoration: none; }
+    nav.main { display: flex; flex-wrap: wrap; gap: 6px; }
+    main { max-width: 960px; margin: 0 auto; padding: 16px; }
+    h1 { font-size: 24px; margin: 8px 0; line-height: 1.25; }
+    h2 { font-size: 20px; margin: 28px 0 10px; padding-bottom: 6px; border-bottom: 2px solid var(--gold); }
+    h3 { font-size: 16px; margin: 20px 0 8px; }
+    .hero { background: var(--navy); color: #fff; border-radius: 10px; padding: 28px 20px; margin-bottom: 8px; }
+    .hero h1 { color: #fff; font-size: 26px; }
+    .hero p { color: #dfe5ee; font-size: 17px; margin: 8px 0 18px; max-width: 46em; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+    .stat { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+    .stat strong { display: block; font-size: 24px; }
+    .stat span { color: var(--muted); font-size: 14px; }
+    .panel { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+    .card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin-bottom: 10px; cursor: pointer; box-shadow: 0 1px 2px rgba(27,42,65,.06); }
+    .card:hover { border-color: var(--gold); }
+    .card strong { display: block; margin-bottom: 2px; }
+    .meta { color: var(--muted); font-size: 13px; }
+    .post { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+    .body { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .body a { color: var(--navy); }
+    .row { background: #fff; border: 1px solid var(--line); padding: 10px 12px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+    form { display: flex; flex-direction: column; gap: 8px; background: #fff; border: 1px solid var(--line); padding: 16px; border-radius: 10px; }
+    label { font-size: 14px; }
+    input, textarea, button, select { padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #c4cad3; font-family: inherit; max-width: 100%; }
+    input[type="file"] { background: #fff; padding: 8px; }
+    button { background: var(--navy); color: #fff; border: none; cursor: pointer; margin: 4px 4px 4px 0; }
+    button.secondary { background: #e7eaf0; color: var(--navy); }
+    button.ghost { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.5); }
+    button.gold { background: var(--gold); color: var(--navy); font-weight: 600; }
+    button.danger { background: #a3172b; }
     button.btn-small { padding: 6px 10px; font-size: 14px; }
     button:disabled { opacity: .5; cursor: default; }
-    button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible, [role="button"]:focus-visible {
-      outline: 3px solid #c9a227; outline-offset: 2px;
+    button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible, [role="button"]:focus-visible, .card:focus-visible {
+      outline: 3px solid var(--gold); outline-offset: 2px;
     }
-    .back { background: none; color: #1b2a41; padding: 4px 0; text-decoration: underline; }
-    .card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; border: 1px solid transparent; }
-    .card:hover { border-color: #c9a227; }
-    .card small, .meta { color: #555; font-size: 13px; }
-    .post { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; }
-    .body { white-space: pre-wrap; overflow-wrap: anywhere; }
-    .body a { color: #1b2a41; }
-    .row { background: white; padding: 10px 12px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .tag { font-size: 12px; padding: 2px 8px; border-radius: 10px; background: #e5e7eb; margin-left: 4px; }
+    .back { background: none; color: var(--navy); padding: 4px 0; text-decoration: underline; margin: 0 0 8px; }
+    .tag { font-size: 12px; padding: 2px 8px; border-radius: 10px; background: #e7eaf0; margin-left: 4px; }
     .tag.speaker { background: #c8f7d4; }
     .tag.hand { background: #fff3c4; }
-    .note { background: #fff8e1; padding: 12px; border-radius: 8px; color: #6b5300; margin: 8px 0; }
-    .msg { color: #b00020; min-height: 20px; }
+    .note { background: #fff8e1; padding: 12px; border-radius: 8px; color: #6b5300; margin: 8px 0; border: 1px solid #f0e2a6; }
+    .msg { color: #a3172b; min-height: 20px; }
     .ok { color: #1b5e20; }
     .error-box { background: #fdecea; color: #611a15; padding: 12px; border-radius: 8px; }
-    .loading, .empty { color: #555; }
+    .loading, .empty { color: var(--muted); }
     .actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-    .attachment { background: white; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; }
+    .attachment { background: #fff; border: 1px solid var(--line); padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; }
     .attachment img { max-width: 100%; height: auto; border-radius: 6px; display: block; margin-bottom: 6px; }
-    .attachment a { color: #1b2a41; font-weight: 600; overflow-wrap: anywhere; }
-    .upload-section { background: white; padding: 16px; border-radius: 8px; margin-top: 8px; }
+    .attachment a { color: var(--navy); font-weight: 600; overflow-wrap: anywhere; }
+    .upload-section { background: #fff; border: 1px solid var(--line); padding: 16px; border-radius: 10px; margin-top: 8px; }
+    .soon { color: var(--muted); font-size: 14px; }
+    footer.site { border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; text-align: center; padding: 20px 16px; margin-top: 24px; }
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+    @media (max-width: 480px) { h1 { font-size: 21px; } .hero h1 { font-size: 22px; } }
   </style>
 </head>
 <body>
-  <h1>PSIR Forum</h1>
-  <p id="status" role="status">Loading...</p>
-
-  <section id="auth-section" style="display:none" aria-label="Account">
-    <h2>Log in</h2>
-    <form id="login-form">
-      <label for="login-email">Email</label>
-      <input id="login-email" type="email" autocomplete="email" required>
-      <label for="login-password">Password</label>
-      <input id="login-password" type="password" autocomplete="current-password" required>
-      <button type="submit" id="login-submit">Log in</button>
-    </form>
-
-    <h2>Create account</h2>
-    <form id="signup-form">
-      <label for="signup-name">Full name</label>
-      <input id="signup-name" autocomplete="name" required maxlength="80">
-      <label for="signup-email">Email</label>
-      <input id="signup-email" type="email" autocomplete="email" required>
-      <label for="signup-password">Password (at least 6 characters)</label>
-      <input id="signup-password" type="password" autocomplete="new-password" required minlength="6">
-      <button type="submit" id="signup-submit">Create account</button>
-    </form>
-    <p class="msg" id="auth-msg"></p>
-  </section>
-
-  <button id="logout-btn" class="secondary" style="display:none">Log out</button>
-
-  <!-- Screen 1: categories -->
-  <section id="list-view" aria-label="Categories">
-    <h2>Discussion categories</h2>
-    <div id="categories"></div>
-  </section>
-
-  <!-- Screen 2: one category -->
-  <section id="category-view" style="display:none">
-    <button class="back" id="back-categories">← All categories</button>
-    <h2 id="cat-title"></h2>
-    <p id="cat-desc"></p>
-
-    <h3>Live audio room</h3>
-    <p class="meta" id="room-desc"></p>
-    <div>
-      <button id="join-room">Join room</button>
-      <button id="mic-btn" class="secondary" style="display:none">Turn on mic</button>
-      <button id="hand-btn" class="secondary" style="display:none">Raise hand</button>
-      <button id="leave-room" class="secondary" style="display:none">Leave room</button>
+  <header class="site">
+    <div class="site-inner">
+      <a class="brand" href="#" id="brand-home">PSIR Forum</a>
+      <nav class="main" aria-label="Main">
+        <button class="ghost" id="nav-home">Home</button>
+        <button class="ghost" id="nav-categories">Categories</button>
+        <button class="ghost" id="nav-login">Log in</button>
+        <button class="ghost" id="logout-btn" style="display:none">Log out</button>
+      </nav>
     </div>
-    <p class="msg" id="room-msg" role="status"></p>
-    <div id="hands-panel" style="display:none">
-      <h3>Hands raised</h3>
-      <div id="hands"></div>
-    </div>
-    <h3>In the room</h3>
-    <div id="participants"></div>
+  </header>
 
-    <h3>Start a discussion</h3>
-    <p class="note" id="thread-note" style="display:none"></p>
-    <form id="thread-form" style="display:none">
-      <label for="thread-title">Title (5 to 200 characters)</label>
-      <input id="thread-title" required minlength="5" maxlength="200">
-      <label for="thread-body">Your question or argument (up to 10,000 characters)</label>
-      <textarea id="thread-body" required rows="6" maxlength="10000"></textarea>
-      <button type="submit" id="thread-submit">Post discussion</button>
-    </form>
-    <p class="msg" id="thread-msg"></p>
+  <main>
+    <p id="status" role="status" class="meta"></p>
 
-    <h3>Discussions</h3>
-    <div id="threads"></div>
-  </section>
+    <!-- HOME -->
+    <section id="home-view" aria-label="Home">
+      <div class="hero">
+        <h1>PSIR Forum — A Community for Political Science and International Relations</h1>
+        <p>Explore political ideas, discuss international affairs, share research, and connect with a community passionate about politics and global issues.</p>
+        <div class="hero-actions">
+          <button class="gold" id="hero-join">Join the Discussion</button>
+          <button class="ghost" id="hero-explore">Explore Discussions</button>
+        </div>
+      </div>
 
-  <!-- Screen 3: one discussion with replies and files -->
-  <section id="thread-view" style="display:none">
-    <button class="back" id="back-threads">← Back to discussions</button>
-    <div id="thread-detail"></div>
-    <p class="msg" id="thread-status" role="status"></p>
+      <div id="auth-section" style="display:none">
+        <h2>Log in</h2>
+        <form id="login-form">
+          <label for="login-email">Email</label>
+          <input id="login-email" type="email" autocomplete="email" required>
+          <label for="login-password">Password</label>
+          <input id="login-password" type="password" autocomplete="current-password" required>
+          <button type="submit" id="login-submit">Log in</button>
+        </form>
 
-    <h3>Files</h3>
-    <div id="attachments"></div>
+        <h2>Create account</h2>
+        <form id="signup-form">
+          <label for="signup-name">Full name</label>
+          <input id="signup-name" autocomplete="name" required maxlength="80">
+          <label for="signup-email">Email</label>
+          <input id="signup-email" type="email" autocomplete="email" required>
+          <label for="signup-password">Password (at least 6 characters)</label>
+          <input id="signup-password" type="password" autocomplete="new-password" required minlength="6">
+          <button type="submit" id="signup-submit">Create account</button>
+        </form>
+        <p class="msg" id="auth-msg"></p>
+      </div>
 
-    <div id="upload-section" class="upload-section" style="display:none">
-      <h3>Attach files</h3>
-      <p class="meta">PDF, JPG, PNG or WebP. Up to 10 MB per file, and 5 files per discussion.</p>
-      <label for="file-input">Choose files</label>
-      <input id="file-input" type="file" multiple accept="application/pdf,image/jpeg,image/png,image/webp">
-      <button type="button" id="upload-btn">Upload files</button>
-      <p class="msg" id="upload-msg" role="status"></p>
-    </div>
+      <h2>Community at a glance</h2>
+      <div class="stats" id="home-stats"></div>
 
-    <h3>Replies</h3>
-    <div id="replies"></div>
-    <p class="note" id="reply-note" style="display:none"></p>
-    <form id="reply-form" style="display:none">
-      <label for="reply-body">Your reply (up to 5,000 characters)</label>
-      <textarea id="reply-body" required rows="3" maxlength="5000"></textarea>
-      <button type="submit" id="reply-submit">Post reply</button>
-    </form>
-    <p class="msg" id="reply-msg"></p>
-  </section>
+      <h2>Academic categories</h2>
+      <div class="grid" id="home-categories"></div>
+
+      <h2>Recent discussions</h2>
+      <div id="home-recent"></div>
+
+      <h2>Upcoming events</h2>
+      <p class="soon">Scheduled debates, lectures, and audio sessions will appear here in a later update.</p>
+
+      <h2>Featured resources</h2>
+      <p class="soon">The academic resource library will appear here in a later update.</p>
+
+      <h2>Live audio rooms</h2>
+      <p class="soon">Each category has its own audio room. Open a category to join it.</p>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section id="list-view" style="display:none" aria-label="All categories">
+      <h2>All categories</h2>
+      <div id="categories"></div>
+    </section>
+
+    <!-- ONE CATEGORY -->
+    <section id="category-view" style="display:none">
+      <button class="back" id="back-categories">← All categories</button>
+      <h2 id="cat-title"></h2>
+      <p id="cat-desc"></p>
+
+      <h3>Live audio room</h3>
+      <p class="meta" id="room-desc"></p>
+      <div>
+        <button id="join-room">Join room</button>
+        <button id="mic-btn" class="secondary" style="display:none">Turn on mic</button>
+        <button id="hand-btn" class="secondary" style="display:none">Raise hand</button>
+        <button id="leave-room" class="secondary" style="display:none">Leave room</button>
+      </div>
+      <p class="msg" id="room-msg" role="status"></p>
+      <div id="hands-panel" style="display:none">
+        <h3>Hands raised</h3>
+        <div id="hands"></div>
+      </div>
+      <h3>In the room</h3>
+      <div id="participants"></div>
+
+      <h3>Start a discussion</h3>
+      <p class="note" id="thread-note" style="display:none"></p>
+      <form id="thread-form" style="display:none">
+        <label for="thread-title">Title (5 to 200 characters)</label>
+        <input id="thread-title" required minlength="5" maxlength="200">
+        <label for="thread-body">Your question or argument (up to 10,000 characters)</label>
+        <textarea id="thread-body" required rows="6" maxlength="10000"></textarea>
+        <button type="submit" id="thread-submit">Post discussion</button>
+      </form>
+      <p class="msg" id="thread-msg"></p>
+
+      <h3>Discussions</h3>
+      <div id="threads"></div>
+    </section>
+
+    <!-- ONE DISCUSSION -->
+    <section id="thread-view" style="display:none">
+      <button class="back" id="back-threads">← Back</button>
+      <div id="thread-detail"></div>
+      <p class="msg" id="thread-status" role="status"></p>
+
+      <h3>Files</h3>
+      <div id="attachments"></div>
+
+      <div id="upload-section" class="upload-section" style="display:none">
+        <h3>Attach files</h3>
+        <p class="meta">PDF, JPG, PNG or WebP. Up to 10 MB per file, and 5 files per discussion.</p>
+        <label for="file-input">Choose files</label>
+        <input id="file-input" type="file" multiple accept="application/pdf,image/jpeg,image/png,image/webp">
+        <button type="button" id="upload-btn">Upload files</button>
+        <p class="msg" id="upload-msg" role="status"></p>
+      </div>
+
+      <h3>Replies</h3>
+      <div id="replies"></div>
+      <p class="note" id="reply-note" style="display:none"></p>
+      <form id="reply-form" style="display:none">
+        <label for="reply-body">Your reply (up to 5,000 characters)</label>
+        <textarea id="reply-body" required rows="3" maxlength="5000"></textarea>
+        <button type="submit" id="reply-submit">Post reply</button>
+      </form>
+      <p class="msg" id="reply-msg"></p>
+    </section>
+  </main>
+
+  <footer class="site">PSIR Forum · Community guidelines and privacy pages will be added in a later update.</footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -155,7 +221,6 @@
     const LEADER_ROLES = ['admin', 'moderator', 'scholar'];
     const LEADER_ONLY_SLUGS = ['hub-of-idea'];
     const ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
-
     const BUCKET = 'club-files';
     const MAX_FILES = 5;
     const MAX_BYTES = 10 * 1024 * 1024;
@@ -165,8 +230,8 @@
     let currentRole = 'guest';
     let currentCategory = null;
     let currentThread = null;
+    const categoryById = new Map();
 
-    // Audio room state
     let channel = null;
     let inRoom = false;
     const peers = new Map();
@@ -210,7 +275,7 @@
     }
 
     function showScreen(id) {
-      ['list-view', 'category-view', 'thread-view'].forEach(v => {
+      ['home-view', 'list-view', 'category-view', 'thread-view'].forEach(v => {
         $(v).style.display = v === id ? 'block' : 'none';
       });
     }
@@ -223,7 +288,6 @@
       return b;
     }
 
-    // Disables a button while a request runs, so repeated taps don't send duplicates
     function setBusy(btn, busy, label) {
       if (busy) {
         btn.dataset.label = btn.textContent;
@@ -260,7 +324,7 @@
       if (retry) el.appendChild(mkBtn('Try again', 'secondary', retry));
     }
 
-    // Turns web addresses in text into clickable links. Only http and https links are created.
+    // Turns web addresses in text into clickable links (http and https only)
     function linkify(text) {
       const frag = document.createDocumentFragment();
       const re = /https?:\/\/[^\s<>"']+/g;
@@ -288,8 +352,9 @@
       const strong = document.createElement('strong');
       strong.textContent = title;
       const small = document.createElement('small');
+      small.className = 'meta';
       small.textContent = meta;
-      div.append(strong, document.createElement('br'), small);
+      div.append(strong, small);
       div.onclick = onOpen;
       div.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(); } };
       return div;
@@ -313,20 +378,20 @@
       return isLeader();
     }
 
-    // ============ ACCOUNT STATE ============
+    // ============ ACCOUNT STATE AND NAVIGATION ============
 
     async function showForum(user) {
       currentUser = user;
       currentRole = 'student';
       $('auth-section').style.display = 'none';
       $('logout-btn').style.display = 'inline-block';
+      $('nav-login').style.display = 'none';
       statusEl.textContent = 'Signed in as ' + user.email;
 
       const { data, error } = await db.from('profiles').select('role').eq('id', user.id).maybeSingle();
       if (!error && data) currentRole = data.role;
 
-      showScreen('list-view');
-      loadCategories();
+      showHome();
     }
 
     function showGuest() {
@@ -335,9 +400,123 @@
       currentRole = 'guest';
       $('auth-section').style.display = 'block';
       $('logout-btn').style.display = 'none';
+      $('nav-login').style.display = 'inline-block';
       statusEl.textContent = 'Browsing as a guest. Log in to post, reply, and join the audio room.';
+      showHome();
+    }
+
+    function showHome() {
+      leaveRoom(true);
+      showScreen('home-view');
+      loadHome();
+    }
+
+    function showCategories() {
+      leaveRoom(true);
       showScreen('list-view');
       loadCategories();
+    }
+
+    $('nav-home').onclick = showHome;
+    $('brand-home').onclick = e => { e.preventDefault(); showHome(); };
+    $('nav-categories').onclick = showCategories;
+    $('nav-login').onclick = () => { showHome(); $('auth-section').scrollIntoView({ behavior: 'smooth' }); $('login-email').focus(); };
+    $('hero-explore').onclick = showCategories;
+    $('hero-join').onclick = () => {
+      if (currentUser) { showCategories(); return; }
+      $('auth-section').style.display = 'block';
+      $('auth-section').scrollIntoView({ behavior: 'smooth' });
+      $('login-email').focus();
+    };
+    $('back-categories').onclick = () => { leaveRoom(true); showCategories(); };
+    $('back-threads').onclick = () => {
+      if (currentCategory) { showScreen('category-view'); loadThreads(); }
+      else showHome();
+    };
+
+    // ============ HOME PAGE ============
+
+    async function loadHome() {
+      await loadHomeCategories();
+      loadHomeStats();
+      loadRecent();
+    }
+
+    async function loadHomeCategories() {
+      const box = $('home-categories');
+      showLoading(box, 'Loading categories...');
+      const { data: cats, error } = await db.from('categories').select('*').order('id');
+      if (error) { showError(box, 'Could not load categories: ' + error.message, loadHomeCategories); return; }
+      categoryById.clear();
+      cats.forEach(c => categoryById.set(c.id, c));
+      if (!cats.length) { showEmpty(box, 'No categories yet.'); return; }
+
+      const counts = await Promise.all(cats.map(c =>
+        db.from('threads').select('id', { count: 'exact', head: true }).eq('category_id', c.id).eq('is_hidden', false)
+      ));
+      box.innerHTML = '';
+      cats.forEach((c, i) => {
+        const n = counts[i].error ? '' : counts[i].count + ' discussion' + (counts[i].count === 1 ? '' : 's');
+        const meta = [c.description || '', n].filter(Boolean).join(' · ');
+        box.appendChild(makeCard(c.name, meta, () => openCategory(c)));
+      });
+    }
+
+    async function loadHomeStats() {
+      const box = $('home-stats');
+      box.innerHTML = '';
+      const [threads, members, cats] = await Promise.all([
+        db.from('threads').select('id', { count: 'exact', head: true }).eq('is_hidden', false),
+        db.from('profiles').select('id', { count: 'exact', head: true }),
+        db.from('categories').select('id', { count: 'exact', head: true })
+      ]);
+      const items = [
+        ['Discussions', threads.count],
+        ['Members', members.count],
+        ['Categories', cats.count]
+      ];
+      items.forEach(([label, value]) => {
+        if (value === null || value === undefined) return;
+        const div = document.createElement('div');
+        div.className = 'stat';
+        const n = document.createElement('strong');
+        n.textContent = value;
+        const s = document.createElement('span');
+        s.textContent = label;
+        div.append(n, s);
+        box.appendChild(div);
+      });
+    }
+
+    async function loadRecent() {
+      const box = $('home-recent');
+      showLoading(box, 'Loading recent discussions...');
+      try {
+        const { data: recent, error } = await db.from('threads')
+          .select('id, title, created_at, author_id, category_id')
+          .eq('is_hidden', false)
+          .order('created_at', { ascending: false })
+          .limit(5);
+        if (error) throw error;
+        box.innerHTML = '';
+        if (!recent.length) { showEmpty(box, 'No discussions yet. Be the first to start one.'); return; }
+
+        const ids = recent.map(t => t.id);
+        const { data: replies } = await db.from('replies').select('thread_id').in('thread_id', ids).eq('is_hidden', false);
+        const replyCount = new Map();
+        (replies || []).forEach(r => replyCount.set(r.thread_id, (replyCount.get(r.thread_id) || 0) + 1));
+
+        await attachAuthors(recent);
+        recent.forEach(t => {
+          const cat = categoryById.get(t.category_id);
+          const n = replyCount.get(t.id) || 0;
+          const meta = [cat ? cat.name : '', authorName(t), formatDate(t.created_at), n + ' repl' + (n === 1 ? 'y' : 'ies')]
+            .filter(Boolean).join(' · ');
+          box.appendChild(makeCard(t.title, meta, () => openThread(t.id)));
+        });
+      } catch (err) {
+        showError(box, 'Could not load recent discussions: ' + err.message, loadRecent);
+      }
     }
 
     // ============ CATEGORIES ============
@@ -347,6 +526,8 @@
       showLoading(box, 'Loading categories...');
       const { data, error } = await db.from('categories').select('*').order('id');
       if (error) { showError(box, 'Could not load categories: ' + error.message, loadCategories); return; }
+      categoryById.clear();
+      data.forEach(c => categoryById.set(c.id, c));
       if (!data.length) { showEmpty(box, 'No categories yet.'); return; }
       box.innerHTML = '';
       data.forEach(c => box.appendChild(makeCard(c.name, c.description || '', () => openCategory(c))));
@@ -431,6 +612,7 @@
           return;
         }
         await attachAuthors([data]);
+        currentCategory = categoryById.get(data.category_id) || currentCategory;
         currentThread = data;
         renderThread();
         updateUploadSection();
@@ -449,6 +631,7 @@
 
       const h = document.createElement('h2');
       h.textContent = t.title;
+      h.style.marginTop = '4px';
       detail.appendChild(h);
 
       const card = document.createElement('div');
@@ -475,7 +658,6 @@
       detail.innerHTML = '';
 
       const form = document.createElement('form');
-      form.className = 'edit-form';
 
       const titleLabel = document.createElement('label');
       titleLabel.textContent = 'Title (5 to 200 characters)';
@@ -524,19 +706,12 @@
     async function deleteThread() {
       if (!confirm('Delete this discussion, its replies, and its files? This cannot be undone.')) return;
 
-      // Remove the stored files first. Deleting the discussion removes the file records automatically,
-      // but not the files in storage, so we delete those here.
-      const { data: files } = await db.from('attachments')
-        .select('storage_path')
-        .eq('thread_id', currentThread.id);
+      const { data: files } = await db.from('attachments').select('storage_path').eq('thread_id', currentThread.id);
       if (files && files.length) {
         await db.storage.from(BUCKET).remove(files.map(f => f.storage_path));
       }
 
-      const { data, error } = await db.from('threads')
-        .delete()
-        .eq('id', currentThread.id)
-        .select('id');
+      const { data, error } = await db.from('threads').delete().eq('id', currentThread.id).select('id');
       if (error) { setStatusText($('thread-status'), 'Could not delete: ' + error.message, false); return; }
       if (!data || !data.length) { setStatusText($('thread-status'), 'Could not delete. You may not have permission.', false); return; }
       currentThread = null;
@@ -545,7 +720,6 @@
       loadThreads();
     }
 
-    // Submit a new discussion
     $('thread-form').addEventListener('submit', async e => {
       e.preventDefault();
       if (!currentUser || !canPostIn(currentCategory)) return;
@@ -570,8 +744,6 @@
       return type === 'image/jpeg' || type === 'image/png' || type === 'image/webp';
     }
 
-    // Only the discussion's author can attach files, and only if they are a club leader.
-    // This matches the database rules.
     function updateUploadSection() {
       const canUpload = !!currentUser && !!currentThread && isLeader() && currentThread.author_id === currentUser.id;
       $('upload-section').style.display = canUpload ? 'block' : 'none';
@@ -693,10 +865,7 @@
         const safeName = (f.name || 'file').replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 120) || 'file';
         const path = currentThread.id + '/' + crypto.randomUUID() + '-' + safeName;
 
-        const { error: upErr } = await db.storage.from(BUCKET).upload(path, f, {
-          contentType: f.type,
-          upsert: false
-        });
+        const { error: upErr } = await db.storage.from(BUCKET).upload(path, f, { contentType: f.type, upsert: false });
         if (upErr) {
           msg.textContent = 'Could not upload "' + f.name + '": ' + upErr.message;
           continue;
@@ -711,7 +880,6 @@
           size_bytes: f.size
         });
         if (rowErr) {
-          // Remove the stored file if its record could not be saved
           await db.storage.from(BUCKET).remove([path]);
           msg.textContent = 'Could not save "' + f.name + '": ' + rowErr.message;
           continue;
@@ -800,7 +968,6 @@
     function editReply(r, card) {
       card.innerHTML = '';
       const form = document.createElement('form');
-      form.className = 'edit-form';
       const ta = document.createElement('textarea');
       ta.value = r.body;
       ta.required = true;
@@ -831,10 +998,7 @@
 
     async function deleteReply(r) {
       if (!confirm('Delete this reply? This cannot be undone.')) return;
-      const { data, error } = await db.from('replies')
-        .delete()
-        .eq('id', r.id)
-        .select('id');
+      const { data, error } = await db.from('replies').delete().eq('id', r.id).select('id');
       if (error) { setStatusText($('reply-msg'), 'Could not delete: ' + error.message, false); return; }
       if (!data || !data.length) { setStatusText($('reply-msg'), 'Could not delete. You may not have permission.', false); return; }
       loadReplies();
@@ -858,8 +1022,6 @@
     });
 
     // ============ AUDIO ROOM ============
-    // Each category has its own room. Phones connect directly to each other (peer-to-peer).
-    // Supabase Realtime carries the participant list and connection setup messages.
 
     function setRoomMsg(text) { $('room-msg').textContent = text; }
 
@@ -920,7 +1082,6 @@
       return entry ? entry.role : null;
     }
 
-    // The person with the smaller id starts each connection, so two phones don't both send an offer
     function syncPeers() {
       if (!channel || !currentUser) return;
       const st = currentPresence();
@@ -1001,8 +1162,7 @@
       if (el) { el.srcObject = null; el.remove(); audioEls.delete(id); }
     }
 
-    // Host controls. Accepted only from users whose presence entry shows a host role.
-    // Note: this check runs in the browser. Server-side enforcement is planned for Phase 5.
+    // Host controls are checked in the browser for now. Server-side enforcement is planned for a later phase.
     function handleControl(msg) {
       if (!channel || !currentUser || msg.to !== currentUser.id) return;
       if (!LEADER_ROLES.includes(roleOf(msg.from))) return;
@@ -1172,11 +1332,6 @@
     $('leave-room').onclick = () => leaveRoom(false);
     $('mic-btn').onclick = onMicButton;
     $('hand-btn').onclick = onHandButton;
-
-    // ============ NAVIGATION ============
-
-    $('back-categories').onclick = () => { leaveRoom(true); showScreen('list-view'); };
-    $('back-threads').onclick = () => { showScreen('category-view'); loadThreads(); };
 
     // ============ ACCOUNT FORMS ============
 
