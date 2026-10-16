@@ -16,6 +16,7 @@
     .card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
     .card small, .meta { color: #666; font-size: 13px; }
     .post { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; white-space: pre-wrap; }
+    .note { background: #fff8e1; padding: 12px; border-radius: 8px; color: #6b5300; }
     .msg { color: #b00020; min-height: 20px; }
   </style>
 </head>
@@ -66,6 +67,7 @@
         <textarea id="thread-body" placeholder="Write your question or argument..." required rows="4"></textarea>
         <button type="submit">Post thread</button>
       </form>
+      <p class="note" id="thread-note" style="display:none">Programs and articles are posted by the club's leaders. You can read them and join the replies.</p>
       <p class="msg" id="thread-msg"></p>
 
       <h3>Threads</h3>
@@ -93,7 +95,11 @@
     const SUPABASE_KEY = 'sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    const LEADER_ROLES = ['admin', 'moderator', 'scholar'];
+    const LEADER_ONLY_SLUGS = ['hub-of-idea'];
+
     let currentUser = null;
+    let currentRole = 'student';
     let currentCategory = null;
     let currentThread = null;
 
@@ -133,17 +139,28 @@
       return (row.profiles && row.profiles.full_name) || 'Student';
     }
 
-    function showForum(user) {
+    function canPostIn(category) {
+      if (!category) return false;
+      if (!LEADER_ONLY_SLUGS.includes(category.slug)) return true;
+      return LEADER_ROLES.includes(currentRole);
+    }
+
+    async function showForum(user) {
       currentUser = user;
       $('auth-section').style.display = 'none';
       $('forum-section').style.display = 'block';
       status.textContent = 'Signed in as ' + user.email;
+
+      const { data } = await db.from('profiles').select('role').eq('id', user.id).single();
+      currentRole = data ? data.role : 'student';
+
       showScreen('list-view');
       loadCategories();
     }
 
     function showAuth() {
       currentUser = null;
+      currentRole = 'student';
       $('auth-section').style.display = 'block';
       $('forum-section').style.display = 'none';
       status.textContent = 'Welcome. Sign up or log in to join the discussion.';
@@ -163,6 +180,11 @@
       $('cat-desc').textContent = c.description || '';
       $('video-box').innerHTML = '';
       $('thread-msg').textContent = '';
+
+      const allowed = canPostIn(c);
+      $('thread-form').style.display = allowed ? '' : 'none';
+      $('thread-note').style.display = allowed ? 'none' : 'block';
+
       showScreen('category-view');
       loadThreads();
     }
@@ -176,7 +198,7 @@
         .order('created_at', { ascending: false });
       if (error) { box.textContent = 'Could not load threads: ' + error.message; return; }
       box.innerHTML = '';
-      if (!data.length) { box.textContent = 'No threads yet. Be the first to post.'; return; }
+      if (!data.length) { box.textContent = 'No threads yet.'; return; }
       data.forEach(t => {
         box.appendChild(makeCard(t.title, authorName(t) + ' · ' + new Date(t.created_at).toLocaleDateString(), () => openThread(t)));
       });
@@ -225,6 +247,7 @@
     // Post a thread
     $('thread-form').addEventListener('submit', async e => {
       e.preventDefault();
+      if (!canPostIn(currentCategory)) return;
       $('thread-msg').textContent = 'Posting...';
       const { error } = await db.from('threads').insert({
         category_id: currentCategory.id,
@@ -238,7 +261,7 @@
       loadThreads();
     });
 
-    // Post a reply
+    // Post a reply (everyone can comment)
     $('reply-form').addEventListener('submit', async e => {
       e.preventDefault();
       $('reply-msg').textContent = 'Posting...';
@@ -288,4 +311,4 @@
     });
   </script>
 </body>
-</html>
+  </html>
