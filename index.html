@@ -5,110 +5,130 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PSIR Forum</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 16px; color: #1b2a41; background: #f7f8fa; }
-    h1 { color: #1b2a41; }
-    h2 { margin-top: 28px; border-bottom: 2px solid #c9a227; padding-bottom: 4px; }
-    h3 { margin-top: 24px; color: #1b2a41; }
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 0 auto; padding: 16px; color: #1b2a41; background: #f7f8fa; line-height: 1.5; }
+    h1 { color: #1b2a41; font-size: 26px; }
+    h2 { margin-top: 28px; border-bottom: 2px solid #c9a227; padding-bottom: 4px; font-size: 20px; }
+    h3 { margin-top: 22px; font-size: 17px; }
+    label { font-size: 14px; color: #1b2a41; }
     form { display: flex; flex-direction: column; gap: 8px; background: white; padding: 16px; border-radius: 8px; }
-    input, textarea, button { padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit; }
+    input, textarea, button { padding: 10px; font-size: 16px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit; max-width: 100%; }
     button { background: #1b2a41; color: white; border: none; cursor: pointer; margin: 4px 4px 4px 0; }
     button.secondary { background: #e5e7eb; color: #1b2a41; }
     button.danger { background: #b00020; }
-    button:disabled { opacity: .5; }
+    button.btn-small { padding: 6px 10px; font-size: 14px; }
+    button:disabled { opacity: .5; cursor: default; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible, [role="button"]:focus-visible {
+      outline: 3px solid #c9a227; outline-offset: 2px;
+    }
     .back { background: none; color: #1b2a41; padding: 4px 0; text-decoration: underline; }
-    .card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
-    .card small, .meta { color: #666; font-size: 13px; }
+    .card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; border: 1px solid transparent; }
+    .card:hover { border-color: #c9a227; }
+    .card small, .meta { color: #555; font-size: 13px; }
+    .post { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; }
+    .body { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .body a { color: #1b2a41; }
     .row { background: white; padding: 10px 12px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
     .tag { font-size: 12px; padding: 2px 8px; border-radius: 10px; background: #e5e7eb; margin-left: 4px; }
     .tag.speaker { background: #c8f7d4; }
     .tag.hand { background: #fff3c4; }
-    .post { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; white-space: pre-wrap; }
-    .note { background: #fff8e1; padding: 12px; border-radius: 8px; color: #6b5300; }
+    .note { background: #fff8e1; padding: 12px; border-radius: 8px; color: #6b5300; margin: 8px 0; }
     .msg { color: #b00020; min-height: 20px; }
+    .ok { color: #1b5e20; }
+    .error-box { background: #fdecea; color: #611a15; padding: 12px; border-radius: 8px; }
+    .loading, .empty { color: #555; }
+    .actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .edit-form { background: #fff; }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
   </style>
 </head>
 <body>
   <h1>PSIR Forum</h1>
-  <p id="status">Loading...</p>
+  <p id="status" role="status">Loading...</p>
 
-  <div id="auth-section">
-    <h2>Sign up</h2>
-    <form id="signup-form">
-      <input id="signup-name" placeholder="Full name" required>
-      <input id="signup-email" type="email" placeholder="Email" required>
-      <input id="signup-password" type="password" placeholder="Password (min 6 characters)" required minlength="6">
-      <button type="submit">Create account</button>
-    </form>
-
+  <section id="auth-section" style="display:none" aria-label="Account">
     <h2>Log in</h2>
     <form id="login-form">
-      <input id="login-email" type="email" placeholder="Email" required>
-      <input id="login-password" type="password" placeholder="Password" required>
-      <button type="submit">Log in</button>
+      <label for="login-email">Email</label>
+      <input id="login-email" type="email" autocomplete="email" required>
+      <label for="login-password">Password</label>
+      <input id="login-password" type="password" autocomplete="current-password" required>
+      <button type="submit" id="login-submit">Log in</button>
     </form>
-    <p class="msg" id="msg"></p>
-  </div>
 
-  <div id="forum-section" style="display:none">
-    <button id="logout-btn" class="secondary">Log out</button>
+    <h2>Create account</h2>
+    <form id="signup-form">
+      <label for="signup-name">Full name</label>
+      <input id="signup-name" autocomplete="name" required maxlength="80">
+      <label for="signup-email">Email</label>
+      <input id="signup-email" type="email" autocomplete="email" required>
+      <label for="signup-password">Password (at least 6 characters)</label>
+      <input id="signup-password" type="password" autocomplete="new-password" required minlength="6">
+      <button type="submit" id="signup-submit">Create account</button>
+    </form>
+    <p class="msg" id="auth-msg"></p>
+  </section>
 
-    <!-- Screen 1: categories -->
-    <div id="list-view">
-      <h2>Discussion categories</h2>
-      <div id="categories"></div>
+  <button id="logout-btn" class="secondary" style="display:none">Log out</button>
+
+  <!-- Screen 1: categories -->
+  <section id="list-view" aria-label="Categories">
+    <h2>Discussion categories</h2>
+    <div id="categories"></div>
+  </section>
+
+  <!-- Screen 2: one category -->
+  <section id="category-view" style="display:none">
+    <button class="back" id="back-categories">← All categories</button>
+    <h2 id="cat-title"></h2>
+    <p id="cat-desc"></p>
+
+    <h3>Live audio room</h3>
+    <p class="meta" id="room-desc"></p>
+    <div>
+      <button id="join-room">Join room</button>
+      <button id="mic-btn" class="secondary" style="display:none">Turn on mic</button>
+      <button id="hand-btn" class="secondary" style="display:none">Raise hand</button>
+      <button id="leave-room" class="secondary" style="display:none">Leave room</button>
     </div>
-
-    <!-- Screen 2: one category, with audio room and threads -->
-    <div id="category-view" style="display:none">
-      <button class="back" id="back-categories">← All categories</button>
-      <h2 id="cat-title"></h2>
-      <p id="cat-desc"></p>
-
-      <h3>Live audio room</h3>
-      <p class="meta" id="room-desc">Join to listen. Speakers are invited by a host.</p>
-      <div>
-        <button id="join-room">Join room</button>
-        <button id="mic-btn" class="secondary" style="display:none">Turn on mic</button>
-        <button id="hand-btn" class="secondary" style="display:none">Raise hand</button>
-        <button id="leave-room" class="secondary" style="display:none">Leave room</button>
-      </div>
-      <p class="msg" id="room-msg"></p>
-
-      <div id="hands-panel" style="display:none">
-        <h3>Hands raised</h3>
-        <div id="hands"></div>
-      </div>
-
-      <h3>In the room</h3>
-      <div id="participants"></div>
-
-      <h3>Start a thread</h3>
-      <form id="thread-form">
-        <input id="thread-title" placeholder="Title (at least 5 characters)" required minlength="5">
-        <textarea id="thread-body" placeholder="Write your question or argument..." required rows="4"></textarea>
-        <button type="submit">Post thread</button>
-      </form>
-      <p class="note" id="thread-note" style="display:none">Programs and articles are posted by the club's leaders. You can read them and join the replies.</p>
-      <p class="msg" id="thread-msg"></p>
-
-      <h3>Threads</h3>
-      <div id="threads"></div>
+    <p class="msg" id="room-msg" role="status"></p>
+    <div id="hands-panel" style="display:none">
+      <h3>Hands raised</h3>
+      <div id="hands"></div>
     </div>
+    <h3>In the room</h3>
+    <div id="participants"></div>
 
-    <!-- Screen 3: one thread with replies -->
-    <div id="thread-view" style="display:none">
-      <button class="back" id="back-threads">← Back to threads</button>
-      <div id="thread-detail"></div>
+    <h3>Start a discussion</h3>
+    <p class="note" id="thread-note" style="display:none"></p>
+    <form id="thread-form" style="display:none">
+      <label for="thread-title">Title (5 to 200 characters)</label>
+      <input id="thread-title" required minlength="5" maxlength="200">
+      <label for="thread-body">Your question or argument (up to 10,000 characters)</label>
+      <textarea id="thread-body" required rows="6" maxlength="10000"></textarea>
+      <button type="submit" id="thread-submit">Post discussion</button>
+    </form>
+    <p class="msg" id="thread-msg"></p>
 
-      <h3>Replies</h3>
-      <div id="replies"></div>
-      <form id="reply-form">
-        <textarea id="reply-body" placeholder="Write a reply..." required rows="3"></textarea>
-        <button type="submit">Post reply</button>
-      </form>
-      <p class="msg" id="reply-msg"></p>
-    </div>
-  </div>
+    <h3>Discussions</h3>
+    <div id="threads"></div>
+  </section>
+
+  <!-- Screen 3: one discussion with replies -->
+  <section id="thread-view" style="display:none">
+    <button class="back" id="back-threads">← Back to discussions</button>
+    <div id="thread-detail"></div>
+    <p class="msg" id="thread-status" role="status"></p>
+
+    <h3>Replies</h3>
+    <div id="replies"></div>
+    <p class="note" id="reply-note" style="display:none"></p>
+    <form id="reply-form" style="display:none">
+      <label for="reply-body">Your reply (up to 5,000 characters)</label>
+      <textarea id="reply-body" required rows="3" maxlength="5000"></textarea>
+      <button type="submit" id="reply-submit">Post reply</button>
+    </form>
+    <p class="msg" id="reply-msg"></p>
+  </section>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -121,26 +141,39 @@
     const ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
 
     let currentUser = null;
-    let currentRole = 'student';
+    let currentRole = 'guest';
     let currentCategory = null;
     let currentThread = null;
 
     // Audio room state
     let channel = null;
     let inRoom = false;
-    const peers = new Map();      // userId -> RTCPeerConnection
-    const audioEls = new Map();   // userId -> <audio> element
+    const peers = new Map();
+    const audioEls = new Map();
     let micStream = null;
     let micTrack = null;
-    let canSpeak = false;         // true after a host invites this user
+    let canSpeak = false;
     let muted = false;
     let handUp = false;
 
     const $ = id => document.getElementById(id);
-    const status = $('status');
+    const statusEl = $('status');
 
-    function isHost() { return LEADER_ROLES.includes(currentRole); }
-    function myName() { return (currentUser && currentUser.user_metadata && currentUser.user_metadata.full_name) || 'Student'; }
+    // ============ HELPERS ============
+
+    function isLeader() { return LEADER_ROLES.includes(currentRole); }
+
+    function myName() {
+      return (currentUser && currentUser.user_metadata && currentUser.user_metadata.full_name) || 'Student';
+    }
+
+    function formatDate(iso) {
+      return iso ? new Date(iso).toLocaleString() : '';
+    }
+
+    function authorName(row) {
+      return (row.profiles && row.profiles.full_name) || 'Student';
+    }
 
     function showScreen(id) {
       ['list-view', 'category-view', 'thread-view'].forEach(v => {
@@ -148,65 +181,139 @@
       });
     }
 
-    function makeCard(title, meta, onClick) {
+    function mkBtn(label, cls, onClick) {
+      const b = document.createElement('button');
+      b.textContent = label;
+      if (cls) b.className = cls;
+      b.onclick = onClick;
+      return b;
+    }
+
+    // Disables a button while a request runs, so repeated taps don't send duplicates
+    function setBusy(btn, busy, label) {
+      if (busy) {
+        btn.dataset.label = btn.textContent;
+        btn.textContent = label || 'Saving...';
+        btn.disabled = true;
+      } else {
+        btn.textContent = btn.dataset.label || btn.textContent;
+        btn.disabled = false;
+      }
+    }
+
+    function showLoading(el, text) {
+      el.innerHTML = '';
+      const p = document.createElement('p');
+      p.className = 'loading';
+      p.textContent = text || 'Loading...';
+      el.appendChild(p);
+    }
+
+    function showEmpty(el, text) {
+      el.innerHTML = '';
+      const p = document.createElement('p');
+      p.className = 'empty';
+      p.textContent = text;
+      el.appendChild(p);
+    }
+
+    function showError(el, message, retry) {
+      el.innerHTML = '';
+      const p = document.createElement('p');
+      p.className = 'error-box';
+      p.textContent = message;
+      el.appendChild(p);
+      if (retry) el.appendChild(mkBtn('Try again', 'secondary', retry));
+    }
+
+    // Turns web addresses in text into clickable links. Only http and https links are created.
+    function linkify(text) {
+      const frag = document.createDocumentFragment();
+      const re = /https?:\/\/[^\s<>"']+/g;
+      let last = 0;
+      let m;
+      while ((m = re.exec(text)) !== null) {
+        if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+        const a = document.createElement('a');
+        a.href = m[0];
+        a.textContent = m[0];
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        frag.appendChild(a);
+        last = m.index + m[0].length;
+      }
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      return frag;
+    }
+
+    function makeCard(title, meta, onOpen) {
       const div = document.createElement('div');
       div.className = 'card';
+      div.setAttribute('role', 'button');
+      div.setAttribute('tabindex', '0');
       const strong = document.createElement('strong');
       strong.textContent = title;
       const small = document.createElement('small');
       small.textContent = meta;
       div.append(strong, document.createElement('br'), small);
-      if (onClick) div.onclick = onClick;
+      div.onclick = onOpen;
+      div.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(); } };
       return div;
     }
 
-    function makePost(text, meta) {
-      const div = document.createElement('div');
-      div.className = 'post';
-      div.textContent = text;
-      const small = document.createElement('div');
-      small.className = 'meta';
-      small.textContent = meta;
-      div.appendChild(small);
-      return div;
+    function ownerActions(onEdit, onDelete) {
+      const wrap = document.createElement('div');
+      wrap.className = 'actions';
+      wrap.append(mkBtn('Edit', 'secondary btn-small', onEdit), mkBtn('Delete', 'danger btn-small', onDelete));
+      return wrap;
     }
 
-    function authorName(row) {
-      return (row.profiles && row.profiles.full_name) || 'Student';
+    function setStatusText(el, text, ok) {
+      el.textContent = text;
+      el.className = ok ? 'msg ok' : 'msg';
     }
 
     function canPostIn(category) {
-      if (!category) return false;
+      if (!currentUser || !category) return false;
       if (!LEADER_ONLY_SLUGS.includes(category.slug)) return true;
-      return LEADER_ROLES.includes(currentRole);
+      return isLeader();
     }
+
+    // ============ ACCOUNT STATE ============
 
     async function showForum(user) {
       currentUser = user;
+      currentRole = 'student';
       $('auth-section').style.display = 'none';
-      $('forum-section').style.display = 'block';
-      status.textContent = 'Signed in as ' + user.email;
+      $('logout-btn').style.display = 'inline-block';
+      statusEl.textContent = 'Signed in as ' + user.email;
 
-      const { data } = await db.from('profiles').select('role').eq('id', user.id).single();
-      currentRole = data ? data.role : 'student';
+      const { data, error } = await db.from('profiles').select('role').eq('id', user.id).maybeSingle();
+      if (!error && data) currentRole = data.role;
 
       showScreen('list-view');
       loadCategories();
     }
 
-    function showAuth() {
+    function showGuest() {
       leaveRoom(true);
       currentUser = null;
-      currentRole = 'student';
+      currentRole = 'guest';
       $('auth-section').style.display = 'block';
-      $('forum-section').style.display = 'none';
-      status.textContent = 'Welcome. Sign up or log in to join the discussion.';
+      $('logout-btn').style.display = 'none';
+      statusEl.textContent = 'Browsing as a guest. Log in to post, reply, and join the audio room.';
+      showScreen('list-view');
+      loadCategories();
     }
+
+    // ============ CATEGORIES ============
 
     async function loadCategories() {
       const box = $('categories');
+      showLoading(box, 'Loading categories...');
       const { data, error } = await db.from('categories').select('*').order('id');
-      if (error) { box.textContent = 'Could not load categories: ' + error.message; return; }
+      if (error) { showError(box, 'Could not load categories: ' + error.message, loadCategories); return; }
+      if (!data.length) { showEmpty(box, 'No categories yet.'); return; }
       box.innerHTML = '';
       data.forEach(c => box.appendChild(makeCard(c.name, c.description || '', () => openCategory(c))));
     }
@@ -217,11 +324,7 @@
       $('cat-title').textContent = c.name;
       $('cat-desc').textContent = c.description || '';
       $('thread-msg').textContent = '';
-
-      const allowed = canPostIn(c);
-      $('thread-form').style.display = allowed ? '' : 'none';
-      $('thread-note').style.display = allowed ? 'none' : 'block';
-
+      updateThreadComposer();
       showScreen('category-view');
       setRoomMsg('');
       updateRoomUI();
@@ -229,53 +332,301 @@
       loadThreads();
     }
 
+    function updateThreadComposer() {
+      const form = $('thread-form');
+      const note = $('thread-note');
+      if (!currentUser) {
+        form.style.display = 'none';
+        note.textContent = 'Log in to start a discussion.';
+        note.style.display = 'block';
+        return;
+      }
+      if (canPostIn(currentCategory)) {
+        form.style.display = '';
+        note.style.display = 'none';
+      } else {
+        form.style.display = 'none';
+        note.textContent = 'Only club leaders can post in this category. You can read and reply.';
+        note.style.display = 'block';
+      }
+    }
+
+    // ============ DISCUSSIONS ============
+
     async function loadThreads() {
       const box = $('threads');
-      box.textContent = 'Loading...';
+      showLoading(box, 'Loading discussions...');
       const { data, error } = await db.from('threads')
-        .select('id, title, body, created_at, profiles(full_name)')
+        .select('id, title, body, created_at, edited_at, author_id, profiles(full_name)')
         .eq('category_id', currentCategory.id)
-        .order('created_at', { ascending: false });
-      if (error) { box.textContent = 'Could not load threads: ' + error.message; return; }
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (error) { showError(box, 'Could not load discussions: ' + error.message, loadThreads); return; }
       box.innerHTML = '';
-      if (!data.length) { box.textContent = 'No threads yet.'; return; }
+      if (!data.length) { showEmpty(box, 'No discussions yet.'); return; }
       data.forEach(t => {
-        box.appendChild(makeCard(t.title, authorName(t) + ' · ' + new Date(t.created_at).toLocaleDateString(), () => openThread(t)));
+        const meta = authorName(t) + ' · ' + formatDate(t.created_at) + (t.edited_at ? ' · edited' : '');
+        box.appendChild(makeCard(t.title, meta, () => openThread(t.id)));
       });
     }
 
-    function openThread(t) {
-      currentThread = t;
+    async function openThread(id) {
+      showScreen('thread-view');
+      const detail = $('thread-detail');
+      showLoading(detail, 'Loading discussion...');
+      $('thread-status').textContent = '';
+      $('reply-msg').textContent = '';
+      const { data, error } = await db.from('threads')
+        .select('id, title, body, created_at, edited_at, author_id, category_id, profiles(full_name)')
+        .eq('id', id)
+        .maybeSingle();
+      if (error) { showError(detail, 'Could not open discussion: ' + error.message, () => openThread(id)); return; }
+      if (!data) {
+        showError(detail, 'This discussion is no longer available.');
+        $('replies').innerHTML = '';
+        updateReplyComposer(false);
+        return;
+      }
+      currentThread = data;
+      renderThread();
+      updateReplyComposer(true);
+      loadReplies();
+    }
+
+    function renderThread() {
+      const t = currentThread;
       const detail = $('thread-detail');
       detail.innerHTML = '';
-      const title = document.createElement('h2');
-      title.textContent = t.title;
-      detail.append(title, makePost(t.body, authorName(t) + ' · ' + new Date(t.created_at).toLocaleString()));
-      $('reply-msg').textContent = '';
-      showScreen('thread-view');
-      loadReplies();
+
+      const h = document.createElement('h2');
+      h.textContent = t.title;
+      detail.appendChild(h);
+
+      const card = document.createElement('div');
+      card.className = 'post';
+      const body = document.createElement('div');
+      body.className = 'body';
+      body.appendChild(linkify(t.body));
+      card.appendChild(body);
+
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = authorName(t) + ' · ' + formatDate(t.created_at) + (t.edited_at ? ' · edited ' + formatDate(t.edited_at) : '');
+      card.appendChild(meta);
+
+      if (currentUser && currentUser.id === t.author_id) {
+        card.appendChild(ownerActions(editThread, deleteThread));
+      }
+      detail.appendChild(card);
+    }
+
+    function editThread() {
+      const t = currentThread;
+      const detail = $('thread-detail');
+      detail.innerHTML = '';
+
+      const form = document.createElement('form');
+      form.className = 'edit-form';
+
+      const titleLabel = document.createElement('label');
+      titleLabel.textContent = 'Title (5 to 200 characters)';
+      const title = document.createElement('input');
+      title.value = t.title;
+      title.required = true;
+      title.minLength = 5;
+      title.maxLength = 200;
+
+      const bodyLabel = document.createElement('label');
+      bodyLabel.textContent = 'Discussion (up to 10,000 characters)';
+      const body = document.createElement('textarea');
+      body.value = t.body;
+      body.required = true;
+      body.rows = 8;
+      body.maxLength = 10000;
+
+      const save = mkBtn('Save changes', '', null);
+      save.type = 'submit';
+      const cancel = mkBtn('Cancel', 'secondary', () => renderThread());
+      cancel.type = 'button';
+
+      const msg = document.createElement('p');
+      msg.className = 'msg';
+
+      form.append(titleLabel, title, bodyLabel, body, save, cancel, msg);
+      form.onsubmit = async e => {
+        e.preventDefault();
+        setBusy(save, true);
+        const { data, error } = await db.from('threads')
+          .update({ title: title.value.trim(), body: body.value.trim() })
+          .eq('id', t.id)
+          .select('id, title, body, edited_at');
+        setBusy(save, false);
+        if (error) { msg.textContent = 'Could not save: ' + error.message; return; }
+        if (!data || !data.length) { msg.textContent = 'Could not save. You may not have permission to edit this discussion.'; return; }
+        Object.assign(currentThread, data[0]);
+        renderThread();
+        setStatusText($('thread-status'), 'Discussion saved.', true);
+      };
+
+      detail.appendChild(form);
+      title.focus();
+    }
+
+    async function deleteThread() {
+      if (!confirm('Delete this discussion and all its replies? This cannot be undone.')) return;
+      const { data, error } = await db.from('threads')
+        .delete()
+        .eq('id', currentThread.id)
+        .select('id');
+      if (error) { setStatusText($('thread-status'), 'Could not delete: ' + error.message, false); return; }
+      if (!data || !data.length) { setStatusText($('thread-status'), 'Could not delete. You may not have permission.', false); return; }
+      currentThread = null;
+      showScreen('category-view');
+      setStatusText($('thread-msg'), 'Discussion deleted.', true);
+      loadThreads();
+    }
+
+    // Submit a new discussion
+    $('thread-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!currentUser || !canPostIn(currentCategory)) return;
+      const btn = $('thread-submit');
+      setBusy(btn, true, 'Posting...');
+      $('thread-msg').textContent = '';
+      const { data, error } = await db.from('threads').insert({
+        category_id: currentCategory.id,
+        author_id: currentUser.id,
+        title: $('thread-title').value.trim(),
+        body: $('thread-body').value.trim()
+      }).select('id').single();
+      setBusy(btn, false);
+      if (error) { setStatusText($('thread-msg'), 'Could not post: ' + error.message, false); return; }
+      e.target.reset();
+      openThread(data.id);
+    });
+
+    // ============ REPLIES ============
+
+    function updateReplyComposer(threadLoaded) {
+      const form = $('reply-form');
+      const note = $('reply-note');
+      if (!threadLoaded) {
+        form.style.display = 'none';
+        note.style.display = 'none';
+        return;
+      }
+      if (currentUser) {
+        form.style.display = '';
+        note.style.display = 'none';
+      } else {
+        form.style.display = 'none';
+        note.textContent = 'Log in to reply.';
+        note.style.display = 'block';
+      }
     }
 
     async function loadReplies() {
       const box = $('replies');
-      box.textContent = 'Loading...';
+      showLoading(box, 'Loading replies...');
       const { data, error } = await db.from('replies')
-        .select('id, body, created_at, profiles(full_name)')
+        .select('id, body, created_at, edited_at, author_id, profiles(full_name)')
         .eq('thread_id', currentThread.id)
-        .order('created_at', { ascending: true });
-      if (error) { box.textContent = 'Could not load replies: ' + error.message; return; }
+        .order('created_at', { ascending: true })
+        .limit(200);
+      if (error) { showError(box, 'Could not load replies: ' + error.message, loadReplies); return; }
       box.innerHTML = '';
-      if (!data.length) { box.textContent = 'No replies yet.'; return; }
-      data.forEach(r => box.appendChild(makePost(r.body, authorName(r) + ' · ' + new Date(r.created_at).toLocaleString())));
+      if (!data.length) { showEmpty(box, 'No replies yet.'); return; }
+      data.forEach(r => box.appendChild(renderReply(r)));
     }
+
+    function renderReply(r) {
+      const card = document.createElement('div');
+      card.className = 'post';
+
+      const body = document.createElement('div');
+      body.className = 'body';
+      body.appendChild(linkify(r.body));
+      card.appendChild(body);
+
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = authorName(r) + ' · ' + formatDate(r.created_at) + (r.edited_at ? ' · edited ' + formatDate(r.edited_at) : '');
+      card.appendChild(meta);
+
+      if (currentUser && currentUser.id === r.author_id) {
+        card.appendChild(ownerActions(() => editReply(r, card), () => deleteReply(r)));
+      }
+      return card;
+    }
+
+    function editReply(r, card) {
+      card.innerHTML = '';
+      const form = document.createElement('form');
+      form.className = 'edit-form';
+      const ta = document.createElement('textarea');
+      ta.value = r.body;
+      ta.required = true;
+      ta.rows = 4;
+      ta.maxLength = 5000;
+      const save = mkBtn('Save changes', '', null);
+      save.type = 'submit';
+      const cancel = mkBtn('Cancel', 'secondary', () => loadReplies());
+      cancel.type = 'button';
+      const msg = document.createElement('p');
+      msg.className = 'msg';
+      form.append(ta, save, cancel, msg);
+      form.onsubmit = async e => {
+        e.preventDefault();
+        setBusy(save, true);
+        const { data, error } = await db.from('replies')
+          .update({ body: ta.value.trim() })
+          .eq('id', r.id)
+          .select('id');
+        setBusy(save, false);
+        if (error) { msg.textContent = 'Could not save: ' + error.message; return; }
+        if (!data || !data.length) { msg.textContent = 'Could not save. You may not have permission to edit this reply.'; return; }
+        loadReplies();
+      };
+      card.appendChild(form);
+      ta.focus();
+    }
+
+    async function deleteReply(r) {
+      if (!confirm('Delete this reply? This cannot be undone.')) return;
+      const { data, error } = await db.from('replies')
+        .delete()
+        .eq('id', r.id)
+        .select('id');
+      if (error) { setStatusText($('reply-msg'), 'Could not delete: ' + error.message, false); return; }
+      if (!data || !data.length) { setStatusText($('reply-msg'), 'Could not delete. You may not have permission.', false); return; }
+      loadReplies();
+    }
+
+    $('reply-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!currentUser || !currentThread) return;
+      const btn = $('reply-submit');
+      setBusy(btn, true, 'Posting...');
+      $('reply-msg').textContent = '';
+      const { error } = await db.from('replies').insert({
+        thread_id: currentThread.id,
+        author_id: currentUser.id,
+        body: $('reply-body').value.trim()
+      });
+      setBusy(btn, false);
+      if (error) { setStatusText($('reply-msg'), 'Could not post reply: ' + error.message, false); return; }
+      e.target.reset();
+      loadReplies();
+    });
 
     // ============ AUDIO ROOM ============
     // Each category has its own room. Phones connect directly to each other (peer-to-peer).
-    // Supabase Realtime carries the room list (presence) and the connection setup messages.
+    // Supabase Realtime carries the participant list and connection setup messages.
 
     function setRoomMsg(text) { $('room-msg').textContent = text; }
 
     async function joinRoom() {
+      if (!currentUser) { setRoomMsg('Log in to join the audio room.'); return; }
       if (inRoom || !currentCategory) return;
       setRoomMsg('Connecting...');
       channel = db.channel('psir-room-' + currentCategory.slug, {
@@ -291,7 +642,7 @@
           setRoomMsg('You joined. You are listening.');
           updateRoomUI();
         } else if (s === 'CHANNEL_ERROR' || s === 'TIMED_OUT') {
-          setRoomMsg('Could not connect. Check your internet and try again.');
+          setRoomMsg('Could not connect. Check your internet connection and try again.');
           leaveRoom(true);
         }
       });
@@ -327,13 +678,13 @@
     }
 
     function roleOf(id) {
-      const e = currentPresence()[id];
-      return e && e[0] ? e[0].role : null;
+      const entry = (currentPresence()[id] || [])[0];
+      return entry ? entry.role : null;
     }
 
-    // Connect to everyone else in the room. The person with the smaller id starts each connection.
+    // The person with the smaller id starts each connection, so two phones don't both send an offer
     function syncPeers() {
-      if (!channel) return;
+      if (!channel || !currentUser) return;
       const st = currentPresence();
       const me = currentUser.id;
       Object.keys(st).forEach(id => {
@@ -362,7 +713,7 @@
     }
 
     async function handleSignal(msg) {
-      if (!channel || msg.to !== currentUser.id) return;
+      if (!channel || !currentUser || msg.to !== currentUser.id) return;
       const from = msg.from;
       if (msg.kind === 'offer') {
         const pc = peers.get(from) || makePeer(from);
@@ -381,7 +732,7 @@
     }
 
     function sendSignal(to, kind, data) {
-      if (!channel) return;
+      if (!channel || !currentUser) return;
       channel.send({ type: 'broadcast', event: 'signal', payload: { to, from: currentUser.id, kind, data } });
     }
 
@@ -412,10 +763,10 @@
       if (el) { el.srcObject = null; el.remove(); audioEls.delete(id); }
     }
 
-    // Host controls and listener responses
+    // Host controls. Accepted only from users whose presence entry shows a host role.
+    // Note: this check runs in the browser. Server-side enforcement is planned for Phase 5.
     function handleControl(msg) {
-      if (!channel || msg.to !== currentUser.id) return;
-      // Only accept control messages from someone with a host role
+      if (!channel || !currentUser || msg.to !== currentUser.id) return;
       if (!LEADER_ROLES.includes(roleOf(msg.from))) return;
 
       if (msg.action === 'invite') {
@@ -429,12 +780,13 @@
       } else if (msg.action === 'remove') {
         setRoomMsg('A host removed you from the room.');
         leaveRoom(true);
+        return;
       }
       updateRoomUI();
     }
 
     function hostControl(id, action) {
-      if (!isHost() || !channel) return;
+      if (!isLeader() || !channel) return;
       channel.send({ type: 'broadcast', event: 'control', payload: { to: id, from: currentUser.id, action } });
     }
 
@@ -445,7 +797,7 @@
           video: false
         });
       } catch (e) {
-        setRoomMsg('Microphone blocked. Allow microphone access in your browser settings.');
+        setRoomMsg('Microphone blocked. Allow microphone access in your browser settings, then try again.');
         return;
       }
       micTrack = micStream.getAudioTracks()[0];
@@ -490,17 +842,19 @@
     }
 
     function updateRoomUI() {
-      $('join-room').style.display = inRoom ? 'none' : 'inline-block';
-      $('join-room').disabled = false;
+      const loggedIn = !!currentUser;
+      $('join-room').style.display = (!inRoom && loggedIn) ? 'inline-block' : 'none';
       $('leave-room').style.display = inRoom ? 'inline-block' : 'none';
-      $('hand-btn').style.display = inRoom && !isHost() ? 'inline-block' : 'none';
+      $('hand-btn').style.display = inRoom && !isLeader() ? 'inline-block' : 'none';
       $('hand-btn').textContent = handUp ? 'Lower hand' : 'Raise hand';
-      $('mic-btn').style.display = inRoom && (canSpeak || isHost()) ? 'inline-block' : 'none';
+      $('mic-btn').style.display = inRoom && (canSpeak || isLeader()) ? 'inline-block' : 'none';
       $('mic-btn').textContent = !micTrack ? 'Turn on mic' : (muted ? 'Unmute' : 'Mute');
-      $('hands-panel').style.display = inRoom && isHost() ? 'block' : 'none';
-      $('room-desc').textContent = canSpeak
-        ? 'You can speak in this room.'
-        : 'Join to listen. Speakers are invited by a host.';
+      $('hands-panel').style.display = inRoom && isLeader() ? 'block' : 'none';
+
+      if (!loggedIn) $('room-desc').textContent = 'Log in to join the audio room.';
+      else if (inRoom && canSpeak) $('room-desc').textContent = 'You can speak in this room.';
+      else if (inRoom) $('room-desc').textContent = 'You are listening. A host can invite you to speak.';
+      else $('room-desc').textContent = 'Join to listen. Speakers are invited by a host.';
     }
 
     function renderParticipants() {
@@ -513,8 +867,10 @@
       }
       const st = currentPresence();
       Object.keys(st).forEach(id => {
-        const e = st[id][0];
-        const isMe = id === currentUser.id;
+        const e = (st[id] || [])[0];
+        if (!e) return;
+        const isMe = currentUser && id === currentUser.id;
+
         const row = document.createElement('div');
         row.className = 'row';
 
@@ -536,17 +892,13 @@
         }
         row.appendChild(info);
 
-        if (isHost() && !isMe) {
+        if (isLeader() && !isMe) {
           const actions = document.createElement('div');
-          const speakBtn = document.createElement('button');
-          speakBtn.textContent = e.canSpeak ? 'Stop speaking' : 'Invite to speak';
-          speakBtn.className = e.canSpeak ? 'secondary' : '';
-          speakBtn.onclick = () => hostControl(id, e.canSpeak ? 'revoke' : 'invite');
-          const removeBtn = document.createElement('button');
-          removeBtn.textContent = 'Remove';
-          removeBtn.className = 'danger';
-          removeBtn.onclick = () => hostControl(id, 'remove');
-          actions.append(speakBtn, removeBtn);
+          actions.append(
+            mkBtn(e.canSpeak ? 'Stop speaking' : 'Invite to speak', e.canSpeak ? 'secondary' : '',
+              () => hostControl(id, e.canSpeak ? 'revoke' : 'invite')),
+            mkBtn('Remove', 'danger', () => hostControl(id, 'remove'))
+          );
           row.appendChild(actions);
         }
         box.appendChild(row);
@@ -555,99 +907,81 @@
     }
 
     function renderHands() {
-      if (!isHost()) return;
+      if (!isLeader()) return;
       const box = $('hands');
       box.innerHTML = '';
       const st = currentPresence();
-      const raised = Object.keys(st).filter(id => st[id][0].hand && !st[id][0].canSpeak);
+      const raised = Object.keys(st).filter(id => {
+        const e = (st[id] || [])[0];
+        return e && e.hand && !e.canSpeak;
+      });
       if (!raised.length) {
         box.textContent = 'No hands raised.';
         return;
       }
       raised.forEach(id => {
+        const e = st[id][0];
         const row = document.createElement('div');
         row.className = 'row';
         const label = document.createElement('strong');
-        label.textContent = st[id][0].name || 'Student';
-        const btn = document.createElement('button');
-        btn.textContent = 'Invite to speak';
-        btn.onclick = () => hostControl(id, 'invite');
-        row.append(label, btn);
+        label.textContent = e.name || 'Student';
+        row.append(label, mkBtn('Invite to speak', '', () => hostControl(id, 'invite')));
         box.appendChild(row);
       });
     }
 
-    // Room buttons
     $('join-room').onclick = joinRoom;
     $('leave-room').onclick = () => leaveRoom(false);
     $('mic-btn').onclick = onMicButton;
     $('hand-btn').onclick = onHandButton;
 
-    // ============ NAVIGATION, THREADS, REPLIES, AUTH ============
+    // ============ NAVIGATION ============
+
     $('back-categories').onclick = () => { leaveRoom(true); showScreen('list-view'); };
     $('back-threads').onclick = () => { showScreen('category-view'); loadThreads(); };
 
-    $('thread-form').addEventListener('submit', async e => {
-      e.preventDefault();
-      if (!canPostIn(currentCategory)) return;
-      $('thread-msg').textContent = 'Posting...';
-      const { error } = await db.from('threads').insert({
-        category_id: currentCategory.id,
-        author_id: currentUser.id,
-        title: $('thread-title').value.trim(),
-        body: $('thread-body').value.trim()
-      });
-      if (error) { $('thread-msg').textContent = error.message; return; }
-      $('thread-msg').textContent = '';
-      e.target.reset();
-      loadThreads();
-    });
-
-    $('reply-form').addEventListener('submit', async e => {
-      e.preventDefault();
-      $('reply-msg').textContent = 'Posting...';
-      const { error } = await db.from('replies').insert({
-        thread_id: currentThread.id,
-        author_id: currentUser.id,
-        body: $('reply-body').value.trim()
-      });
-      if (error) { $('reply-msg').textContent = error.message; return; }
-      $('reply-msg').textContent = '';
-      e.target.reset();
-      loadReplies();
-    });
+    // ============ ACCOUNT FORMS ============
 
     $('signup-form').addEventListener('submit', async e => {
       e.preventDefault();
-      $('msg').textContent = 'Creating account...';
+      const btn = $('signup-submit');
+      setBusy(btn, true, 'Creating account...');
       const { error } = await db.auth.signUp({
-        email: $('signup-email').value,
+        email: $('signup-email').value.trim(),
         password: $('signup-password').value,
-        options: { data: { full_name: $('signup-name').value } }
+        options: { data: { full_name: $('signup-name').value.trim() } }
       });
-      $('msg').textContent = error ? error.message : 'Account created. Check your email to confirm, then log in.';
+      setBusy(btn, false);
+      $('auth-msg').textContent = error
+        ? error.message
+        : 'Account created. Check your email for a confirmation link, then log in.';
     });
 
     $('login-form').addEventListener('submit', async e => {
       e.preventDefault();
-      $('msg').textContent = 'Logging in...';
+      const btn = $('login-submit');
+      setBusy(btn, true, 'Logging in...');
+      $('auth-msg').textContent = '';
       const { data, error } = await db.auth.signInWithPassword({
-        email: $('login-email').value,
+        email: $('login-email').value.trim(),
         password: $('login-password').value
       });
-      if (error) { $('msg').textContent = error.message; return; }
-      $('msg').textContent = '';
+      setBusy(btn, false);
+      if (error) { $('auth-msg').textContent = error.message; return; }
+      e.target.reset();
       showForum(data.user);
     });
 
     $('logout-btn').addEventListener('click', async () => {
       await db.auth.signOut();
-      showAuth();
+      showGuest();
     });
+
+    // ============ START ============
 
     db.auth.getSession().then(({ data }) => {
       if (data.session) showForum(data.session.user);
-      else showAuth();
+      else showGuest();
     });
   </script>
 </body>
