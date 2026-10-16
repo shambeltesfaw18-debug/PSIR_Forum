@@ -66,6 +66,7 @@
     .upload-section { background: #fff; border: 1px solid var(--line); padding: 16px; border-radius: 10px; margin-top: 8px; }
     .soon { color: var(--muted); font-size: 14px; }
     footer.site { border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; text-align: center; padding: 20px 16px; margin-top: 24px; }
+    footer.site nav a { color: var(--muted); margin: 0 8px; display: inline-block; padding: 4px 0; }
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
     @media (max-width: 480px) { h1 { font-size: 21px; } .hero h1 { font-size: 22px; } }
   </style>
@@ -77,6 +78,7 @@
       <nav class="main" aria-label="Main">
         <button class="ghost" id="nav-home">Home</button>
         <button class="ghost" id="nav-categories">Categories</button>
+        <button class="ghost" id="nav-bookmarks" style="display:none">Bookmarks</button>
         <button class="ghost" id="nav-login">Log in</button>
         <button class="ghost" id="logout-btn" style="display:none">Log out</button>
       </nav>
@@ -152,6 +154,14 @@
 
       <h2>Live audio rooms</h2>
       <p class="soon">Each category has its own audio room. Open a category to join it.</p>
+    </section>
+
+    <!-- BOOKMARKS -->
+    <section id="bookmarks-view" style="display:none" aria-label="Bookmarks">
+      <h2>My bookmarks</h2>
+      <p class="meta">Discussions you have saved. Only you can see this list.</p>
+      <p class="msg" id="bookmark-msg" role="status"></p>
+      <div id="bookmarks-list"></div>
     </section>
 
     <!-- CATEGORIES -->
@@ -235,7 +245,16 @@
     </section>
   </main>
 
-  <footer class="site">PSIR Forum · Community guidelines and privacy pages will be added in a later update.</footer>
+  <footer class="site">
+    <nav aria-label="Information pages">
+      <a href="info.html?page=about">About</a>
+      <a href="info.html?page=guidelines">Community Guidelines</a>
+      <a href="info.html?page=privacy">Privacy Policy</a>
+      <a href="info.html?page=terms">Terms of Service</a>
+      <a href="info.html?page=contact">Contact</a>
+    </nav>
+    <p>PSIR Forum. Content is posted by its members.</p>
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -328,7 +347,7 @@
     }
 
     function showScreen(id) {
-      ['home-view', 'list-view', 'category-view', 'thread-view'].forEach(v => {
+      ['home-view', 'list-view', 'category-view', 'thread-view', 'bookmarks-view'].forEach(v => {
         $(v).style.display = v === id ? 'block' : 'none';
       });
     }
@@ -431,7 +450,6 @@
     }
 
     // ============ DISCUSSION LISTS (search and sorting) ============
-    // Two lists use this engine: the home page search and the category list.
 
     const panels = {
       home: { box: 'home-results', more: 'home-more', search: 'home-search', sort: 'home-sort', categoryId: null, term: '', order: 'newest', offset: 0, rows: [], reqId: 0 },
@@ -443,7 +461,7 @@
         .select('id, title, body, created_at, edited_at, author_id, category_id')
         .eq('is_hidden', false)
         .order('created_at', { ascending: false })
-        .range(p.offset, p.offset + PAGE_SIZE); // one extra row tells us whether more exist
+        .range(p.offset, p.offset + PAGE_SIZE);
       if (p.categoryId) q = q.eq('category_id', p.categoryId);
       if (p.term) q = q.or('title.ilike.%' + p.term + '%,body.ilike.%' + p.term + '%');
       const { data, error } = await q;
@@ -452,7 +470,6 @@
       return { rows: data.slice(0, PAGE_SIZE), hasMore };
     }
 
-    // Most replied: looks at the newest matching discussions, counts their replies, then sorts
     async function fetchMostReplied(p) {
       let q = db.from('threads')
         .select('id, title, body, created_at, edited_at, author_id, category_id')
@@ -473,8 +490,7 @@
       const p = panels[name];
       const req = ++p.reqId;
       const box = $(p.box);
-      const more = $(p.more);
-      more.style.display = 'none';
+      $(p.more).style.display = 'none';
 
       if (reset) {
         p.offset = 0;
@@ -484,7 +500,7 @@
 
       try {
         const result = p.order === 'replied' ? await fetchMostReplied(p) : await fetchNewest(p);
-        if (req !== p.reqId) return; // a newer search has started; ignore this result
+        if (req !== p.reqId) return;
 
         await attachAuthors(result.rows);
         if (p.order !== 'replied') {
@@ -548,7 +564,6 @@
       });
     }
 
-    // Home: when searching, show results instead of the recent section
     function applyHomeSearch() {
       const p = panels.home;
       const searching = !!p.term;
@@ -571,6 +586,7 @@
       $('auth-section').style.display = 'none';
       $('logout-btn').style.display = 'inline-block';
       $('nav-login').style.display = 'none';
+      $('nav-bookmarks').style.display = 'inline-block';
       statusEl.textContent = 'Signed in as ' + user.email;
 
       const { data, error } = await db.from('profiles').select('role').eq('id', user.id).maybeSingle();
@@ -586,6 +602,7 @@
       $('auth-section').style.display = 'block';
       $('logout-btn').style.display = 'none';
       $('nav-login').style.display = 'inline-block';
+      $('nav-bookmarks').style.display = 'none';
       statusEl.textContent = 'Browsing as a guest. Log in to post, reply, and join the audio room.';
       showHome();
     }
@@ -602,9 +619,17 @@
       loadCategories();
     }
 
+    function showBookmarks() {
+      leaveRoom(true);
+      if (!currentUser) { showHome(); return; }
+      showScreen('bookmarks-view');
+      loadBookmarks();
+    }
+
     $('nav-home').onclick = showHome;
     $('brand-home').onclick = e => { e.preventDefault(); showHome(); };
     $('nav-categories').onclick = showCategories;
+    $('nav-bookmarks').onclick = showBookmarks;
     $('nav-login').onclick = () => { showHome(); $('auth-section').scrollIntoView({ behavior: 'smooth' }); $('login-email').focus(); };
     $('hero-explore').onclick = showCategories;
     $('hero-join').onclick = () => {
@@ -821,6 +846,48 @@
         card.appendChild(ownerActions(editThread, deleteThread));
       }
       detail.appendChild(card);
+      addBookmarkButton(card);
+    }
+
+    // Save or remove this discussion from the member's bookmarks
+    async function addBookmarkButton(card) {
+      if (!currentUser || !currentThread) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'actions';
+      const btn = mkBtn('Checking...', 'secondary btn-small', null);
+      btn.disabled = true;
+      wrap.appendChild(btn);
+      card.appendChild(wrap);
+
+      const threadId = currentThread.id;
+      const { data, error } = await db.from('bookmarks')
+        .select('thread_id')
+        .eq('user_id', currentUser.id)
+        .eq('thread_id', threadId)
+        .maybeSingle();
+      if (error) { btn.textContent = 'Bookmarks unavailable'; return; }
+
+      let saved = !!data;
+      const paint = () => {
+        btn.textContent = saved ? 'Remove bookmark' : 'Save to bookmarks';
+        btn.disabled = false;
+      };
+      paint();
+
+      btn.onclick = async () => {
+        btn.disabled = true;
+        const res = saved
+          ? await db.from('bookmarks').delete().eq('user_id', currentUser.id).eq('thread_id', threadId)
+          : await db.from('bookmarks').insert({ user_id: currentUser.id, thread_id: threadId });
+        if (res.error) {
+          setStatusText($('thread-status'), 'Could not update bookmark: ' + res.error.message, false);
+          btn.disabled = false;
+          return;
+        }
+        saved = !saved;
+        setStatusText($('thread-status'), saved ? 'Saved to your bookmarks.' : 'Removed from your bookmarks.', true);
+        paint();
+      };
     }
 
     function editThread() {
@@ -909,9 +976,66 @@
       openThread(data.id);
     });
 
-    // Wire up search and sorting
     setupListControls('home', applyHomeSearch);
     setupListControls('category', () => runList('category', true));
+
+    // ============ BOOKMARKS PAGE ============
+
+    async function loadBookmarks() {
+      const box = $('bookmarks-list');
+      $('bookmark-msg').textContent = '';
+      showLoading(box, 'Loading bookmarks...');
+      try {
+        const { data: marks, error } = await db.from('bookmarks')
+          .select('thread_id, created_at')
+          .eq('user_id', currentUser.id)
+          .order('created_at', { ascending: false })
+          .limit(100);
+        if (error) throw error;
+        box.innerHTML = '';
+        if (!marks.length) {
+          showEmpty(box, 'You have no saved discussions yet. Open a discussion and tap "Save to bookmarks".');
+          return;
+        }
+
+        const { data: threads, error: tErr } = await db.from('threads')
+          .select('id, title, created_at, author_id, category_id')
+          .in('id', marks.map(m => m.thread_id));
+        if (tErr) throw tErr;
+        await attachAuthors(threads);
+        const byId = new Map(threads.map(t => [t.id, t]));
+
+        let shown = 0;
+        marks.forEach(m => {
+          const t = byId.get(m.thread_id);
+          if (!t) return; // hidden or deleted discussions are skipped
+          shown++;
+          const cat = categoryById.get(t.category_id);
+          const meta = [cat ? cat.name : '', authorName(t), formatDate(t.created_at)].filter(Boolean).join(' · ');
+          const card = makeCard(t.title, meta, () => openThread(t.id));
+          const rm = mkBtn('Remove', 'danger btn-small', async e => {
+            e.stopPropagation();
+            const { error: delErr } = await db.from('bookmarks')
+              .delete()
+              .eq('user_id', currentUser.id)
+              .eq('thread_id', t.id);
+            if (delErr) { setStatusText($('bookmark-msg'), 'Could not remove: ' + delErr.message, false); return; }
+            setStatusText($('bookmark-msg'), 'Bookmark removed.', true);
+            loadBookmarks();
+          });
+          rm.onkeydown = e => e.stopPropagation();
+          const actions = document.createElement('div');
+          actions.className = 'actions';
+          actions.appendChild(rm);
+          card.appendChild(actions);
+          box.appendChild(card);
+        });
+
+        if (!shown) showEmpty(box, 'Your saved discussions are no longer available.');
+      } catch (err) {
+        showError(box, 'Could not load bookmarks: ' + err.message, loadBookmarks);
+      }
+    }
 
     // ============ FILES ============
 
