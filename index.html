@@ -2904,5 +2904,124 @@
   <script src="features.js"></script>
   <script src="https://sdk.videosdk.live/js-sdk/1.1.1/videosdk.js"></script>
 <script src="audio-room.js"></script>
+<script id="psir-language-switcher">
+(() => {
+  const translations = {
+    "🎓 An academic community for curious minds":"🎓 ለማወቅ ጉጉት ላላቸው የአካዳሚክ ማህበረሰብ",
+    "Think critically. Debate respectfully.":"በትችት ያስቡ። በአክብሮት ይወያዩ።",
+    "Learn together.":"አብረን እንማር።",
+    "Political Science & International Relations":"የፖለቲካ ሳይንስና ዓለም አቀፍ ግንኙነት",
+    "Home":"መነሻ", "Categories":"ምድቦች", "Discussions":"ውይይቶች", "Audio Room":"የድምፅ ክፍል", "About":"ስለ መድረኩ",
+    "Log in":"ግባ", "Join forum":"መድረኩን ተቀላቀል", "A space for ideas and dialogue":"የሐሳብና ውይይት መድረክ",
+    "Understand the world.":"ዓለምን ይረዱ።", "Shape the debate.":"ውይይቱን ይቅረጹ።",
+    "Connect with students, researchers, and curious minds to explore politics, international affairs, diplomacy, governance, and the ideas shaping our world.":"ፖለቲካን፣ ዓለም አቀፍ ጉዳዮችን፣ ዲፕሎማሲን፣ አስተዳደርንና ዓለማችንን የሚቀርጹ ሐሳቦችን ለመመርመር ከተማሪዎች፣ ከተመራማሪዎችና ከሌሎች ጉጉት ካላቸው ጋር ይገናኙ።",
+    "Start a discussion →":"ውይይት ይጀምሩ →", "Explore topics":"ርዕሶችን ያስሱ", "Explore the big questions":"ትልልቅ ጥያቄዎችን ያስሱ",
+    "Ideas worth discussing. Perspectives worth understanding.":"ሊወያዩባቸው የሚገቡ ሐሳቦች። ሊረዱ የሚገቡ አመለካከቶች።",
+    "Global Affairs":"ዓለም አቀፍ ጉዳዮች", "Power, conflict, and cooperation":"ኃይል፣ ግጭትና ትብብር",
+    "Political Theory":"የፖለቲካ ንድፈ ሐሳብ", "Ideas, ideologies, and institutions":"ሐሳቦች፣ ርዕዮተ ዓለሞችና ተቋማት",
+    "Diplomacy & Governance":"ዲፕሎማሲና አስተዳደር", "Policy, negotiation, and leadership":"ፖሊሲ፣ ድርድርና አመራር",
+    "Explore by topic":"በርዕስ ያስሱ", "Find your area of interest and join the conversation.":"የሚስብዎትን ርዕስ ይምረጡና ውይይቱን ይቀላቀሉ።",
+    "View all discussions":"ሁሉንም ውይይቶች ይመልከቱ", "International Relations":"ዓለም አቀፍ ግንኙነት",
+    "Global power, security, foreign policy, and world order.":"ዓለም አቀፍ ኃይል፣ ደህንነት፣ የውጭ ፖሊሲና የዓለም ሥርዓት።",
+    "Political Science":"የፖለቲካ ሳይንስ", "Political systems, ideologies, elections, and institutions.":"የፖለቲካ ሥርዓቶች፣ ርዕዮተ ዓለሞች፣ ምርጫዎችና ተቋማት።",
+    "Diplomacy & Foreign Policy":"ዲፕሎማሲና የውጭ ፖሊሲ", "Negotiations, international cooperation, and statecraft.":"ድርድሮች፣ ዓለም አቀፍ ትብብርና የመንግሥት ዲፕሎማሲ።",
+    "Research & Academia":"ምርምርና አካዳሚክ", "Research methods, academic writing, and scholarly debate.":"የምርምር ዘዴዎች፣ አካዳሚክ ጽሑፍና ምሁራዊ ውይይት።",
+    "Peace & Security":"ሰላምና ደህንነት", "Conflict prevention, peacebuilding, and security studies.":"ግጭትን መከላከል፣ ሰላምን መገንባትና የደህንነት ጥናት።",
+    "Governance & Public Policy":"አስተዳደርና የሕዝብ ፖሊሲ", "Public institutions, development, and policy decisions.":"የሕዝብ ተቋማት፣ ልማትና የፖሊሲ ውሳኔዎች።",
+    "African Affairs":"የአፍሪካ ጉዳዮች", "African politics, regional integration, and development.":"የአፍሪካ ፖለቲካ፣ የክልል ውህደትና ልማት።",
+    "General Discussion":"አጠቃላይ ውይይት", "Questions, opportunities, and conversations across PSIR.":"በPSIR ዙሪያ ጥያቄዎች፣ ዕድሎችና ውይይቶች።",
+    "Hub of Idea Discussion Club":"የሐሳብ ውይይት ክለብ ማዕከል", "Publish and explore club news, journals, and blogs.":"የክለቡን ዜናዎች፣ የምርምር መጽሔቶችና ብሎጎች ያትሙና ያስሱ።",
+    "Community discussions":"የማህበረሰብ ውይይቶች", "Ask questions, share insights, and learn from different perspectives.":"ጥያቄዎችን ይጠይቁ፣ ግንዛቤዎችን ያጋሩና ከተለያዩ አመለካከቶች ይማሩ።",
+    "＋ New discussion":"＋ አዲስ ውይይት", "All categories":"ሁሉም ምድቦች", "No discussions yet":"እስካሁን ውይይቶች የሉም",
+    "Start the first conversation and help build the PSIR community.":"የመጀመሪያውን ውይይት ይጀምሩና የPSIR ማህበረሰብን ለመገንባት ያግዙ።",
+    "Community principles":"የማህበረሰቡ መርሆዎች", "Evidence over assumptions":"ግምት ሳይሆን ማስረጃ", "Support arguments with credible sources.":"ክርክሮችን ታማኝ ምንጮች በመጠቀም ይደግፉ።",
+    "Respect different views":"የተለያዩ አመለካከቶችን ያክብሩ", "Challenge ideas without attacking people.":"ሰዎችን ሳያጠቁ ሐሳቦችን ይተቹ።",
+    "Learn together":"አብረን እንማር", "Ask questions and share knowledge.":"ጥያቄዎችን ይጠይቁና እውቀትን ያጋሩ።",
+    "Getting started":"መጀመሪያ ደረጃ", "Have a question about politics, diplomacy, governance, or research? Start a discussion and invite others to contribute.":"ስለ ፖለቲካ፣ ዲፕሎማሲ፣ አስተዳደር ወይም ምርምር ጥያቄ አለዎት? ውይይት ይጀምሩና ሌሎችን ይጋብዙ።",
+    "About the community":"ስለ ማህበረሰቡ", "A forum for thoughtful political and international dialogue.":"ለጥልቅ የፖለቲካና ዓለም አቀፍ ውይይት የተዘጋጀ መድረክ።",
+    "PSIR Forum is designed as a meeting place for people interested in Political Science and International Relations. It encourages discussion, academic curiosity, and the exchange of ideas.":"PSIR Forum በፖለቲካ ሳይንስና በዓለም አቀፍ ግንኙነት ፍላጎት ያላቸው ሰዎች የሚገናኙበት መድረክ ነው። ውይይትን፣ አካዳሚክ ጉጉትንና የሐሳብ ልውውጥን ያበረታታል።",
+    "Whether you are a student beginning your studies, a researcher developing an argument, or simply interested in world affairs, you can use this space to explore questions and learn from others.":"ትምህርትዎን የጀመሩ ተማሪ፣ ክርክር የሚያዳብሩ ተመራማሪ ወይም በዓለም ጉዳዮች ፍላጎት ያለዎት ሰው ቢሆኑም፣ ጥያቄዎችን ለማስሳትና ከሌሎች ለመማር ይህን መድረክ መጠቀም ይችላሉ።",
+    "Join the conversation":"ውይይቱን ይቀላቀሉ", "Critical thinking":"ትችታዊ አስተሳሰብ", "Examine assumptions, compare perspectives, and ask better questions.":"ግምቶችን ይመርምሩ፣ አመለካከቶችን ያነጻጽሩና የተሻሉ ጥያቄዎችን ይጠይቁ።",
+    "Global perspectives":"ዓለም አቀፍ አመለካከቶች", "Discuss local, regional, and international issues with an open mind.":"የአካባቢ፣ የክልልና ዓለም አቀፍ ጉዳዮችን በክፍት አስተሳሰብ ይወያዩ።",
+    "Academic development":"አካዳሚክ እድገት", "Exchange ideas about research, theory, policy, and professional growth.":"ስለ ምርምር፣ ንድፈ ሐሳብ፣ ፖሊሲና ሙያዊ እድገት ሐሳቦችን ይለዋወጡ።",
+    "Responsible participation":"ኃላፊነት ያለው ተሳትፎ", "Keep conversations constructive and avoid harassment or personal attacks.":"ውይይቶችን ገንቢ ያድርጉ፤ ትንኮሳንና የግል ጥቃትን ያስወግዱ።",
+    "Have an idea worth discussing?":"ሊወያዩበት የሚገባ ሐሳብ አለዎት?", "Share a question, propose an argument, or start an academic conversation.":"ጥያቄ ያጋሩ፣ ክርክር ያቅርቡ ወይም አካዳሚክ ውይይት ይጀምሩ።",
+    "Create a discussion →":"ውይይት ይፍጠሩ →", "Explore":"ያስሱ", "Topics":"ርዕሶች", "Academic Audio Room":"የአካዳሚክ ድምፅ ክፍል", "About PSIR Forum":"ስለ PSIR Forum", "Participate":"ይሳተፉ", "My bookmarks":"ያስቀመጥኳቸው", "Community principles":"የማህበረሰቡ መርሆዎች",
+    "A community for thoughtful discussion of Political Science, International Relations, diplomacy, governance, and global affairs.":"በፖለቲካ ሳይንስ፣ በዓለም አቀፍ ግንኙነት፣ በዲፕሎማሲ፣ በአስተዳደርና በዓለም አቀፍ ጉዳዮች ላይ ለጥልቅ ውይይት የተዘጋጀ ማህበረሰብ።",
+    "All rights reserved.":"መብቱ የተጠበቀ ነው።", "Start a discussion":"ውይይት ይጀምሩ", "Share a question or idea with the PSIR community.":"ጥያቄ ወይም ሐሳብ ከPSIR ማህበረሰብ ጋር ያጋሩ።",
+    "Discussion title":"የውይይት ርዕስ", "What would you like to discuss?":"ስለ ምን መወያየት ይፈልጋሉ?", "Category":"ምድብ", "Publishing type":"የህትመት ዓይነት", "Discussion":"ውይይት", "News":"ዜና", "Journal":"የምርምር መጽሔት", "Blog":"ብሎግ",
+    "For Hub of Idea Discussion Club, choose News, Journal, or Blog.":"ለሐሳብ ውይይት ክለብ ማዕከል ዜና፣ የምርምር መጽሔት ወይም ብሎግ ይምረጡ።",
+    "Display name":"የሚታይ ስም", "How should your name appear?":"ስምዎ እንዴት እንዲታይ ይፈልጋሉ?", "Your discussion":"ውይይትዎ", "Explain your question, share your argument, or provide context...":"ጥያቄዎን ያብራሩ፣ ክርክርዎን ያጋሩ ወይም የጀርባ ሁኔታ ያቅርቡ...",
+    "Maximum 5,000 characters. Be respectful and constructive.":"ከፍተኛው 5,000 ቁምፊዎች ነው። በአክብሮትና በገንቢ መንገድ ይጻፉ።", "Your discussion will be published to the PSIR Forum community. Please keep your contributions respectful and constructive.":"ውይይትዎ በPSIR Forum ማህበረሰብ ውስጥ ይታተማል። አስተዋጽኦዎን በአክብሮትና በገንቢ መንገድ ያቅርቡ።", "Publish discussion":"ውይይትን አትም",
+    "Welcome to PSIR Forum":"ወደ PSIR Forum እንኳን በደህና መጡ", "Connect with the academic community.":"ከአካዳሚክ ማህበረሰቡ ጋር ይገናኙ።", "Your name":"ስምዎ", "Email address":"የኢሜይል አድራሻ", "Password":"የይለፍ ቃል", "At least 8 characters":"ቢያንስ 8 ቁምፊዎች", "Your account is secured through Supabase authentication. Never share your password with anyone.":"መለያዎ በSupabase ማረጋገጫ የተጠበቀ ነው። የይለፍ ቃልዎን ለማንም አያጋሩ።", "Continue":"ቀጥል", "Need an account? Register":"መለያ የለዎትም? ይመዝገቡ",
+    "Search discussions, ideas, or topics...":"ውይይቶችን፣ ሐሳቦችን ወይም ርዕሶችን ይፈልጉ...", "No bookmarked discussions":"የተቀመጡ ውይይቶች የሉም", "No matching discussions":"የሚዛመዱ ውይይቶች አልተገኙም", "Log in and save discussions to find them here.":"እዚህ ለማግኘት ይግቡና ውይይቶችን ያስቀምጡ።", "Try a different search or category, or start a new conversation.":"ሌላ ፍለጋ ወይም ምድብ ይሞክሩ፣ ወይም አዲስ ውይይት ይጀምሩ።",
+    "Community contributor":"የማህበረሰብ አስተዋጽኦ አቅራቢ", "Saved":"ተቀምጧል", "Save":"አስቀምጥ", "reply":"መልስ", "replies":"መልሶች", "Delete":"ሰርዝ", "No replies yet. Start the conversation.":"እስካሁን መልስ የለም። ውይይቱን ይጀምሩ።", "Write a thoughtful reply...":"ገንቢ መልስ ይጻፉ...", "Log in to reply":"ለመመለስ ይግቡ", "Reply":"መልስ ይስጡ",
+    "Please log in to save discussions.":"ውይይቶችን ለማስቀመጥ እባክዎ ይግቡ።", "Removed from your bookmarks.":"ከተቀመጡት ውይይቶች ተወግዷል።", "Discussion saved to your bookmarks.":"ውይይቱ በተቀመጡት ውስጥ ተቀምጧል።", "Please log in before replying.":"መልስ ከመስጠትዎ በፊት እባክዎ ይግቡ።", "Your reply has been published.":"መልስዎ ታትሟል።", "Discussion deleted.":"ውይይቱ ተሰርዟል።", "You have logged out.":"ከመለያዎ ወጥተዋል።", "Please log in to start a discussion.":"ውይይት ለመጀመር እባክዎ ይግቡ።", "Please wait...":"እባክዎ ይጠብቁ...", "Your account has been created.":"መለያዎ ተፈጥሯል።", "Welcome back to PSIR Forum!":"ወደ PSIR Forum እንኳን በደህና ተመለሱ!", "Please log in before publishing.":"ከማተምዎ በፊት እባክዎ ይግቡ።", "Please choose News, Journal, or Blog for Hub of Idea posts.":"ለHub of Idea ልጥፎች ዜና፣ የምርምር መጽሔት ወይም ብሎግ ይምረጡ።", "Please complete all required fields.":"እባክዎ ሁሉንም አስፈላጊ መስኮች ይሙሉ።", "Your discussion has been published!":"ውይይትዎ ታትሟል!", "Please log in to see your bookmarks.":"ያስቀመጧቸውን ለማየት እባክዎ ይግቡ።"
+  };
+  const attrs = {
+    "Search discussions":"ውይይቶችን ይፈልጉ", "Filter by category":"በምድብ ያጣሩ", "Write a reply":"መልስ ይጻፉ", "PSIR Forum homepage":"የPSIR Forum መነሻ ገጽ", "Toggle navigation":"አሰሳን ይቀያይሩ", "Close dialog":"መስኮቱን ዝጋ"
+  };
+  const reverse = Object.fromEntries(Object.entries(translations).map(([en,am])=>[am,en]));
+  let lang = localStorage.getItem('psir-language') || 'en';
+  const norm = s => (s || '').replace(/\s+/g,' ').trim();
+  function convertText(node, target) {
+    const val = norm(node.nodeValue);
+    if (!val) return;
+    const dict = target === 'am' ? translations : reverse;
+    if (dict[val]) {
+      const leading = (node.nodeValue.match(/^\s*/) || [''])[0];
+      const trailing = (node.nodeValue.match(/\s*$/) || [''])[0];
+      node.nodeValue = leading + dict[val] + trailing;
+    }
+  }
+  function apply(target) {
+    lang = target;
+    document.documentElement.lang = target === 'am' ? 'am' : 'en';
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(n=>convertText(n,target));
+    document.querySelectorAll('[placeholder]').forEach(el=>{
+      const dict = target==='am' ? translations : reverse;
+      const original = el.getAttribute('placeholder');
+      if(dict[original]) el.setAttribute('placeholder',dict[original]);
+    });
+    document.querySelectorAll('[aria-label]').forEach(el=>{
+      const dict = target==='am' ? attrs : Object.fromEntries(Object.entries(attrs).map(([a,b])=>[b,a]));
+      const original = el.getAttribute('aria-label'); if(dict[original]) el.setAttribute('aria-label',dict[original]);
+    });
+    const btn=document.getElementById('psirLanguageButton');
+    if(btn){ btn.textContent = target==='am' ? '🇬🇧 English' : '🇪🇹 አማርኛ'; btn.setAttribute('aria-label', target==='am' ? 'Switch to English' : 'ወደ አማርኛ ቀይር'); }
+    const meta=document.querySelector('meta[name="description"]');
+    if(meta) meta.content=target==='am' ? 'PSIR Forum የፖለቲካ ሳይንስና ዓለም አቀፍ ግንኙነት ማህበረሰብ ነው።' : 'PSIR Forum is a community for students, researchers, and professionals interested in Political Science and International Relations.';
+    localStorage.setItem('psir-language',target);
+  }
+  function addButton(){
+    const actions=document.querySelector('.nav-actions'); if(!actions || document.getElementById('psirLanguageButton')) return;
+    const b=document.createElement('button'); b.id='psirLanguageButton'; b.type='button'; b.className='btn btn-outline'; b.style.padding='9px 11px'; b.style.whiteSpace='nowrap';
+    b.addEventListener('click',()=>apply(lang==='en'?'am':'en')); actions.prepend(b);
+    apply(lang);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',addButton); else addButton();
+  const observer=new MutationObserver(records=>{
+    if(!document.getElementById('psirLanguageButton')) addButton();
+    if(lang!=='am') return;
+    observer.disconnect();
+    for(const record of records){
+      if(record.type==='characterData') convertText(record.target,'am');
+      for(const n of record.addedNodes||[]){
+        if(n.nodeType===Node.TEXT_NODE) convertText(n,'am');
+        else if(n.nodeType===Node.ELEMENT_NODE){
+          const walker=document.createTreeWalker(n,NodeFilter.SHOW_TEXT); while(walker.nextNode()) convertText(walker.currentNode,'am');
+          n.querySelectorAll?.('[placeholder]').forEach(el=>{if(translations[el.placeholder])el.placeholder=translations[el.placeholder]});
+        }
+      }
+    }
+    observer.observe(document.body,{subtree:true,childList:true,characterData:true});
+  });
+  observer.observe(document.body,{subtree:true,childList:true,characterData:true});
+  window.PSIRForumLanguage={set:apply,get:()=>lang};
+})();
+</script>
+
 </body>
 </html>
