@@ -2,7 +2,7 @@ const crypto = require('crypto');
 
 const SUPABASE_URL = 'https://updxillknwufqekfzkur.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5';
-const VIDEOSDK_API_KEY = 'ba872283-59b5-452a-9a46-981cd3ee4f0f';
+const VIDEOSDK_API_KEY = 'b31d83b9-14b3-4e38-9e4b-b3c414799616';
 const LEADER = ['admin', 'moderator', 'scholar'];
 
 function b64url(text) {
