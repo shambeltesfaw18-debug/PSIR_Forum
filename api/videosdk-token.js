@@ -31,7 +31,7 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Use POST' });
   }
   if (!process.env.VIDEOSDK_SECRET) {
-    return res.status(500).json({ error: 'Server is missing VideoSDK settings' });
+    return res.status(500).json({ error: 'Server is missing the VideoSDK secret' });
   }
 
   // 1. The caller must be logged in
@@ -60,15 +60,28 @@ module.exports = async function handler(req, res) {
     if (!isHost) return res.status(403).json({ error: 'Only club leaders can start a session' });
 
     const adminToken = makeToken(['allow_join', 'allow_mod']);
-    const roomRes = await fetch('https://api.videosdk.live/v2/rooms', {
-      method: 'POST',
-      headers: { Authorization: adminToken, 'Content-Type': 'application/json' },
-      body: JSON.stringify({})
-    });
-    const room = await roomRes.json().catch(() => ({}));
-    if (!roomRes.ok || !room.roomId) {
-      return res.status(502).json({ error: 'Could not create the audio room' });
+    let roomRes;
+    try {
+      roomRes = await fetch('https://api.videosdk.live/v2/rooms', {
+        method: 'POST',
+        headers: { Authorization: adminToken, 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+    } catch (err) {
+      return res.status(502).json({ error: 'Could not reach VideoSDK: ' + err.message });
     }
+
+    const text = await roomRes.text();
+    let room = {};
+    try { room = JSON.parse(text); } catch (e) { /* not JSON */ }
+
+    if (!roomRes.ok || !room.roomId) {
+      const reason = (room.error || room.message || text || 'no details').toString().slice(0, 200);
+      return res.status(502).json({
+        error: 'VideoSDK refused the request (' + roomRes.status + '): ' + reason
+      });
+    }
+
     return res.status(200).json({
       roomId: room.roomId,
       token: makeToken(['allow_join', 'allow_mod'])
