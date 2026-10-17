@@ -77,13 +77,13 @@ textarea.field{min-height:110px;resize:vertical}
 <body>
 <header class="topbar">
 <div class="top-inner">
-  <div class="brand"><div class="logo">PF</div><div>PSIR Forum<small>Political Science · International Relations</small></div></div>
-  <div class="actions">
-    <span id="userLabel" class="userlabel"></span>
-    <button id="loginBtn" class="btn dark">Log in</button>
-    <button id="signupBtn" class="btn gold">Create account</button>
-    <button id="logoutBtn" class="btn dark hidden">Log out</button>
-  </div>
+<div class="brand"><div class="logo">PF</div><div>PSIR Forum<small>Political Science · International Relations</small></div></div>
+<div class="actions">
+<span id="userLabel" class="userlabel"></span>
+<button id="loginBtn" class="btn dark">Log in</button>
+<button id="signupBtn" class="btn gold">Create account</button>
+<button id="logoutBtn" class="btn dark hidden">Log out</button>
+</div>
 </div>
 </header>
 
@@ -92,7 +92,6 @@ textarea.field{min-height:110px;resize:vertical}
 <h1>Ideas. Debate. Global perspectives.</h1>
 <p>A community for students, researchers, and curious minds discussing politics, diplomacy, governance, security, and international affairs.</p>
 </section>
-
 <div id="globalStatus" class="status"></div>
 
 <div class="layout">
@@ -167,9 +166,9 @@ textarea.field{min-height:110px;resize:vertical}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-(() => {
+    (() => {
   const SUPABASE_URL = "https://updxillknwufqekfzkur.supabase.co";
-  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F";
   const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
   const $ = id => document.getElementById(id);
   let currentUser = null;
@@ -181,114 +180,204 @@ textarea.field{min-height:110px;resize:vertical}
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
   }[c]));
+
   const dateText = s => {
-    try { return new Date(s).toLocaleString([], {dateStyle:"medium",timeStyle:"short"}); }
-    catch { return ""; }
+    try {
+      return new Date(s).toLocaleString([], {
+        dateStyle:"medium",
+        timeStyle:"short"
+      });
+    } catch {
+      return "";
+    }
   };
+
   function status(el,message,kind="error") {
     el.textContent=message;
     el.className="status show "+kind;
   }
+
   function clearStatus(el) {
     el.textContent="";
     el.className="status";
   }
+
   function explainError(e) {
     const m=e?.message||"Something went wrong. Please try again.";
-    if(/Invalid login credentials/i.test(m)) return "Email or password is incorrect. If you just registered, check your email for a confirmation link.";
-    if(/Email not confirmed/i.test(m)) return "Please open the confirmation email from Supabase, then try logging in again.";
-    if(/relation .* does not exist|Could not find the table/i.test(m)) return "The forum database tables are not set up yet. Run the SQL setup in Supabase → SQL Editor.";
-    if(/row-level security|permission denied|not allowed/i.test(m)) return "Supabase blocked this action. Check that you ran the forum SQL setup and its security policies.";
+
+    if(/Invalid login credentials/i.test(m))
+      return "Email or password is incorrect. Check your details and try again.";
+
+    if(/Email not confirmed/i.test(m))
+      return "Please open the confirmation email from Supabase before logging in.";
+
+    if(/relation .* does not exist|Could not find the table/i.test(m))
+      return "A required database table could not be found. Check your Supabase table names.";
+
+    if(/row-level security|permission denied|not allowed/i.test(m))
+      return "Supabase blocked this action. Check your database permissions and security policies.";
+
     return m;
   }
+
   function setMode(next) {
     mode=next;
     const signup=mode==="signup";
-    $("authTitle").textContent=signup?"Create your PSIR Forum account":mode==="reset"?"Reset your password":"Welcome back";
-    $("authSubtitle").textContent=signup?"Use an email you can access. You must be at least 16.":mode==="reset"?"We'll email you a password-reset link.":"Sign in to join the discussion.";
-    $("tabLogin").className="btn"+(!signup&&mode!=="reset"?" primary":"");
+    const reset=mode==="reset";
+
+    $("authTitle").textContent=signup
+      ?"Create your PSIR Forum account"
+      :reset?"Reset your password":"Welcome back";
+
+    $("authSubtitle").textContent=signup
+      ?"Use an email you can access. You must be at least 16."
+      :reset?"We'll email you a password-reset link."
+      :"Sign in to join the discussion.";
+
+    $("tabLogin").className="btn"+(!signup&&!reset?" primary":"");
     $("tabSignup").className="btn"+(signup?" primary":"");
+
     $("confirmWrap").classList.toggle("hidden",!signup);
     $("ageWrap").classList.toggle("hidden",!signup);
-    $("authPassword").required=mode!=="reset";
+    $("passwordWrap").classList.toggle("hidden",reset);
+
+    $("authPassword").required=!reset;
     $("authConfirm").required=signup;
-    $("passwordWrap").classList.toggle("hidden",mode==="reset");
-    $("authSubmit").textContent=signup?"Create account":mode==="reset"?"Send reset link":"Log in";
-    $("forgotBtn").classList.toggle("hidden",signup||mode==="reset");
+
+    $("authSubmit").textContent=signup
+      ?"Create account":reset?"Send reset link":"Log in";
+
+    $("forgotBtn").classList.toggle("hidden",signup||reset);
     clearStatus($("authStatus"));
   }
+
   function openAuth(next="login") {
     setMode(next);
     $("authModal").classList.add("open");
   }
+
   function closeAuth() {
     $("authModal").classList.remove("open");
     clearStatus($("authStatus"));
   }
+
   $("loginBtn").onclick=()=>openAuth("login");
   $("signupBtn").onclick=()=>openAuth("signup");
   $("closeModal").onclick=closeAuth;
-  $("authModal").addEventListener("click",e=>{if(e.target===$("authModal"))closeAuth();});
+
+  $("authModal").addEventListener("click",e=>{
+    if(e.target===$("authModal")) closeAuth();
+  });
+
   $("tabLogin").onclick=()=>setMode("login");
   $("tabSignup").onclick=()=>setMode("signup");
   $("forgotBtn").onclick=()=>setMode("reset");
 
-  async function refreshSession() {
-    const {data,error}=await db.auth.getSession();
-    if(error) console.error(error);
-    currentUser=data?.session?.user||null;
-    updateAuthUI();
+  function showGlobal(msg,kind="success") {
+    status($("globalStatus"),msg,kind);
+    window.scrollTo({top:0,behavior:"smooth"});
+
+    setTimeout(()=>{
+      $("globalStatus").className="status";
+    },6500);
   }
+
   function updateAuthUI() {
     $("loginBtn").classList.toggle("hidden",!!currentUser);
     $("signupBtn").classList.toggle("hidden",!!currentUser);
     $("logoutBtn").classList.toggle("hidden",!currentUser);
-    $("userLabel").textContent=currentUser?(currentUser.email||"Signed in"):"";
+
+    $("userLabel").textContent=currentUser
+      ?(currentUser.email||"Signed in"):"";
+
     $("postForm").classList.toggle("hidden",!currentUser);
     $("composerNotice").classList.toggle("hidden",!!currentUser);
+
     renderPosts();
   }
-  $("logoutBtn").onclick=async()=>{
-    const {error}=await db.auth.signOut();
-    if(error) showGlobal(explainError(error),"error");
-    else showGlobal("You have logged out.","success");
-  };
+
+  async function refreshSession() {
+    const {data,error}=await db.auth.getSession();
+
+    if(error) console.error(error);
+
+    currentUser=data?.session?.user||null;
+    updateAuthUI();
+  }
+
   db.auth.onAuthStateChange((_event,session)=>{
     currentUser=session?.user||null;
     updateAuthUI();
   });
 
+  $("logoutBtn").onclick=async()=>{
+    const {error}=await db.auth.signOut();
+
+    if(error) showGlobal(explainError(error),"error");
+    else showGlobal("You have logged out.","success");
+  };
+
   $("authForm").addEventListener("submit",async e=>{
     e.preventDefault();
     clearStatus($("authStatus"));
+
     const email=$("authEmail").value.trim();
     const password=$("authPassword").value;
+
     $("authSubmit").disabled=true;
+
     try {
       if(mode==="signup") {
-        if(password!==$("authConfirm").value) throw new Error("The passwords do not match.");
-        if(!$("ageConfirm").checked) throw new Error("Please confirm that you are at least 16 years old.");
+        if(password!==$("authConfirm").value)
+          throw new Error("The passwords do not match.");
+
+        if(!$("ageConfirm").checked)
+          throw new Error("Please confirm that you are at least 16 years old.");
+
         const {data,error}=await db.auth.signUp({
-          email,password,
+          email,
+          password,
           options:{emailRedirectTo:location.origin}
         });
+
         if(error) throw error;
+
         if(data.session) {
           showGlobal("Account created. You are now signed in.","success");
           closeAuth();
         } else {
-          status($("authStatus"),"Registration submitted. Check your email for a confirmation link before logging in.","success");
+          status(
+            $("authStatus"),
+            "Registration submitted. Check your email for a confirmation link before logging in.",
+            "success"
+          );
         }
+
       } else if(mode==="reset") {
-        const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin});
+        const {error}=await db.auth.resetPasswordForEmail(email,{
+          redirectTo:location.origin
+        });
+
         if(error) throw error;
-        status($("authStatus"),"If an account exists for that email, a password-reset email will be sent.","success");
+
+        status(
+          $("authStatus"),
+          "If an account exists for that email, a password-reset email will be sent.",
+          "success"
+        );
+
       } else {
-        const {error}=await db.auth.signInWithPassword({email,password});
+        const {error}=await db.auth.signInWithPassword({
+          email,
+          password
+        });
+
         if(error) throw error;
+
         closeAuth();
         showGlobal("You are signed in.","success");
       }
+
     } catch(err) {
       status($("authStatus"),explainError(err));
     } finally {
@@ -296,167 +385,373 @@ textarea.field{min-height:110px;resize:vertical}
     }
   });
 
-  function showGlobal(msg,kind="success") {
-    status($("globalStatus"),msg,kind);
-    window.scrollTo({top:0,behavior:"smooth"});
-    setTimeout(()=>{$("globalStatus").className="status";},6500);
-  }
+  document.querySelectorAll(".category").forEach(b=>{
+    b.addEventListener("click",()=>{
+      selectedCategory=b.dataset.cat;
 
-  document.querySelectorAll(".category").forEach(b=>b.addEventListener("click",()=>{
-    selectedCategory=b.dataset.cat;
-    document.querySelectorAll(".category").forEach(x=>x.classList.toggle("active",x===b));
-    $("feedTitle").textContent=selectedCategory==="All topics"?"Latest discussions":selectedCategory;
-    renderPosts();
-  }));
+      document.querySelectorAll(".category").forEach(x=>{
+        x.classList.toggle("active",x===b);
+      });
+
+      $("feedTitle").textContent=
+        selectedCategory==="All topics"
+          ?"Latest discussions":selectedCategory;
+
+      renderPosts();
+    });
+  });
+
   $("searchInput").addEventListener("input",e=>{
     searchTerm=e.target.value.trim().toLowerCase();
     renderPosts();
   });
 
   async function loadPosts() {
-    $("posts").innerHTML='<div class="loading">Loading discussions…</div>';
-    const {data,error}=await db.from("discussions")
+    $("posts").innerHTML=
+      '<div class="loading">Loading discussions…</div>';
+
+    const {data,error}=await db
+      .from("discussions")
       .select("id,title,body,category,created_at,user_id")
-      .order("created_at",{ascending:false}).limit(100);
+      .order("created_at",{ascending:false})
+      .limit(100);
+
     if(error) {
-      $("posts").innerHTML='<div class="empty">Could not load discussions.<br><small>'+esc(explainError(error))+'</small></div>';
+      $("posts").innerHTML=
+        '<div class="empty">Could not load discussions.<br><small>'+
+        esc(explainError(error))+'</small></div>';
       return;
     }
+
     postsCache=data||[];
     await renderPosts();
   }
+
   async function getMyBookmarks(ids) {
     if(!currentUser||!ids.length) return new Set();
-    const {data,error}=await db.from("bookmarks")
-      .select("discussion_id").eq("user_id",currentUser.id).in("discussion_id",ids);
-    if(error) {console.warn("Bookmark list unavailable",error);return new Set();}
+
+    const {data,error}=await db
+      .from("bookmarks")
+      .select("discussion_id")
+      .eq("user_id",currentUser.id)
+      .in("discussion_id",ids);
+
+    if(error) {
+      console.warn("Bookmark list unavailable",error);
+      return new Set();
+    }
+
     return new Set((data||[]).map(x=>x.discussion_id));
   }
+
   async function renderPosts() {
     const list=postsCache.filter(p=>
       (selectedCategory==="All topics"||p.category===selectedCategory) &&
-      (!searchTerm||(p.title+" "+p.body+" "+p.category).toLowerCase().includes(searchTerm))
+      (!searchTerm||
+        (p.title+" "+p.body+" "+p.category)
+          .toLowerCase().includes(searchTerm))
     );
+
     if(!list.length) {
-      $("posts").innerHTML='<div class="empty">No discussions found. Be the first to start one!</div>';
+      $("posts").innerHTML=
+        '<div class="empty">No discussions found. Be the first to start one!</div>';
       return;
     }
+
     const bookmarks=await getMyBookmarks(list.map(p=>p.id));
+
     $("posts").innerHTML=list.map(p=>`
       <article class="post" data-post="${esc(p.id)}">
-        <div class="post-top"><div>
-          <span class="pill">${esc(p.category)}</span>
-          <div class="meta" style="margin-top:7px">${esc(dateText(p.created_at))}</div>
-        </div></div>
+        <div class="post-top">
+          <div>
+            <span class="pill">${esc(p.category)}</span>
+            <div class="meta" style="margin-top:7px">
+              ${esc(dateText(p.created_at))}
+            </div>
+          </div>
+        </div>
+
         <h3>${esc(p.title)}</h3>
         <div class="post-body">${esc(p.body)}</div>
+
         <div class="post-actions">
-          <button class="linkbtn reply-toggle" data-id="${esc(p.id)}">💬 Replies</button>
-          <button class="linkbtn bookmark-toggle" data-id="${esc(p.id)}">${bookmarks.has(p.id)?"★ Saved":"☆ Save"}</button>
-          ${currentUser&&currentUser.id===p.user_id?'<button class="linkbtn delete-post" data-id="'+esc(p.id)+'">Delete</button>':""}
+          <button class="linkbtn reply-toggle" data-id="${esc(p.id)}">
+            💬 Replies
+          </button>
+
+          <button class="linkbtn bookmark-toggle" data-id="${esc(p.id)}">
+            ${bookmarks.has(p.id)?"★ Saved":"☆ Save"}
+          </button>
+
+          ${currentUser&&currentUser.id===p.user_id
+            ?'<button class="linkbtn delete-post" data-id="'+esc(p.id)+'">Delete</button>'
+            :""}
         </div>
+
         <div class="replybox hidden" id="replies-${esc(p.id)}">
-          <div class="replies-list">Loading replies…</div>
-          ${currentUser?`<form class="reply-form formgrid" data-id="${esc(p.id)}" style="margin-top:10px">
-            <textarea class="field" name="body" maxlength="4000" placeholder="Write a thoughtful reply…" required></textarea>
-            <button class="btn primary" type="submit" style="justify-self:start">Post reply</button>
-          </form>`:'<div class="small-note">Log in to reply.</div>'}
+          <div class="replies-list">Open to load replies…</div>
+
+          ${currentUser?`
+            <form class="reply-form formgrid" data-id="${esc(p.id)}" style="margin-top:10px">
+              <textarea class="field" name="body" maxlength="4000"
+                placeholder="Write a thoughtful reply…" required></textarea>
+              <button class="btn primary" type="submit" style="justify-self:start">
+                Post reply
+              </button>
+            </form>
+          `:'<div class="small-note">Log in to reply.</div>'}
         </div>
-      </article>`).join("");
-    document.querySelectorAll(".reply-toggle").forEach(b=>b.onclick=()=>toggleReplies(b.dataset.id));
-    document.querySelectorAll(".bookmark-toggle").forEach(b=>b.onclick=()=>toggleBookmark(b.dataset.id));
-    document.querySelectorAll(".delete-post").forEach(b=>b.onclick=()=>deletePost(b.dataset.id));
-    document.querySelectorAll(".reply-form").forEach(f=>f.onsubmit=submitReply);
+      </article>
+    `).join("");
+
+    document.querySelectorAll(".reply-toggle").forEach(b=>{
+      b.onclick=()=>toggleReplies(b.dataset.id);
+    });
+
+    document.querySelectorAll(".bookmark-toggle").forEach(b=>{
+      b.onclick=()=>toggleBookmark(b.dataset.id);
+    });
+
+    document.querySelectorAll(".delete-post").forEach(b=>{
+      b.onclick=()=>deletePost(b.dataset.id);
+    });
+
+    document.querySelectorAll(".reply-form").forEach(f=>{
+      f.onsubmit=submitReply;
+    });
   }
 
   $("postForm").addEventListener("submit",async e=>{
     e.preventDefault();
-    if(!currentUser) {openAuth();return;}
+
+    if(!currentUser) {
+      openAuth();
+      return;
+    }
+
     const title=$("postTitle").value.trim();
     const body=$("postBody").value.trim();
     const category=$("postCategory").value;
+
     if(!title||!body) return;
+
     const btn=e.submitter;
     btn.disabled=true;
-    const {error}=await db.from("discussions").insert({
-      title,body,category,user_id:currentUser.id
-    });
-    btn.disabled=false;
-    if(error) {showGlobal(explainError(error),"error");return;}
-    $("postTitle").value="";
-    $("postBody").value="";
-    showGlobal("Discussion published.","success");
-    await loadPosts();
-  });
 
-  async function toggleReplies(id) {
-    const box=$("replies-"+CSS.escape(id));
+    try {
+      const {error}=await db.from("discussions").insert({
+        title,
+        body,
+        category,
+        user_id:currentUser.id
+      });
+
+      if(error) throw error;
+
+      $("postTitle").value="";
+      $("postBody").value="";
+      showGlobal("Discussion published.","success");
+      await loadPosts();
+
+    } catch(err) {
+      showGlobal(explainError(err),"error");
+    } finally {
+      btn.disabled=false;
+    }
+  });
+        async function toggleReplies(id) {
+    const box=$("replies-"+id);
     if(!box) return;
+
+    const wasHidden=box.classList.contains("hidden");
     box.classList.toggle("hidden");
-    if(box.classList.contains("hidden")) return;
+
+    if(!wasHidden) return;
+
     const list=box.querySelector(".replies-list");
     list.textContent="Loading replies…";
-    const {data,error}=await db.from("replies")
-      .select("id,body,created_at,user_id")
-      .eq("discussion_id",id).order("created_at",{ascending:true});
-    if(error) {list.textContent=explainError(error);return;}
-    list.innerHTML=data?.length?data.map(r=>`
-      <div class="reply">
-        <div class="meta">${esc(dateText(r.created_at))}${currentUser&&r.user_id===currentUser.id?" · You":""}</div>
-        <p>${esc(r.body)}</p>
-      </div>`).join(""):'<div class="small-note">No replies yet.</div>';
+
+    try {
+      const {data,error}=await db
+        .from("replies")
+        .select("id,discussion_id,body,user_id,created_at")
+        .eq("discussion_id",id)
+        .order("created_at",{ascending:true});
+
+      if(error) throw error;
+
+      if(!data||!data.length) {
+        list.innerHTML='<div class="small-note">No replies yet.</div>';
+        return;
+      }
+
+      list.innerHTML=data.map(r=>`
+        <div class="reply">
+          <div class="meta">${esc(dateText(r.created_at))}</div>
+          <p>${esc(r.body)}</p>
+          ${currentUser&&currentUser.id===r.user_id
+            ?'<button class="linkbtn delete-reply" data-id="'+esc(r.id)+'">Delete reply</button>'
+            :""}
+        </div>
+      `).join("");
+
+      list.querySelectorAll(".delete-reply").forEach(b=>{
+        b.onclick=()=>deleteReply(b.dataset.id,id);
+      });
+
+    } catch(err) {
+      list.textContent="Could not load replies: "+explainError(err);
+    }
   }
 
   async function submitReply(e) {
     e.preventDefault();
-    if(!currentUser) {openAuth();return;}
+
+    if(!currentUser) {
+      openAuth();
+      return;
+    }
+
     const form=e.currentTarget;
     const id=form.dataset.id;
-    const body=new FormData(form).get("body").trim();
+    const body=form.elements.body.value.trim();
+    const btn=form.querySelector("button[type=submit]");
+
     if(!body) return;
-    const btn=form.querySelector("button");
+
     btn.disabled=true;
-    const {error}=await db.from("replies").insert({
-      discussion_id:id,body,user_id:currentUser.id
-    });
-    btn.disabled=false;
-    if(error) {showGlobal(explainError(error),"error");return;}
-    form.reset();
-    const box=$("replies-"+CSS.escape(id));
-    const list=box.querySelector(".replies-list");
-    const result=await db.from("replies")
-      .select("id,body,created_at,user_id")
-      .eq("discussion_id",id).order("created_at",{ascending:true});
-    if(result.error) {list.textContent=explainError(result.error);return;}
-    list.innerHTML=result.data?.length?result.data.map(r=>`
-      <div class="reply">
-        <div class="meta">${esc(dateText(r.created_at))}${currentUser&&r.user_id===currentUser.id?" · You":""}</div>
-        <p>${esc(r.body)}</p>
-      </div>`).join(""):'<div class="small-note">No replies yet.</div>';
-    showGlobal("Reply posted.","success");
+
+    try {
+      const {error}=await db.from("replies").insert({
+        discussion_id:id,
+        body,
+        user_id:currentUser.id
+      });
+
+      if(error) throw error;
+
+      form.elements.body.value="";
+      showGlobal("Reply published.","success");
+
+      const box=$("replies-"+id);
+      if(box) {
+        box.classList.add("hidden");
+        await toggleReplies(id);
+      }
+
+    } catch(err) {
+      showGlobal(explainError(err),"error");
+    } finally {
+      btn.disabled=false;
+    }
   }
 
   async function toggleBookmark(id) {
-    if(!currentUser) {openAuth();return;}
-    const {data,error}=await db.from("bookmarks")
-      .select("id").eq("discussion_id",id).eq("user_id",currentUser.id).maybeSingle();
-    if(error) {showGlobal(explainError(error),"error");return;}
-    let result;
-    if(data) result=await db.from("bookmarks").delete().eq("id",data.id);
-    else result=await db.from("bookmarks").insert({discussion_id:id,user_id:currentUser.id});
-    if(result.error) {showGlobal(explainError(result.error),"error");return;}
-    await renderPosts();
+    if(!currentUser) {
+      openAuth();
+      return;
+    }
+
+    try {
+      const {data,error}=await db
+        .from("bookmarks")
+        .select("id")
+        .eq("discussion_id",id)
+        .eq("user_id",currentUser.id)
+        .maybeSingle();
+
+      if(error) throw error;
+
+      if(data) {
+        const {error:deleteError}=await db
+          .from("bookmarks")
+          .delete()
+          .eq("id",data.id)
+          .eq("user_id",currentUser.id);
+
+        if(deleteError) throw deleteError;
+
+        showGlobal("Bookmark removed.","success");
+      } else {
+        const {error:insertError}=await db
+          .from("bookmarks")
+          .insert({
+            discussion_id:id,
+            user_id:currentUser.id
+          });
+
+        if(insertError) throw insertError;
+
+        showGlobal("Discussion saved.","success");
+      }
+
+      await renderPosts();
+
+    } catch(err) {
+      showGlobal(explainError(err),"error");
+    }
   }
 
   async function deletePost(id) {
-    if(!confirm("Delete this discussion and its replies? This cannot be undone.")) return;
-    const {error}=await db.from("discussions").delete().eq("id",id);
-    if(error) {showGlobal(explainError(error),"error");return;}
-    showGlobal("Discussion deleted.","success");
-    await loadPosts();
+    if(!currentUser) return;
+
+    if(!confirm("Delete this discussion? This cannot be undone.")) return;
+
+    try {
+      const {error}=await db
+        .from("discussions")
+        .delete()
+        .eq("id",id)
+        .eq("user_id",currentUser.id);
+
+      if(error) throw error;
+
+      showGlobal("Discussion deleted.","success");
+      await loadPosts();
+
+    } catch(err) {
+      showGlobal(explainError(err),"error");
+    }
   }
 
-  refreshSession().then(loadPosts);
+  async function deleteReply(replyId,discussionId) {
+    if(!currentUser) return;
+
+    if(!confirm("Delete this reply?")) return;
+
+    try {
+      const {error}=await db
+        .from("replies")
+        .delete()
+        .eq("id",replyId)
+        .eq("user_id",currentUser.id);
+
+      if(error) throw error;
+
+      showGlobal("Reply deleted.","success");
+
+      const box=$("replies-"+discussionId);
+      if(box) {
+        box.classList.add("hidden");
+        await toggleReplies(discussionId);
+      }
+
+    } catch(err) {
+      showGlobal(explainError(err),"error");
+    }
+  }
+
+  async function initialize() {
+    try {
+      await refreshSession();
+      await loadPosts();
+    } catch(err) {
+      console.error(err);
+      showGlobal("Could not initialize the forum. Check your connection.","error");
+    }
+  }
+
+  initialize();
 })();
 </script>
 </body>
