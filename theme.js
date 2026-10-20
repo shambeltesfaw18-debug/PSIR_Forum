@@ -24,8 +24,9 @@
       border-left: 4px solid #c9a227;
     }
 
-    /* Buttons: pill shape, glossy navy gradient, thin white border */
-    button,
+    /* Buttons: pill shape, glossy navy gradient, thin white border.
+       Category cards are excluded so they keep their own look. */
+    button:not(.category-card):not(.hub-category-card),
     .btn,
     input[type="submit"] {
       border-radius: 999px !important;
@@ -38,20 +39,20 @@
       cursor: pointer;
       transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
-    button:hover,
+    button:not(.category-card):not(.hub-category-card):hover,
     .btn:hover,
     input[type="submit"]:hover {
       transform: translateY(-1px);
       box-shadow: 0 4px 10px rgba(27, 42, 65, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
     }
-    button:disabled,
+    button:not(.category-card):not(.hub-category-card):disabled,
     .btn:disabled {
       opacity: 0.5;
       cursor: default;
       transform: none;
     }
 
-    /* Accent (gold) for the main call-to-action buttons */
+    /* Gold for the main call-to-action buttons */
     .btn-gold,
     .btn-accent {
       background: linear-gradient(180deg, #e2bc4f 0%, #c9a227 55%, #b08d1f 100%) !important;
@@ -59,7 +60,7 @@
       border-color: rgba(255, 255, 255, 0.6) !important;
     }
 
-    /* Secondary (light) buttons */
+    /* Light buttons for secondary actions */
     button.secondary,
     .btn-secondary,
     button.ghost {
@@ -69,7 +70,7 @@
       box-shadow: 0 1px 3px rgba(27, 42, 65, 0.12) !important;
     }
 
-    /* Danger (red) for delete and remove actions */
+    /* Red for delete and remove actions */
     button.danger,
     .btn-danger {
       background: linear-gradient(180deg, #c4344a 0%, #a3172b 55%, #870f22 100%) !important;
