@@ -55,7 +55,6 @@
 
   async function resolveCategory() {
     const name = heading.textContent.trim();
-    if (name === categoryKey) return;
     categoryKey = name;
     slug = null;
     if (!name || name === "Community discussions" || name === "My bookmarked discussions") return;
@@ -63,6 +62,7 @@
     slug = data ? data.slug : null;
   }
 
+  // Ends the call. Only used for Leave, a category change, or logging out.
   function closeRoom() {
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
@@ -78,12 +78,10 @@
       document.exitFullscreen().catch(() => {});
       return;
     }
-    const target = frameBox;
-    const request = target.requestFullscreen || target.webkitRequestFullscreen;
+    const request = frameBox.requestFullscreen || frameBox.webkitRequestFullscreen;
     if (request) {
-      request.call(target).catch(() => {});
+      request.call(frameBox).catch(() => {});
     } else {
-      // Browsers that don't support full screen still get a taller room
       frame.style.height = "80vh";
     }
   }
@@ -142,21 +140,30 @@
     if (refreshing) return;
     refreshing = true;
     try {
+      const previousSlug = slug;
       await loadUser();
       await resolveCategory();
-      if (isOpen && (!me || !slug)) closeRoom();
+
+      // Close the call only when the category really changed or the user logged out
+      if (isOpen && (!me || slug !== previousSlug)) closeRoom();
       render();
     } finally {
       refreshing = false;
     }
   }
 
+  // Only react when the category name actually changes, not on every page update
   let timer = null;
   new MutationObserver(() => {
+    if (heading.textContent.trim() === categoryKey) return;
     clearTimeout(timer);
     timer = setTimeout(refresh, 300);
   }).observe(heading, { childList: true, characterData: true, subtree: true });
 
-  db.auth.onAuthStateChange(() => setTimeout(refresh, 0));
+  db.auth.onAuthStateChange((event) => {
+    if (event === "SIGNED_OUT" && isOpen) closeRoom();
+    setTimeout(refresh, 0);
+  });
+
   refresh();
 })();
