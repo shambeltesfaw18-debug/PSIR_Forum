@@ -26,6 +26,7 @@
   actions.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;align-items:center;";
 
   const frameBox = document.createElement("div");
+  frameBox.id = "psirRoomFrame";
 
   panel.append(title, desc, actions, frameBox);
   anchor.insertAdjacentElement("afterend", panel);
@@ -35,6 +36,7 @@
   let slug = null;
   let categoryKey = null;
   let isOpen = false;
+  let frame = null;
 
   function button(label, onClick, secondary) {
     const b = document.createElement("button");
@@ -62,77 +64,23 @@
   }
 
   function closeRoom() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
     frameBox.innerHTML = "";
+    frame = null;
     isOpen = false;
   }
 
-  function openRoom(url) {
-    frameBox.innerHTML = "";
-    const frame = document.createElement("iframe");
-    frame.src = url;
-    frame.title = "Live room";
-    frame.allow = "camera; microphone; fullscreen; display-capture; autoplay";
-    frame.style.cssText = "width:100%;height:480px;border:0;border-radius:12px;margin-top:12px;";
-    frameBox.appendChild(frame);
-    isOpen = true;
-    render();
-  }
-
-  function render() {
-    actions.innerHTML = "";
-
-    if (!slug) {
-      panel.style.display = "none";
+  function toggleFullScreen() {
+    if (!frame) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
       return;
     }
-    panel.style.display = "block";
-
-    const url = "https://kmeet.infomaniak.com/PSIR-" + slug;
-
-    if (!me) {
-      desc.textContent = "Log in to join the live room for this category.";
-      return;
-    }
-
-    desc.textContent = "Join the video and audio room for this category. You can turn your microphone and camera on or off inside the room.";
-
-    if (isOpen) {
-      actions.append(button("Leave room", () => { closeRoom(); render(); }, true));
+    const target = frameBox;
+    const request = target.requestFullscreen || target.webkitRequestFullscreen;
+    if (request) {
+      request.call(target).catch(() => {});
     } else {
-      actions.append(button("Join live room", () => openRoom(url)));
-    }
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.textContent = "Open in a new tab";
-    link.style.cssText = "color:#1b2a41;font-weight:600;";
-    actions.append(link);
-  }
-
-  // ---------- keep the panel up to date ----------
-  let refreshing = false;
-  async function refresh() {
-    if (refreshing) return;
-    refreshing = true;
-    try {
-      await loadUser();
-      await resolveCategory();
-      // Stop the call if the member changes category or logs out
-      if (isOpen && (!me || !slug)) closeRoom();
-      render();
-    } finally {
-      refreshing = false;
-    }
-  }
-
-  let timer = null;
-  new MutationObserver(() => {
-    clearTimeout(timer);
-    timer = setTimeout(refresh, 300);
-  }).observe(heading, { childList: true, characterData: true, subtree: true });
-
-  db.auth.onAuthStateChange(() => setTimeout(refresh, 0));
-  refresh();
-})();
+      // Browsers that don't support full screen
