@@ -51,6 +51,21 @@
     html body .meta, html body .muted, html body small { color: var(--muted) !important; }
     html body a { color: var(--link); }
 
+    /* Text on dark surfaces (hero, hero card, footer) stays light in both themes.
+       Buttons keep their own colors. */
+    html body .on-dark :is(h1, h2, h3, h4, strong, span, small):not(.btn *),
+    html body .on-dark :is(h1, h2, h3, h4, strong, span, small):not(.btn *) {
+      color: #ffffff !important;
+    }
+    html body .on-dark :is(p, li, label):not(.btn *),
+    html body .on-dark .footer-copy,
+    html body .on-dark .footer-links,
+    html body .on-dark .hero-copy {
+      color: #d6e2ee !important;
+    }
+    html body .on-dark a:not(.btn) { color: #f0c96b !important; }
+    html body .on-dark .btn-gold { color: #1b2a41 !important; }
+
     /* Cards */
     html body .discussion-card,
     html body .category-card,
