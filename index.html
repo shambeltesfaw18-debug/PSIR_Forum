@@ -1581,6 +1581,78 @@
     .hero .btn-secondary { color: #ffffff; border-color: rgba(255,255,255,.65); }
 
   </style>
+
+  <style id="psir-footer-contrast-fix">
+    /* Strong footer contrast in light, dark, and system theme modes. */
+    footer,
+    footer .footer-brand,
+    footer h2,
+    footer h3,
+    footer h4,
+    footer p,
+    footer .footer-copy,
+    footer .footer-links,
+    footer .footer-links a,
+    footer .social-links,
+    footer .social-links a,
+    footer .footer-bottom,
+    footer .footer-bottom a {
+      color: #edf4fb !important;
+      opacity: 1 !important;
+      text-shadow: none !important;
+    }
+
+    footer h2,
+    footer h3,
+    footer h4 {
+      color: #ffffff !important;
+      font-weight: 800 !important;
+    }
+
+    footer a {
+      text-decoration-color: rgba(237, 244, 251, 0.55);
+      text-underline-offset: 3px;
+    }
+
+    footer a:hover,
+    footer a:focus-visible {
+      color: #ffd166 !important;
+    }
+
+    footer .footer-copy,
+    footer p {
+      color: #d5e2ee !important;
+    }
+
+    footer .footer-links a,
+    footer .social-links a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      color: #e5eef7 !important;
+    }
+
+    footer .footer-links a:hover,
+    footer .social-links a:hover {
+      color: #ffd166 !important;
+    }
+
+    @media (max-width: 560px) {
+      footer .footer-grid {
+        gap: 24px;
+      }
+
+      footer h3 {
+        margin-bottom: 10px;
+      }
+
+      footer .footer-links,
+      footer .social-links {
+        gap: 7px;
+      }
+    }
+  </style>
+
 </head>
 
 <body>
