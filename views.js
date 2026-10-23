@@ -8,7 +8,7 @@
     "#home": "/",
     "#discussions": "/discussions",
     "#categories": "/categories",
-    "#audio": "/live"
+    "#live": "/live"
   };
 
   // Turns a category name into a web address part, e.g. "Political Science" -> "political-science"
@@ -94,11 +94,8 @@
         break;
 
       case "live":
-        showSections(["discussions"]);
-        setTimeout(() => {
-          const audio = document.getElementById("audio");
-          if (audio) audio.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 300);
+        showSections(["categories"]);
+        window.scrollTo({ top: 0, behavior: "auto" });
         break;
 
       case "bookmarks":
