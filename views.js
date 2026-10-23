@@ -94,7 +94,7 @@
         break;
 
       case "live":
-        showSections(["categories"]);
+        showSections(["discussions"]);
         window.scrollTo({ top: 0, behavior: "auto" });
         break;
 
