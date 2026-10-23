@@ -34,9 +34,19 @@
   // ---------- state ----------
   let me = null;
   let slug = null;
-  let categoryKey = null;
   let isOpen = false;
   let frame = null;
+  let lastKey = null;
+  let busy = false;
+
+  // Same rule as the category links: "Peace & Security" -> "peace-and-security"
+  function slugify(name) {
+    return String(name || "")
+      .toLowerCase()
+      .replace(/&/g, " and ")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
 
   function button(label, onClick, secondary) {
     const b = document.createElement("button");
@@ -53,16 +63,21 @@
     me = data.session ? data.session.user : null;
   }
 
+  // Finds the category from the web address first, then from the heading text
   async function resolveCategory() {
-    const name = heading.textContent.trim();
-    categoryKey = name;
-    slug = null;
-    if (!name || name === "Community discussions" || name === "My bookmarked discussions") return;
-    const { data } = await db.from("categories").select("slug").eq("name", name).maybeSingle();
-    slug = data ? data.slug : null;
+    const { data: cats, error } = await db.from("categories").select("name, slug");
+    if (error || !cats) { slug = null; return; }
+
+    const match = location.pathname.replace(/\/+$/, "").match(/^\/categories\/([a-z0-9-]+)$/);
+    let found = match ? cats.find(c => slugify(c.name) === match[1]) : null;
+
+    if (!found) {
+      const name = heading.textContent.trim();
+      found = cats.find(c => c.name === name) || null;
+    }
+    slug = found ? found.slug : null;
   }
 
-  // Ends the call. Only used for Leave, a category change, or logging out.
   function closeRoom() {
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
@@ -135,30 +150,30 @@
   }
 
   // ---------- keep the panel up to date ----------
-  let refreshing = false;
   async function refresh() {
-    if (refreshing) return;
-    refreshing = true;
+    if (busy) return;
+    busy = true;
     try {
       const previousSlug = slug;
       await loadUser();
       await resolveCategory();
 
-      // Close the call only when the category really changed or the user logged out
+      // Close the call only when the category changed or the user logged out
       if (isOpen && (!me || slug !== previousSlug)) closeRoom();
       render();
     } finally {
-      refreshing = false;
+      busy = false;
     }
   }
 
-  // Only react when the category name actually changes, not on every page update
-  let timer = null;
-  new MutationObserver(() => {
-    if (heading.textContent.trim() === categoryKey) return;
-    clearTimeout(timer);
-    timer = setTimeout(refresh, 300);
-  }).observe(heading, { childList: true, characterData: true, subtree: true });
+  // Check every second whether the address or the heading changed
+  setInterval(() => {
+    const key = location.pathname + "|" + heading.textContent.trim();
+    if (key !== lastKey) {
+      lastKey = key;
+      refresh();
+    }
+  }, 1000);
 
   db.auth.onAuthStateChange((event) => {
     if (event === "SIGNED_OUT" && isOpen) closeRoom();
