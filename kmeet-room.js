@@ -83,4 +83,80 @@
     if (request) {
       request.call(target).catch(() => {});
     } else {
-      // Browsers that don't support full screen
+      // Browsers that don't support full screen still get a taller room
+      frame.style.height = "80vh";
+    }
+  }
+
+  function openRoom(url) {
+    frameBox.innerHTML = "";
+    frame = document.createElement("iframe");
+    frame.src = url;
+    frame.title = "Live room";
+    frame.allow = "camera; microphone; fullscreen; display-capture; autoplay";
+    frame.style.cssText = "width:100%;height:70vh;min-height:420px;border:0;border-radius:12px;margin-top:12px;background:#000;";
+    frameBox.appendChild(frame);
+    isOpen = true;
+    render();
+  }
+
+  function render() {
+    actions.innerHTML = "";
+
+    if (!slug) {
+      panel.style.display = "none";
+      return;
+    }
+    panel.style.display = "block";
+
+    const url = "https://kmeet.infomaniak.com/PSIR-" + slug;
+
+    if (!me) {
+      desc.textContent = "Log in to join the live room for this category.";
+      return;
+    }
+
+    desc.textContent = "Join the video and audio room for this category. You can turn your microphone and camera on or off inside the room.";
+
+    if (isOpen) {
+      actions.append(
+        button("Full screen", toggleFullScreen),
+        button("Leave room", () => { closeRoom(); render(); }, true)
+      );
+    } else {
+      actions.append(button("Join live room", () => openRoom(url)));
+    }
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = "Open in a new tab";
+    link.style.cssText = "color:#1f6f78;font-weight:600;";
+    actions.append(link);
+  }
+
+  // ---------- keep the panel up to date ----------
+  let refreshing = false;
+  async function refresh() {
+    if (refreshing) return;
+    refreshing = true;
+    try {
+      await loadUser();
+      await resolveCategory();
+      if (isOpen && (!me || !slug)) closeRoom();
+      render();
+    } finally {
+      refreshing = false;
+    }
+  }
+
+  let timer = null;
+  new MutationObserver(() => {
+    clearTimeout(timer);
+    timer = setTimeout(refresh, 300);
+  }).observe(heading, { childList: true, characterData: true, subtree: true });
+
+  db.auth.onAuthStateChange(() => setTimeout(refresh, 0));
+  refresh();
+})();
