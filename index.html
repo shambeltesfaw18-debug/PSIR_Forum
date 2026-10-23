@@ -3,1380 +3,412 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <meta
-    name="description"
-    content="PSIR Forum is a community for students, researchers, and professionals interested in Political Science and International Relations."
-  >
-
+  <meta name="description" content="PSIR Forum is a community for students, researchers, and professionals interested in Political Science and International Relations.">
   <meta name="theme-color" content="#102b46">
-
-  <title>PSIR Forum — Think. Debate. Understand.</title>
+  <title>PSIR Forum | Political Science &amp; International Relations</title>
 
   <style>
     :root {
       --navy: #102b46;
-      --navy-light: #183e60;
+      --navy-2: #1b4a70;
       --blue: #2864a0;
       --gold: #e7b451;
-      --background: #f5f7fa;
+      --bg: #f5f7fa;
       --surface: #ffffff;
       --text: #172b3d;
-      --muted: #6c7b8a;
-      --border: #e2e8ef;
-      --success: #24794c;
-      --danger: #bd3737;
+      --muted: #64748b;
+      --line: #e2e8ef;
+      --danger: #a3172b;
       --radius: 16px;
-      --shadow: 0 8px 28px rgba(16, 43, 70, 0.07);
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-      scroll-padding-top: 90px;
-    }
-
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 90px; }
     body {
       margin: 0;
-      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        Roboto, Arial, sans-serif;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
       color: var(--text);
-      background: var(--background);
+      background: var(--bg);
       line-height: 1.6;
     }
-
-    body.modal-open {
-      overflow: hidden;
+    body.modal-open { overflow: hidden; }
+    button, input, select, textarea { font: inherit; }
+    a { color: inherit; text-decoration: none; }
+    h1, h2, h3 { margin-top: 0; }
+    .container { width: min(1160px, calc(100% - 36px)); margin: 0 auto; }
+    .hidden { display: none !important; }
+    .muted { color: var(--muted); }
+    .small { font-size: 0.86rem; }
+    button:focus-visible, a:focus-visible, input:focus-visible,
+    select:focus-visible, textarea:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 2px;
     }
 
-    button,
-    input,
-    textarea,
-    select {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    button:focus-visible,
-    input:focus-visible,
-    textarea:focus-visible,
-    select:focus-visible,
-    a:focus-visible {
-      outline: 3px solid rgba(40, 100, 160, 0.35);
-      outline-offset: 3px;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .container {
-      width: min(1160px, calc(100% - 36px));
-      margin: 0 auto;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .muted {
-      color: var(--muted);
-    }
-
-    .small {
-      font-size: 0.86rem;
-    }
-
-    .topbar {
-      background: #0a2035;
-      color: #e8eff7;
-      padding: 7px 0;
-      font-size: 0.8rem;
-    }
-
-    .topbar-inner {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .topbar a {
-      color: #f2c96f;
-    }
-
+    /* Navigation */
     .navbar {
       position: sticky;
       top: 0;
       z-index: 50;
       background: rgba(255, 255, 255, 0.97);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--line);
     }
-
     .nav-inner {
       min-height: 76px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 24px;
+      gap: 20px;
+      flex-wrap: wrap;
     }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: max-content;
-    }
-
+    .brand { display: flex; align-items: center; gap: 12px; }
     .brand-mark {
-      width: 46px;
-      height: 46px;
-      border-radius: 13px;
-      display: grid;
-      place-items: center;
-      background: var(--navy);
-      color: var(--gold);
+      width: 46px; height: 46px; border-radius: 13px;
+      display: grid; place-items: center;
+      background: var(--navy); color: var(--gold);
       font-weight: 900;
-      font-size: 1.15rem;
-      letter-spacing: -1px;
     }
-
-    .brand-name {
-      display: block;
-      color: var(--navy);
-      font-weight: 850;
-      letter-spacing: 0.4px;
-      line-height: 1.2;
-    }
-
-    .brand-tagline {
-      display: block;
-      color: var(--muted);
-      font-size: 0.72rem;
-      margin-top: 4px;
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-    }
-
-    .nav-links a {
-      font-size: 0.92rem;
-      font-weight: 650;
-      color: #45596d;
-    }
-
-    .nav-links a:hover {
-      color: var(--blue);
-    }
-
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      border: 1px solid transparent;
-      border-radius: 10px;
-      padding: 11px 17px;
-      font-weight: 750;
-      font-size: 0.91rem;
-      transition: transform 0.15s, background 0.15s;
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
-    }
-
-    .btn-primary {
-      background: var(--navy);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: var(--navy-light);
-    }
-
-    .btn-gold {
-      background: var(--gold);
-      color: #182b3c;
-    }
-
-    .btn-outline {
-      border-color: var(--border);
-      background: white;
-      color: var(--navy);
-    }
-
-    .btn-outline:hover {
-      background: #f0f5fa;
-    }
-
-    .btn-danger {
-      background: #fff0f0;
-      color: var(--danger);
-      border-color: #f4d5d5;
-    }
-
-    .btn-block {
-      width: 100%;
-    }
-
+    .brand-name { display: block; color: var(--navy); font-weight: 850; letter-spacing: 0.4px; line-height: 1.2; }
+    .brand-tagline { display: block; color: var(--muted); font-size: 0.72rem; }
+    .nav-links { display: flex; align-items: center; gap: 22px; }
+    .nav-links a { font-size: 0.92rem; font-weight: 650; color: #45596d; }
+    .nav-links a:hover { color: var(--blue); }
+    .nav-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .mobile-menu {
       display: none;
-      border: 1px solid var(--border);
-      background: white;
+      border: 1px solid var(--line);
+      background: #fff;
       border-radius: 9px;
       padding: 8px 12px;
       font-size: 1.2rem;
       color: var(--navy);
+      cursor: pointer;
     }
 
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      border: 1px solid transparent; border-radius: 10px;
+      padding: 11px 17px; font-weight: 750; font-size: 0.91rem;
+      cursor: pointer; text-decoration: none;
+    }
+    .btn-primary { background: var(--navy); color: #fff; }
+    .btn-gold { background: var(--gold); color: #182b3c; }
+    .btn-outline { border-color: var(--line); background: #fff; color: var(--navy); }
+    .btn-block { width: 100%; }
+    .text-action {
+      border: 1px solid transparent; background: transparent;
+      color: #526b82; padding: 7px 9px; border-radius: 8px;
+      font-weight: 700; font-size: 0.83rem; cursor: pointer;
+    }
+    .text-action:hover { background: #f0f5fa; color: var(--navy); }
+    .text-action.saved { background: #fff4dc; color: #805a12; }
+
+    /* Home hero */
     .hero {
-      position: relative;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at 85% 20%, rgba(231, 180, 81, 0.18), transparent 30%),
-        linear-gradient(125deg, #0b2137, #173e61 75%, #24517a);
-      color: white;
+      position: relative; overflow: hidden;
+      background: linear-gradient(125deg, #0b2137, #173e61 75%, #24517a);
+      color: #fff;
       padding: 78px 0 76px;
     }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      width: 380px;
-      height: 380px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 50%;
-      right: -100px;
-      bottom: -220px;
-      box-shadow:
-        0 0 0 40px rgba(255,255,255,0.025),
-        0 0 0 80px rgba(255,255,255,0.02);
-      pointer-events: none;
-    }
-
     .hero-grid {
-      display: grid;
-      grid-template-columns: 1.25fr 0.75fr;
-      gap: 48px;
-      align-items: center;
-      position: relative;
-      z-index: 1;
+      display: grid; grid-template-columns: 1.25fr 0.75fr;
+      gap: 48px; align-items: center;
     }
-
     .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      text-transform: uppercase;
-      letter-spacing: 1.7px;
-      font-size: 0.75rem;
-      font-weight: 850;
-      color: var(--gold);
+      display: inline-flex; align-items: center; gap: 8px;
+      text-transform: uppercase; letter-spacing: 1.5px;
+      font-size: 0.75rem; font-weight: 850; color: var(--gold);
       margin-bottom: 17px;
     }
-
-    .eyebrow-dot {
-      height: 8px;
-      width: 8px;
-      border-radius: 50%;
-      background: var(--gold);
-    }
-
+    .eyebrow-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
     .hero h1 {
       margin: 0;
-      max-width: 700px;
-      font-size: clamp(2.35rem, 5vw, 4.35rem);
+      font-size: clamp(2.3rem, 5vw, 4.3rem);
       line-height: 1.08;
       letter-spacing: -2px;
     }
-
-    .hero h1 span {
-      color: var(--gold);
-    }
-
-    .hero-copy {
-      color: #d6e2ee;
-      font-size: 1.08rem;
-      max-width: 620px;
-      margin: 23px 0 28px;
-    }
-
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
+    .hero h1 span { color: var(--gold); }
+    .hero-copy { color: #d6e2ee; font-size: 1.05rem; max-width: 620px; margin: 22px 0 28px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
     .hero-card {
-      padding: 27px;
-      border-radius: 20px;
+      padding: 26px; border-radius: 20px;
       background: rgba(255, 255, 255, 0.075);
       border: 1px solid rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
     }
-
-    .hero-card h2 {
-      font-size: 1.12rem;
-      margin: 0 0 7px;
-    }
-
-    .hero-card > p {
-      color: #c8d8e7;
-      font-size: 0.91rem;
-      margin: 0 0 20px;
-    }
-
+    .hero-card h2 { font-size: 1.12rem; margin: 0 0 7px; color: #fff; }
+    .hero-card > p { color: #c8d8e7; font-size: 0.91rem; margin: 0 0 18px; }
     .hero-topic {
-      display: flex;
-      gap: 13px;
-      align-items: center;
-      padding: 13px 0;
-      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex; gap: 13px; align-items: center;
+      padding: 13px 0; border-top: 1px solid rgba(255, 255, 255, 0.12);
     }
-
     .topic-icon {
-      width: 40px;
-      height: 40px;
-      flex-shrink: 0;
-      display: grid;
-      place-items: center;
+      width: 40px; height: 40px; flex-shrink: 0;
+      display: grid; place-items: center;
       background: rgba(255, 255, 255, 0.09);
-      border-radius: 11px;
-      font-size: 1.25rem;
+      border-radius: 11px; font-size: 1.25rem;
     }
+    .hero-topic strong { display: block; font-size: 0.92rem; }
+    .hero-topic small { display: block; color: #c8d8e7; }
 
-    .hero-topic strong {
-      display: block;
-      font-size: 0.92rem;
-    }
-
-    .hero-topic small {
-      display: block;
-      color: #c8d8e7;
-      margin-top: 2px;
-    }
-
-    .section {
-      padding: 66px 0;
-    }
-
-    .section-white {
-      background: white;
-    }
-
+    /* Sections */
+    .section { padding: 64px 0; }
+    .section-white { background: #fff; }
     .section-heading {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 24px;
-      margin-bottom: 27px;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      gap: 22px; margin-bottom: 26px; flex-wrap: wrap;
     }
-
     .section-heading h2 {
-      margin: 0;
-      color: var(--navy);
+      margin: 0; color: var(--navy);
       font-size: clamp(1.6rem, 3vw, 2.1rem);
-      letter-spacing: -0.7px;
-      line-height: 1.2;
+      letter-spacing: -0.7px; line-height: 1.2;
     }
+    .section-heading p { margin: 8px 0 0; color: var(--muted); }
+    h2 { color: var(--navy); }
 
-    .section-heading p {
-      margin: 8px 0 0;
-      color: var(--muted);
-      max-width: 600px;
-    }
-
-    .category-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-    }
-
+    /* Categories */
+    .category-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
     .category-card {
-      text-align: left;
-      width: 100%;
-      padding: 22px;
-      border: 1px solid var(--border);
-      background: white;
-      border-radius: var(--radius);
-      transition: 0.18s ease;
-      color: var(--text);
+      text-align: left; width: 100%; padding: 22px;
+      border: 1px solid var(--line); background: #fff;
+      border-radius: var(--radius); cursor: pointer;
+      color: var(--text); transition: 0.18s ease;
     }
-
-    .category-card:hover,
-    .category-card.active {
+    .category-card:hover, .category-card.active {
       border-color: #9bbbd9;
-      box-shadow: var(--shadow);
+      box-shadow: 0 8px 28px rgba(16, 43, 70, 0.07);
       transform: translateY(-2px);
     }
-
-    .category-card.active {
-      background: #edf5fc;
-    }
-
+    .category-card.active { background: #edf5fc; }
     .category-emoji {
-      display: grid;
-      place-items: center;
-      width: 45px;
-      height: 45px;
-      background: #edf3f9;
-      border-radius: 13px;
-      font-size: 1.4rem;
-      margin-bottom: 15px;
+      display: grid; place-items: center;
+      width: 45px; height: 45px; border-radius: 13px;
+      background: #edf3f9; font-size: 1.4rem; margin-bottom: 15px;
     }
-
-    .category-card strong {
-      display: block;
-      color: var(--navy);
-      font-size: 1rem;
-    }
-
-    .category-card p {
-      color: var(--muted);
-      font-size: 0.85rem;
-      margin: 7px 0 0;
-      line-height: 1.5;
-    }
-
+    .category-card strong { display: block; color: var(--navy); }
+    .category-card p { color: var(--muted); font-size: 0.85rem; margin: 7px 0 0; }
+    .explore-link { display: block; margin-top: 12px; color: var(--blue); font-weight: 700; font-size: 0.86rem; }
     .hub-logo-frame {
-      display: grid;
-      place-items: center;
-      width: 54px;
-      height: 54px;
-      margin-bottom: 15px;
-      padding: 4px;
-      overflow: hidden;
-      border-radius: 12px;
-      background: #fff;
-      border: 1px solid var(--border);
+      display: grid; place-items: center;
+      width: 54px; height: 54px; margin-bottom: 15px; padding: 4px;
+      overflow: hidden; border-radius: 12px;
+      background: #fff; border: 1px solid var(--line);
     }
+    .hub-category-logo { width: 100%; height: 100%; object-fit: contain; }
 
-    .hub-category-logo {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
+    /* Discussions */
     .community-layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 310px;
-      align-items: start;
-      gap: 25px;
+      display: grid; grid-template-columns: minmax(0, 1fr) 310px;
+      gap: 25px; align-items: start;
     }
-
-    .feed-column {
-      min-width: 0;
-    }
-
-    .feed-toolbar {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 18px;
-    }
-
-    .search-wrap {
-      flex: 1;
-      position: relative;
-      min-width: 0;
-    }
-
+    .feed-column { min-width: 0; }
+    .feed-toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 18px; flex-wrap: wrap; }
+    .search-wrap { flex: 1; min-width: 180px; position: relative; }
     .search-wrap span {
-      position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--muted);
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%); color: var(--muted);
     }
-
-    .search-input,
-    .field-input,
-    .field-select,
-    .field-textarea {
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: white;
-      padding: 12px 14px;
-      color: var(--text);
-      outline: none;
+    .search-input, .field-select, .field-input, .field-textarea {
+      width: 100%; border: 1px solid var(--line); border-radius: 10px;
+      background: #fff; padding: 12px 14px; color: var(--text);
     }
-
-    .search-input {
-      padding-left: 42px;
-    }
-
-    .search-input:focus,
-    .field-input:focus,
-    .field-select:focus,
-    .field-textarea:focus {
-      border-color: #7ca6ce;
-      box-shadow: 0 0 0 3px rgba(40, 100, 160, 0.08);
-    }
-
-    .filter-select {
-      width: 150px;
-      flex-shrink: 0;
-    }
-
-    .discussion-list {
-      display: grid;
-      gap: 15px;
-    }
-
+    .search-input { padding-left: 40px; }
+    .filter-select { width: 220px; }
+    .discussion-list { display: grid; gap: 15px; }
     .discussion-card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 23px;
-      transition: box-shadow 0.2s;
+      background: #fff; border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 23px;
     }
-
-    .discussion-card:hover {
-      box-shadow: var(--shadow);
-    }
-
-    .post-topline {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
-
+    .post-topline { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-bottom: 12px; }
     .pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 5px 9px;
-      border-radius: 6px;
-      font-size: 0.72rem;
-      font-weight: 800;
-      background: #edf3f9;
-      color: #315b83;
+      display: inline-flex; padding: 5px 9px; border-radius: 6px;
+      font-size: 0.72rem; font-weight: 800; background: #edf3f9; color: #315b83;
     }
-
-    .pill-gold {
-      background: #fff4dc;
-      color: #835c13;
-    }
-
-    .post-date {
-      color: var(--muted);
-      font-size: 0.79rem;
-    }
-
-    .post-title {
-      color: var(--navy);
-      font-size: 1.2rem;
-      line-height: 1.35;
-      margin: 0 0 10px;
-      overflow-wrap: anywhere;
-    }
-
-    .post-body {
-      color: #58697a;
-      font-size: 0.94rem;
-      margin: 0;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
-
+    .pill-gold { background: #fff4dc; color: #835c13; }
+    .post-date { color: var(--muted); font-size: 0.79rem; }
+    .post-title { color: var(--navy); font-size: 1.2rem; line-height: 1.35; margin: 0 0 10px; overflow-wrap: anywhere; }
+    .post-body { color: #58697a; font-size: 0.94rem; margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
     .post-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      border-top: 1px solid #edf0f4;
-      padding-top: 15px;
-      margin-top: 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap;
+      border-top: 1px solid #edf0f4; padding-top: 15px; margin-top: 18px;
     }
-
-    .post-author {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-
+    .post-author { display: flex; align-items: center; gap: 10px; min-width: 0; }
     .avatar {
-      width: 37px;
-      height: 37px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      background: #e7eff8;
-      color: var(--navy);
-      font-weight: 850;
-      flex-shrink: 0;
+      width: 37px; height: 37px; display: grid; place-items: center;
+      border-radius: 50%; background: #e7eff8; color: var(--navy);
+      font-weight: 850; flex-shrink: 0;
     }
-
-    .author-name {
-      font-size: 0.86rem;
-      font-weight: 800;
-      color: var(--navy);
-    }
-
-    .author-role {
-      display: block;
-      color: var(--muted);
-      font-size: 0.76rem;
-    }
-
-    .post-actions {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-    }
-
-    .text-action {
-      border: 1px solid transparent;
-      background: transparent;
-      color: #526b82;
-      padding: 7px 9px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 0.83rem;
-    }
-
-    .text-action:hover {
-      background: #f0f5fa;
-      color: var(--navy);
-    }
-
-    .text-action.saved {
-      background: #fff4dc;
-      color: #805a12;
-    }
-
-    .reply-area {
-      border-top: 1px solid var(--border);
-      margin-top: 17px;
-      padding-top: 15px;
-    }
-
-    .reply-list {
-      display: grid;
-      gap: 10px;
-      margin-bottom: 13px;
-    }
-
+    .author-name { font-size: 0.86rem; font-weight: 800; color: var(--navy); }
+    .author-role { display: block; color: var(--muted); font-size: 0.76rem; }
+    .post-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+    .reply-area { border-top: 1px solid var(--line); margin-top: 17px; padding-top: 15px; }
+    .reply-list { display: grid; gap: 10px; margin-bottom: 13px; }
     .reply-item {
-      padding: 12px;
-      border-radius: 10px;
-      background: #f5f8fb;
-      font-size: 0.88rem;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
+      padding: 12px; border-radius: 10px; background: #f5f8fb;
+      font-size: 0.88rem; white-space: pre-wrap; overflow-wrap: anywhere;
     }
-
-    .reply-item strong {
-      display: block;
-      margin-bottom: 4px;
-      color: var(--navy);
-    }
-
-    .reply-form {
-      display: flex;
-      gap: 8px;
-    }
-
+    .reply-item strong { display: block; color: var(--navy); margin-bottom: 4px; }
+    .reply-form { display: flex; gap: 8px; }
     .reply-form input {
-      min-width: 0;
-      flex: 1;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: 10px 12px;
+      min-width: 0; flex: 1; border: 1px solid var(--line);
+      border-radius: 9px; padding: 10px 12px;
     }
-
     .reply-form button {
-      border: 0;
-      background: var(--navy);
-      color: white;
-      border-radius: 9px;
-      padding: 8px 12px;
-      font-weight: 750;
+      border: 0; background: var(--navy); color: #fff;
+      border-radius: 9px; padding: 8px 14px; font-weight: 750; cursor: pointer;
     }
-
-    .sidebar {
-      display: grid;
-      gap: 18px;
-    }
-
-    .side-card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 22px;
-    }
-
-    .side-card h3 {
-      color: var(--navy);
-      margin: 0 0 12px;
-      font-size: 1.05rem;
-    }
-
-    .side-card p {
-      color: var(--muted);
-      font-size: 0.89rem;
-      margin: 0 0 16px;
-    }
-
-    .side-list {
-      display: grid;
-      gap: 14px;
-    }
-
-    .side-list-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 0.88rem;
-    }
-
-    .side-list-item strong {
-      display: block;
-      color: var(--navy);
-    }
-
-    .side-list-item span {
-      display: block;
-      color: var(--muted);
-      font-size: 0.8rem;
-      margin-top: 3px;
-    }
-
-    .side-icon {
-      font-size: 1.15rem;
-    }
-
-    .audio-card {
-      background: linear-gradient(145deg, #102b46, #1b4a70);
-      color: white;
-      border-radius: var(--radius);
-      padding: 23px;
-    }
-
-    .audio-card h3 {
-      color: white;
-      margin: 8px 0;
-    }
-
-    .audio-card p {
-      color: #d1dfec;
-      font-size: 0.88rem;
-      margin: 0 0 17px;
-    }
-
-    .audio-icon {
-      display: grid;
-      place-items: center;
-      height: 46px;
-      width: 46px;
-      border-radius: 13px;
-      background: rgba(255,255,255,0.12);
-      font-size: 1.4rem;
-    }
-
-    .audio-card .btn {
-      width: 100%;
-    }
-
     .empty-state {
-      background: white;
-      text-align: center;
-      padding: 48px 22px;
-      border: 1px dashed #cbd7e3;
-      border-radius: var(--radius);
+      background: #fff; text-align: center; padding: 48px 22px;
+      border: 1px dashed #cbd7e3; border-radius: var(--radius);
     }
+    .empty-state h3 { margin: 0 0 7px; color: var(--navy); }
+    .empty-state p { color: var(--muted); margin: 0 0 18px; }
+    .error-box { background: #fdecea; color: #611a15; padding: 12px; border-radius: 10px; }
+    .sidebar { display: grid; gap: 18px; }
+    .side-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+    .side-card h3 { color: var(--navy); margin: 0 0 12px; font-size: 1.05rem; }
+    .side-card p { color: var(--muted); font-size: 0.89rem; margin: 0 0 16px; }
+    .side-item { display: flex; gap: 10px; font-size: 0.88rem; margin-bottom: 14px; }
+    .side-item strong { display: block; color: var(--navy); }
+    .side-item span { display: block; color: var(--muted); font-size: 0.8rem; }
 
-    .empty-icon {
-      font-size: 2.2rem;
-      margin-bottom: 12px;
-    }
-
-    .empty-state h3 {
-      margin: 0 0 7px;
-      color: var(--navy);
-    }
-
-    .empty-state p {
-      color: var(--muted);
-      margin: 0 0 18px;
-    }
-
-    .about-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 38px;
-      align-items: center;
-    }
-
-    .about-copy h2 {
-      color: var(--navy);
-      font-size: clamp(1.8rem, 4vw, 2.5rem);
-      line-height: 1.15;
-      margin: 0 0 17px;
-    }
-
-    .about-copy p {
-      color: var(--muted);
-      margin: 0 0 15px;
-    }
-
-    .principle-list {
-      display: grid;
-      gap: 12px;
-    }
-
+    /* About and call to action */
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 38px; align-items: center; }
+    .about-copy h2 { font-size: clamp(1.8rem, 4vw, 2.5rem); line-height: 1.15; margin: 0 0 17px; }
+    .about-copy p { color: var(--muted); margin: 0 0 15px; }
     .principle {
-      display: flex;
-      gap: 13px;
-      padding: 15px;
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      display: flex; gap: 13px; padding: 15px; margin-bottom: 12px;
+      background: #fff; border: 1px solid var(--line); border-radius: 12px;
     }
-
     .principle-icon {
-      display: grid;
-      place-items: center;
-      width: 39px;
-      height: 39px;
-      flex-shrink: 0;
-      border-radius: 11px;
-      background: #edf3f9;
-      font-size: 1.2rem;
+      display: grid; place-items: center; width: 39px; height: 39px;
+      flex-shrink: 0; border-radius: 11px; background: #edf3f9; font-size: 1.2rem;
     }
+    .principle strong { display: block; color: var(--navy); }
+    .principle p { margin: 3px 0 0; color: var(--muted); font-size: 0.85rem; }
+    .cta { background: #eaf1f8; padding: 45px 0; }
+    .cta-inner { display: flex; align-items: center; justify-content: space-between; gap: 25px; flex-wrap: wrap; }
+    .cta h2 { color: var(--navy); margin: 0 0 8px; font-size: clamp(1.5rem, 3vw, 2rem); }
+    .cta p { color: var(--muted); margin: 0; }
 
-    .principle strong {
-      display: block;
-      color: var(--navy);
-    }
-
-    .principle p {
-      margin: 3px 0 0;
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
-
-    .cta {
-      background: #eaf1f8;
-      padding: 45px 0;
-    }
-
-    .cta-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 25px;
-    }
-
-    .cta h2 {
-      color: var(--navy);
-      margin: 0 0 8px;
-      font-size: clamp(1.5rem, 3vw, 2rem);
-    }
-
-    .cta p {
-      color: var(--muted);
-      margin: 0;
-    }
-
-    footer {
-      background: #0a2035;
-      color: #d0dbe5;
-      padding: 38px 0 20px;
-    }
-
-    .footer-grid {
-      display: grid;
-      grid-template-columns: 1.3fr 0.7fr 0.7fr;
-      gap: 35px;
-      padding-bottom: 30px;
-    }
-
-    .footer-brand {
-      color: white;
-      font-weight: 850;
-      font-size: 1.1rem;
-      margin-bottom: 10px;
-    }
-
-    .footer-copy {
-      max-width: 360px;
-      color: #aebdca;
-      font-size: 0.88rem;
-    }
-
-    footer h3 {
-      font-size: 0.9rem;
-      color: white;
-      margin: 0 0 12px;
-    }
-
-    .footer-links {
-      display: grid;
-      gap: 9px;
-      font-size: 0.86rem;
-      color: #b8c7d4;
-    }
-
-    .footer-links a:hover {
-      color: var(--gold);
-    }
-
-    .social-links {
-      display: grid;
-      gap: 9px;
-      font-size: 0.86rem;
-      color: #b8c7d4;
-    }
-
-    .social-links a {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      width: fit-content;
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .social-links a:hover {
-      color: var(--gold);
-    }
-
+    /* Footer */
+    footer { background: #0a2035; color: #d0dbe5; padding: 38px 0 20px; }
+    .footer-grid { display: grid; grid-template-columns: 1.3fr 0.7fr 0.7fr; gap: 35px; padding-bottom: 30px; }
+    .footer-brand { color: #fff; font-weight: 850; font-size: 1.1rem; margin-bottom: 10px; }
+    .footer-copy { max-width: 360px; color: #aebdca; font-size: 0.88rem; }
+    footer h3 { font-size: 0.9rem; color: #fff; margin: 0 0 12px; }
+    .footer-links { display: grid; gap: 9px; font-size: 0.86rem; color: #b8c7d4; }
+    .footer-links a:hover { color: var(--gold); }
     .footer-bottom {
-      border-top: 1px solid rgba(255,255,255,0.12);
-      padding-top: 17px;
-      display: flex;
-      justify-content: space-between;
-      gap: 15px;
-      flex-wrap: wrap;
-      font-size: 0.79rem;
-      color: #aebdca;
+      border-top: 1px solid rgba(255, 255, 255, 0.12); padding-top: 17px;
+      display: flex; justify-content: space-between; gap: 15px; flex-wrap: wrap;
+      font-size: 0.79rem; color: #aebdca;
     }
 
     /* Dialogs */
-
     .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 100;
+      position: fixed; inset: 0; z-index: 100;
       background: rgba(5, 19, 33, 0.66);
-      display: grid;
-      place-items: center;
-      padding: 18px;
-      overflow-y: auto;
+      display: grid; place-items: center; padding: 18px; overflow-y: auto;
     }
-
     .modal {
-      background: white;
-      width: min(100%, 560px);
-      max-height: calc(100vh - 36px);
-      overflow-y: auto;
-      border-radius: 18px;
-      box-shadow: 0 20px 80px rgba(0,0,0,0.22);
-      padding: 27px;
-      animation: modalIn 0.16s ease-out;
+      background: #fff; width: min(100%, 560px);
+      max-height: calc(100vh - 36px); overflow-y: auto;
+      border-radius: 18px; padding: 27px;
+      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.22);
     }
-
-    .modal-wide {
-      width: min(100%, 720px);
-    }
-
-    @keyframes modalIn {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .modal-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 15px;
-      margin-bottom: 22px;
-    }
-
-    .modal-header h2 {
-      color: var(--navy);
-      margin: 0;
-      font-size: 1.45rem;
-    }
-
-    .modal-header p {
-      margin: 5px 0 0;
-      color: var(--muted);
-      font-size: 0.88rem;
-    }
-
+    .modal-header { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 20px; }
+    .modal-header h2 { margin: 0; color: var(--navy); font-size: 1.45rem; }
+    .modal-header p { margin: 5px 0 0; color: var(--muted); font-size: 0.88rem; }
     .close-modal {
-      flex-shrink: 0;
-      width: 36px;
-      height: 36px;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      background: white;
-      font-size: 1.3rem;
-      color: var(--muted);
+      flex-shrink: 0; width: 36px; height: 36px;
+      border: 1px solid var(--line); border-radius: 9px;
+      background: #fff; font-size: 1.3rem; color: var(--muted); cursor: pointer;
     }
-
-    .form-stack {
-      display: grid;
-      gap: 16px;
-    }
-
-    .form-field label {
-      display: block;
-      margin-bottom: 7px;
-      color: var(--navy);
-      font-size: 0.88rem;
-      font-weight: 800;
-    }
-
-    .field-textarea {
-      resize: vertical;
-      min-height: 145px;
-    }
-
-    .form-help {
-      font-size: 0.78rem;
-      color: var(--muted);
-      margin-top: 6px;
-    }
-
+    .form-stack { display: grid; gap: 16px; }
+    .form-field label { display: block; margin-bottom: 7px; color: var(--navy); font-size: 0.88rem; font-weight: 800; }
+    .field-textarea { min-height: 140px; resize: vertical; }
+    .form-help { font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
     .form-note {
-      background: #f3f7fb;
-      border: 1px solid #e1eaf3;
-      padding: 12px;
-      border-radius: 10px;
-      font-size: 0.82rem;
-      color: #526b82;
+      background: #f3f7fb; border: 1px solid #e1eaf3;
+      padding: 12px; border-radius: 10px; font-size: 0.82rem; color: #526b82;
     }
-
-    .form-error {
-      color: var(--danger);
-      font-size: 0.85rem;
-      margin: 0;
-    }
-
+    .form-error { color: var(--danger); font-size: 0.85rem; margin: 0; }
     .toast-region {
-      position: fixed;
-      z-index: 200;
-      bottom: 20px;
-      right: 20px;
-      width: min(390px, calc(100% - 40px));
-      display: grid;
-      gap: 9px;
+      position: fixed; z-index: 200; bottom: 20px; right: 20px;
+      width: min(390px, calc(100% - 40px)); display: grid; gap: 9px;
     }
-
     .toast {
-      padding: 13px 16px;
-      border-radius: 11px;
-      background: #102b46;
-      color: white;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      font-size: 0.9rem;
-      animation: modalIn 0.18s ease-out;
+      padding: 13px 16px; border-radius: 11px;
+      background: var(--navy); color: #fff;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); font-size: 0.9rem;
     }
+    .toast.error { background: #8c2929; }
 
-    .toast.error {
-      background: #8c2929;
-    }
-
+    /* Responsive */
     @media (max-width: 1000px) {
-      .nav-links {
-        gap: 14px;
-      }
-
-      .nav-links a {
-        font-size: 0.84rem;
-      }
-
-      .hero-grid {
-        gap: 28px;
-      }
-
-      .category-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .community-layout {
-        grid-template-columns: minmax(0, 1fr) 275px;
-      }
+      .category-grid { grid-template-columns: repeat(2, 1fr); }
+      .community-layout { grid-template-columns: 1fr; }
+      .hero-grid { grid-template-columns: 1fr; }
     }
-
     @media (max-width: 800px) {
-      .nav-inner {
-        flex-wrap: wrap;
-        padding: 12px 0;
-      }
-
-      .mobile-menu {
-        display: inline-flex;
-      }
-
+      .mobile-menu { display: inline-flex; }
       .nav-links {
-        display: none;
-        order: 4;
-        width: 100%;
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0;
-        border-top: 1px solid var(--border);
-        padding-top: 8px;
+        display: none; order: 4; width: 100%;
+        flex-direction: column; align-items: stretch; gap: 0;
+        border-top: 1px solid var(--line); padding-top: 8px;
       }
-
-      .nav-links.open {
-        display: flex;
-      }
-
-      .nav-links a {
-        padding: 11px 3px;
-      }
-
-      .nav-actions {
-        margin-left: auto;
-      }
-
-      .nav-actions .btn {
-        padding: 9px 11px;
-      }
-
-      .hero {
-        padding: 55px 0;
-      }
-
-      .hero-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-card {
-        max-width: 600px;
-      }
-
-      .community-layout {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .audio-card {
-        grid-column: 1 / -1;
-      }
-
-      .about-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .footer-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .footer-grid > div:first-child {
-        grid-column: 1 / -1;
-      }
+      .nav-links.open { display: flex; }
+      .nav-links a { padding: 11px 3px; }
+      .about-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .footer-grid > div:first-child { grid-column: 1 / -1; }
     }
-
     @media (max-width: 560px) {
-      .container {
-        width: min(100% - 26px, 1160px);
-      }
-
-      .topbar-inner {
-        justify-content: center;
-        text-align: center;
-      }
-
-      .topbar-inner span:last-child {
-        display: none;
-      }
-
-      .brand-mark {
-        width: 40px;
-        height: 40px;
-      }
-
-      .brand-tagline {
-        font-size: 0.65rem;
-      }
-
-      .nav-actions {
-        gap: 6px;
-      }
-
-      .nav-actions .btn {
-        font-size: 0.78rem;
-        padding: 8px 9px;
-      }
-
-      .hero h1 {
-        letter-spacing: -1px;
-      }
-
-      .hero-copy {
-        font-size: 0.98rem;
-      }
-
-      .hero-actions .btn {
-        flex: 1;
-      }
-
-      .section {
-        padding: 47px 0;
-      }
-
-      .section-heading {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 13px;
-      }
-
-      .category-grid {
-        gap: 10px;
-      }
-
-      .category-card {
-        padding: 15px;
-      }
-
-      .category-card p {
-        font-size: 0.8rem;
-      }
-
-      .feed-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .filter-select {
-        width: 100%;
-      }
-
-      .discussion-card {
-        padding: 17px;
-      }
-
-      .post-title {
-        font-size: 1.1rem;
-      }
-
-      .sidebar {
-        grid-template-columns: 1fr;
-      }
-
-      .audio-card {
-        grid-column: auto;
-      }
-
-      .cta-inner {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .footer-grid {
-        grid-template-columns: 1fr;
-        gap: 25px;
-      }
-
-      .footer-grid > div:first-child {
-        grid-column: auto;
-      }
-
-      .modal {
-        padding: 20px;
-      }
-
-      .reply-form {
-        flex-direction: column;
-      }
-
-      .reply-form button {
-        min-height: 42px;
-      }
+      .container { width: min(100% - 26px, 1160px); }
+      .category-grid { grid-template-columns: 1fr; }
+      .section { padding: 46px 0; }
+      .filter-select { width: 100%; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .reply-form { flex-direction: column; }
+      .hero { padding: 55px 0; }
+      .modal { padding: 20px; }
     }
-
     @media (prefers-reduced-motion: reduce) {
-      *,
-      *::before,
-      *::after {
-        scroll-behavior: auto !important;
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
+      *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
     }
   </style>
 </head>
 
 <body>
-  <div class="topbar">
-    <div class="container topbar-inner">
-      <span>🎓 An academic community for curious minds</span>
-      <span>Think critically. Debate respectfully. <a href="#about">Learn together.</a></span>
-    </div>
-  </div>
-
   <header class="navbar">
     <div class="container nav-inner">
       <a href="#home" class="brand" aria-label="PSIR Forum homepage">
         <div class="brand-mark">PS</div>
         <div>
           <span class="brand-name">PSIR FORUM</span>
-          <span class="brand-tagline">Political Science & International Relations</span>
+          <span class="brand-tagline">Political Science &amp; International Relations</span>
         </div>
       </a>
 
-      <button
-        class="mobile-menu"
-        id="mobileMenuButton"
-        aria-label="Toggle navigation"
-        aria-expanded="false"
-        type="button"
-      >☰</button>
+      <button class="mobile-menu" id="mobileMenuButton" type="button"
+        aria-label="Toggle navigation" aria-expanded="false">☰</button>
 
       <nav class="nav-links" id="navLinks" aria-label="Main navigation">
         <a href="#home">Home</a>
         <a href="#categories">Categories</a>
         <a href="#discussions">Discussions</a>
-        <a href="#audio">Audio Room</a>
+        <a href="#audio">Live Room</a>
         <a href="#about">About</a>
       </nav>
 
-      <div class="nav-actions">
-        <button class="btn btn-outline" type="button" data-auth="login">Log in</button>
-        <button class="btn btn-primary" type="button" data-auth="register">Join forum</button>
-      </div>
+      <div class="nav-actions" id="navActions"></div>
     </div>
   </header>
 
   <main>
+    <!-- HOME -->
     <section class="hero" id="home">
       <div class="container hero-grid">
         <div>
@@ -1429,93 +461,102 @@
           <div class="hero-topic">
             <div class="topic-icon">🤝</div>
             <div>
-              <strong>Diplomacy & Governance</strong>
+              <strong>Diplomacy &amp; Governance</strong>
               <small>Policy, negotiation, and leadership</small>
             </div>
           </div>
         </div>
       </div>
     </section>
+
+    <!-- CATEGORIES -->
+    <section class="section section-white" id="categories">
       <div class="container">
         <div class="section-heading">
           <div>
             <h2>Explore by topic</h2>
             <p>Find your area of interest and join the conversation.</p>
           </div>
-          <button class="btn btn-outline" type="button" id="allTopicsButton">
-            View all discussions
-          </button>
+          <a class="btn btn-outline" href="/discussions">View all discussions</a>
         </div>
 
         <div class="category-grid">
           <button class="category-card" type="button" data-category="International Relations">
-            <span class="category-emoji">🌍</span>
+            <span class="category-emoji" aria-hidden="true">🌍</span>
             <strong>International Relations</strong>
             <p>Global power, security, foreign policy, and world order.</p>
+            <span class="explore-link">Explore topics →</span>
           </button>
 
           <button class="category-card" type="button" data-category="Political Science">
-            <span class="category-emoji">🏛️</span>
+            <span class="category-emoji" aria-hidden="true">🏛️</span>
             <strong>Political Science</strong>
             <p>Political systems, ideologies, elections, and institutions.</p>
+            <span class="explore-link">Explore topics →</span>
           </button>
 
           <button class="category-card" type="button" data-category="Diplomacy & Foreign Policy">
-            <span class="category-emoji">🤝</span>
-            <strong>Diplomacy & Foreign Policy</strong>
+            <span class="category-emoji" aria-hidden="true">🤝</span>
+            <strong>Diplomacy &amp; Foreign Policy</strong>
             <p>Negotiations, international cooperation, and statecraft.</p>
+            <span class="explore-link">Explore topics →</span>
           </button>
 
           <button class="category-card" type="button" data-category="Research & Academia">
-            <span class="category-emoji">📚</span>
-            <strong>Research & Academia</strong>
+            <span class="category-emoji" aria-hidden="true">📚</span>
+            <strong>Research &amp; Academia</strong>
             <p>Research methods, academic writing, and scholarly debate.</p>
+            <span class="explore-link">Explore topics →</span>
           </button>
 
           <button class="category-card" type="button" data-category="Peace & Security">
-            <span class="category-emoji">🕊️</span>
-            <strong>Peace & Security</strong>
+            <span class="category-emoji" aria-hidden="true">🕊️</span>
+            <strong>Peace &amp; Security</strong>
             <p>Conflict prevention, peacebuilding, and security studies.</p>
+            <span class="explore-link">Explore topics →</span>
           </button>
 
           <button class="category-card" type="button" data-category="Governance & Public Policy">
-            <span class="category-emoji">⚖️</span>
-            <strong>Governance & Public Policy</strong>
+            <span class="category-emoji" aria-hidden="true">⚖️</span>
+            <strong>Governance &amp; Public Policy</strong>
             <p>Public institutions, development, and policy decisions.</p>
+            <span class="explore-link">Explore topics →</span>
           </button>
 
           <button class="category-card" type="button" data-category="African Affairs">
-            <span class="category-emoji">🌍</span>
+            <span class="category-emoji" aria-hidden="true">🗺️</span>
             <strong>African Affairs</strong>
             <p>African politics, regional integration, and development.</p>
+            <span class="explore-link">Explore topics →</span>
           </button>
 
           <button class="category-card" type="button" data-category="General Discussion">
-            <span class="category-emoji">💬</span>
+            <span class="category-emoji" aria-hidden="true">💬</span>
             <strong>General Discussion</strong>
             <p>Questions, opportunities, and conversations across PSIR.</p>
+            <span class="explore-link">Explore topics →</span>
           </button>
-          <button
-  class="category-card hub-category-card"
-  type="button"
-  data-category="Hub of Idea Discussion Club"
->
-  <span class="hub-logo-frame">
-    <img
-      src="hub-of-idea-logo.png"
-      alt="Hub of Idea Discussion Club logo"
-      class="hub-category-logo"
-    >
-  </span>
 
-  <strong>Hub of Idea Discussion Club</strong>
+          <button class="category-card hub-category-card" type="button" data-category="Hub of Idea Discussion Club">
+            <span class="hub-logo-frame">
+              <img src="hub-of-idea-logo.png" alt="Hub of Idea Discussion Club logo" class="hub-category-logo">
+            </span>
+            <strong>Hub of Idea Discussion Club</strong>
+            <p>Publish and explore club news, journals, and blogs.</p>
+            <span class="explore-link">Explore topics →</span>
+          </button>
+        </div>
 
-  <p>Publish and explore club news, journals, and blogs.</p>
-</button>
+        <div style="margin-top:48px;">
+          <h2>Ideas Worth Exploring</h2>
+          <p class="muted">Discover questions, arguments, and perspectives from the PSIR community.</p>
+          <div id="featuredDiscussions" style="display:grid;gap:12px;margin:18px 0;"></div>
+          <a class="btn btn-primary" href="/discussions">View All Discussions</a>
         </div>
       </div>
     </section>
 
+    <!-- DISCUSSIONS -->
     <section class="section" id="discussions">
       <div class="container">
         <div class="section-heading">
@@ -1523,194 +564,113 @@
             <h2 id="discussionHeading">Community discussions</h2>
             <p>Ask questions, share insights, and learn from different perspectives.</p>
           </div>
-
-          <button class="btn btn-primary" type="button" id="newDiscussionButton">
-            ＋ New discussion
-          </button>
+          <button class="btn btn-primary" type="button" id="newDiscussionButton">＋ New discussion</button>
         </div>
+
+        <!-- The kMeet live room panel is inserted here by kmeet-room.js -->
+        <div id="audio"></div>
 
         <div class="community-layout">
           <div class="feed-column">
             <div class="feed-toolbar">
               <div class="search-wrap">
                 <span aria-hidden="true">⌕</span>
-                <input
-                  class="search-input"
-                  id="searchInput"
-                  type="search"
+                <input class="search-input" id="searchInput" type="search"
                   placeholder="Search discussions, ideas, or topics..."
-                  aria-label="Search discussions"
-                >
+                  aria-label="Search discussions">
               </div>
 
               <select class="field-select filter-select" id="categoryFilter" aria-label="Filter by category">
                 <option value="All">All categories</option>
                 <option>International Relations</option>
                 <option>Political Science</option>
-                <option>Diplomacy & Foreign Policy</option>
-                <option>Research & Academia</option>
-                <option>Peace & Security</option>
-                <option>Governance & Public Policy</option>
+                <option>Diplomacy &amp; Foreign Policy</option>
+                <option>Research &amp; Academia</option>
+                <option>Peace &amp; Security</option>
+                <option>Governance &amp; Public Policy</option>
                 <option>African Affairs</option>
                 <option>General Discussion</option>
-                <option value="Hub of Idea Discussion Club">
-  Hub of Idea Discussion Club
-</option>
+                <option>Hub of Idea Discussion Club</option>
               </select>
             </div>
 
             <div id="discussionList" class="discussion-list" aria-live="polite"></div>
 
             <div id="emptyState" class="empty-state hidden">
-              <div class="empty-icon">💭</div>
+              <div style="font-size:2.2rem;margin-bottom:12px;" aria-hidden="true">💭</div>
               <h3 id="emptyTitle">No discussions yet</h3>
-              <p id="emptyDescription">
-                Start the first conversation and help build the PSIR community.
-              </p>
-              <button class="btn btn-primary" type="button" id="emptyCreateButton">
-                Start a discussion
-              </button>
+              <p id="emptyDescription">Start the first conversation and help build the PSIR community.</p>
+              <button class="btn btn-primary" type="button" id="emptyCreateButton">Start a discussion</button>
             </div>
           </div>
 
           <aside class="sidebar">
             <div class="side-card">
               <h3>Community principles</h3>
-
-              <div class="side-list">
-                <div class="side-list-item">
-                  <span class="side-icon">🎯</span>
-                  <div>
-                    <strong>Evidence over assumptions</strong>
-                    <span>Support arguments with credible sources.</span>
-                  </div>
-                </div>
-
-                <div class="side-list-item">
-                  <span class="side-icon">🤝</span>
-                  <div>
-                    <strong>Respect different views</strong>
-                    <span>Challenge ideas without attacking people.</span>
-                  </div>
-                </div>
-
-                <div class="side-list-item">
-                  <span class="side-icon">📖</span>
-                  <div>
-                    <strong>Learn together</strong>
-                    <span>Ask questions and share knowledge.</span>
-                  </div>
-                </div>
+              <div class="side-item">
+                <span aria-hidden="true">🎯</span>
+                <div><strong>Evidence over assumptions</strong><span>Support arguments with credible sources.</span></div>
+              </div>
+              <div class="side-item">
+                <span aria-hidden="true">🤝</span>
+                <div><strong>Respect different views</strong><span>Challenge ideas without attacking people.</span></div>
+              </div>
+              <div class="side-item">
+                <span aria-hidden="true">📖</span>
+                <div><strong>Learn together</strong><span>Ask questions and share knowledge.</span></div>
               </div>
             </div>
 
             <div class="side-card">
               <h3>Getting started</h3>
-              <p>
-                Have a question about politics, diplomacy, governance, or
-                research? Start a discussion and invite others to contribute.
-              </p>
-              <button class="btn btn-outline btn-block" type="button" id="sidebarCreateButton">
-                Ask the community
-              </button>
-            </div>
-
-            <div class="audio-card" id="audio">
-              <div class="audio-icon">🎙️</div>
-              <h3>Academic Audio Room</h3>
-              <p>
-                Meet with other learners for discussions, seminars, and
-                academic conversations.
-              </p>
-              <a
-                class="btn btn-gold"
-                href="https://meet.jit.si/PSIRForumAcademicRoom"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Join audio room ↗
-              </a>
-              <p class="small" style="margin: 12px 0 0;">
-                This opens a third-party meeting room. Public rooms may be
-                accessible to anyone with the link.
-              </p>
+              <p>Have a question about politics, diplomacy, governance, or research? Start a discussion and invite others to contribute.</p>
+              <button class="btn btn-outline btn-block" type="button" id="sidebarCreateButton">Ask the community</button>
             </div>
           </aside>
         </div>
       </div>
     </section>
 
+    <!-- ABOUT -->
     <section class="section section-white" id="about">
       <div class="container about-grid">
         <div class="about-copy">
-          <div class="eyebrow" style="color: var(--blue);">
-            About the community
-          </div>
-
+          <div class="eyebrow" style="color:var(--blue);">About the community</div>
           <h2>A forum for thoughtful political and international dialogue.</h2>
-
-          <p>
-            PSIR Forum is designed as a meeting place for people interested
-            in Political Science and International Relations. It encourages
-            discussion, academic curiosity, and the exchange of ideas.
-          </p>
-
-          <p>
-            Whether you are a student beginning your studies, a researcher
-            developing an argument, or simply interested in world affairs,
-            you can use this space to explore questions and learn from others.
-          </p>
-
-          <button class="btn btn-primary" type="button" id="aboutJoinButton">
-            Join the conversation
-          </button>
+          <p>PSIR Forum is designed as a meeting place for people interested in Political Science and International Relations. It encourages discussion, academic curiosity, and the exchange of ideas.</p>
+          <p>Whether you are a student beginning your studies, a researcher developing an argument, or simply interested in world affairs, you can use this space to explore questions and learn from others.</p>
+          <button class="btn btn-primary" type="button" id="aboutJoinButton" data-auth="register">Join the conversation</button>
         </div>
 
-        <div class="principle-list">
+        <div>
           <div class="principle">
             <div class="principle-icon">🧠</div>
-            <div>
-              <strong>Critical thinking</strong>
-              <p>Examine assumptions, compare perspectives, and ask better questions.</p>
-            </div>
+            <div><strong>Critical thinking</strong><p>Examine assumptions, compare perspectives, and ask better questions.</p></div>
           </div>
-
           <div class="principle">
             <div class="principle-icon">🌐</div>
-            <div>
-              <strong>Global perspectives</strong>
-              <p>Discuss local, regional, and international issues with an open mind.</p>
-            </div>
+            <div><strong>Global perspectives</strong><p>Discuss local, regional, and international issues with an open mind.</p></div>
           </div>
-
           <div class="principle">
             <div class="principle-icon">📚</div>
-            <div>
-              <strong>Academic development</strong>
-              <p>Exchange ideas about research, theory, policy, and professional growth.</p>
-            </div>
+            <div><strong>Academic development</strong><p>Exchange ideas about research, theory, policy, and professional growth.</p></div>
           </div>
-
           <div class="principle">
             <div class="principle-icon">🛡️</div>
-            <div>
-              <strong>Responsible participation</strong>
-              <p>Keep conversations constructive and avoid harassment or personal attacks.</p>
-            </div>
+            <div><strong>Responsible participation</strong><p>Keep conversations constructive and avoid harassment or personal attacks.</p></div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- CALL TO ACTION -->
     <section class="cta">
       <div class="container cta-inner">
         <div>
           <h2>Have an idea worth discussing?</h2>
           <p>Share a question, propose an argument, or start an academic conversation.</p>
         </div>
-        <button class="btn btn-primary" type="button" id="ctaCreateButton">
-          Create a discussion →
-        </button>
+        <button class="btn btn-primary" type="button" id="ctaCreateButton">Create a discussion →</button>
       </div>
     </section>
   </main>
@@ -1720,10 +680,7 @@
       <div class="footer-grid">
         <div>
           <div class="footer-brand">PSIR FORUM</div>
-          <p class="footer-copy">
-            A community for thoughtful discussion of Political Science,
-            International Relations, diplomacy, governance, and global affairs.
-          </p>
+          <p class="footer-copy">A community for thoughtful discussion of Political Science, International Relations, diplomacy, governance, and global affairs.</p>
         </div>
 
         <div>
@@ -1731,7 +688,7 @@
           <div class="footer-links">
             <a href="#categories">Topics</a>
             <a href="#discussions">Discussions</a>
-            <a href="#audio">Academic Audio Room</a>
+            <a href="#audio">Live Room</a>
             <a href="#about">About PSIR Forum</a>
           </div>
         </div>
@@ -1740,17 +697,8 @@
           <h3>Participate</h3>
           <div class="footer-links">
             <a href="#discussions" id="footerNewDiscussion">Start a discussion</a>
-            <a href="#discussions" id="footerBookmarks">My bookmarks</a>
+            <a href="#bookmarks" id="footerBookmarks">My bookmarks</a>
             <a href="#about">Community principles</a>
-          </div>
-        </div>
-
-        <div>
-          <h3>Connect with us</h3>
-          <div class="social-links">
-            <a href="https://t.me/psir_forumchannel" target="_blank" rel="noopener noreferrer" aria-label="PSIR Forum Telegram">✈️ <span>Telegram Channel</span></a>
-            <a href="https://www.facebook.com/share/19ppJG3tkp/" target="_blank" rel="noopener noreferrer" aria-label="PSIR Forum Facebook">📘 <span>Facebook Page</span></a>
-            <a href="mailto:psirforum@gmail.com" aria-label="Email PSIR Forum">✉️ <span>psirforum@gmail.com</span></a>
           </div>
         </div>
       </div>
@@ -1762,7 +710,7 @@
     </div>
   </footer>
 
-  <!-- New discussion modal -->
+  <!-- New discussion dialog -->
   <div class="modal-backdrop hidden" id="discussionModal" role="dialog" aria-modal="true" aria-labelledby="discussionModalTitle">
     <div class="modal">
       <div class="modal-header">
@@ -1776,1285 +724,761 @@
       <form id="discussionForm" class="form-stack">
         <div class="form-field">
           <label for="postTitle">Discussion title</label>
-          <input
-            class="field-input"
-            id="postTitle"
-            name="title"
-            maxlength="140"
-            required
-            placeholder="What would you like to discuss?"
-          >
+          <input class="field-input" id="postTitle" maxlength="140" required placeholder="What would you like to discuss?">
         </div>
 
         <div class="form-field">
           <label for="postCategory">Category</label>
-          <select class="field-select" id="postCategory" name="category" required>
-            <option value="International Relations">International Relations</option>
-            <option value="Political Science">Political Science</option>
-            <option value="Diplomacy & Foreign Policy">Diplomacy & Foreign Policy</option>
-            <option value="Research & Academia">Research & Academia</option>
-            <option value="Peace & Security">Peace & Security</option>
-            <option value="Governance & Public Policy">Governance & Public Policy</option>
-            <option value="African Affairs">African Affairs</option>
-            <option value="General Discussion">General Discussion</option>
-            <option value="Hub of Idea Discussion Club">Hub of Idea Discussion Club</option>
+          <select class="field-select" id="postCategory" required>
+            <option>International Relations</option>
+            <option>Political Science</option>
+            <option>Diplomacy &amp; Foreign Policy</option>
+            <option>Research &amp; Academia</option>
+            <option>Peace &amp; Security</option>
+            <option>Governance &amp; Public Policy</option>
+            <option>African Affairs</option>
+            <option>General Discussion</option>
+            <option>Hub of Idea Discussion Club</option>
           </select>
         </div>
 
-        <div class="form-field" id="contentTypeField">
+        <div class="form-field">
           <label for="postContentType">Publishing type</label>
-          <select class="field-select" id="postContentType" name="content_type">
+          <select class="field-select" id="postContentType">
             <option value="Discussion">Discussion</option>
             <option value="News">News</option>
             <option value="Journal">Journal</option>
             <option value="Blog">Blog</option>
           </select>
-          <small class="muted">For Hub of Idea Discussion Club, choose News, Journal, or Blog.</small>
+          <div class="form-help">For Hub of Idea Discussion Club, choose News, Journal, or Blog.</div>
         </div>
 
         <div class="form-field">
           <label for="postAuthor">Display name</label>
-          <input
-            class="field-input"
-            id="postAuthor"
-            name="author"
-            maxlength="50"
-            required
-            placeholder="How should your name appear?"
-          >
+          <input class="field-input" id="postAuthor" maxlength="50" readonly>
         </div>
 
         <div class="form-field">
           <label for="postBody">Your discussion</label>
-          <textarea
-            class="field-textarea"
-            id="postBody"
-            name="body"
-            maxlength="5000"
-            required
-            placeholder="Explain your question, share your argument, or provide context..."
-          ></textarea>
-          <div class="form-help">Maximum 5,000 characters. Be respectful and constructive.</div>
+          <textarea class="field-textarea" id="postBody" maxlength="10000" required
+            placeholder="Explain your question, share your argument, or provide context..."></textarea>
+          <div class="form-help">Maximum 10,000 characters. Be respectful and constructive.</div>
         </div>
 
         <div class="form-note">
-          Your discussion will be published to the PSIR Forum community.
-          Please keep your contributions respectful and constructive.
+          Your discussion will be published to the PSIR Forum community. Please keep your contributions respectful and constructive.
         </div>
 
         <p class="form-error hidden" id="discussionError"></p>
 
-        <button class="btn btn-primary btn-block" type="submit">
-          Publish discussion
-        </button>
+        <button class="btn btn-primary btn-block" type="submit">Publish discussion</button>
       </form>
     </div>
   </div>
 
-  <!-- Login and registration modal -->
+  <!-- Login and registration dialog -->
   <div class="modal-backdrop hidden" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
     <div class="modal">
       <div class="modal-header">
         <div>
-          <h2 id="authModalTitle">Welcome to PSIR Forum</h2>
-          <p id="authModalSubtitle">Connect with the academic community.</p>
+          <h2 id="authModalTitle">Welcome back</h2>
+          <p id="authModalSubtitle">Log in to continue to PSIR Forum.</p>
         </div>
         <button class="close-modal" type="button" data-close="authModal" aria-label="Close dialog">×</button>
       </div>
 
       <form id="authForm" class="form-stack">
-        <div class="form-field" id="authNameField">
+        <div class="form-field hidden" id="authNameField">
           <label for="authName">Display name</label>
-          <input
-            class="field-input"
-            id="authName"
-            name="name"
-            maxlength="50"
-            autocomplete="name"
-            placeholder="Your name"
-          >
+          <input class="field-input" id="authName" maxlength="50" autocomplete="name" placeholder="Your name">
         </div>
 
         <div class="form-field">
           <label for="authEmail">Email address</label>
-          <input
-            class="field-input"
-            id="authEmail"
-            name="email"
-            type="email"
-            autocomplete="email"
-            required
-            placeholder="you@example.com"
-          >
+          <input class="field-input" id="authEmail" type="email" autocomplete="email" required placeholder="you@example.com">
         </div>
 
         <div class="form-field">
           <label for="authPassword">Password</label>
-          <input
-            class="field-input"
-            id="authPassword"
-            name="password"
-            type="password"
-            autocomplete="current-password"
-            minlength="8"
-            required
-            placeholder="At least 8 characters"
-          >
+          <input class="field-input" id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="At least 6 characters">
         </div>
 
         <div class="form-note">
-          Your account is secured through Supabase authentication.
-          Never share your password with anyone.
+          Your account is secured through Supabase authentication. Never share your password with anyone.
         </div>
 
         <p class="form-error hidden" id="authMessage"></p>
 
-        <button class="btn btn-primary btn-block" id="authSubmitButton" type="submit">
-          Continue
-        </button>
-
-        <button class="btn btn-outline btn-block" id="switchAuthMode" type="button">
-          Need an account? Register
-        </button>
+        <button class="btn btn-primary btn-block" id="authSubmitButton" type="submit">Log in</button>
+        <button class="btn btn-outline btn-block" id="switchAuthMode" type="button">Need an account? Register</button>
       </form>
     </div>
   </div>
 
   <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
 
-      <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-(() => {
-  "use strict";
+  <!-- Core application: data, discussions, replies, bookmarks, and accounts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (() => {
+    "use strict";
 
-  // PSIR Forum — Supabase configuration
-  const SUPABASE_URL = "https://updxillknwufqekfzkur.supabase.co";
-  const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5";
+    const SUPABASE_URL = "https://updxillknwufqekfzkur.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5";
+    const HUB = "Hub of Idea Discussion Club";
+    const LEADERS = ["admin", "moderator", "scholar"];
 
-  if (!window.supabase) {
-    alert("Supabase could not load. Please check your internet connection.");
-    return;
-  }
+    if (!window.supabase) {
+      console.error("PSIR Forum: Supabase did not load.");
+      return;
+    }
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  const db = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-  );
+    const $ = id => document.getElementById(id);
 
-  const categories = [
-    "International Relations",
-    "Political Science",
-    "Diplomacy & Foreign Policy",
-    "Research & Academia",
-    "Peace & Security",
-    "Governance & Public Policy",
-    "African Affairs",
-    "General Discussion",
-    "Hub of Idea Discussion Club"
-  ];
-
-  let currentUser = null;
-  let currentCategory = "All";
-  let currentBookmarkOnly = false;
-  let categoryRows = [];
-  let posts = [];
-  let bookmarks = [];
-  let currentAuthMode = "login";
-
-  const $ = (selector, root = document) =>
-    root.querySelector(selector);
-
-  const $$ = (selector, root = document) =>
-    [...root.querySelectorAll(selector)];
-
-  function escapeHTML(value) {
-    return String(value ?? "").replace(/[&<>"']/g, character => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    })[character]);
-  }
-
-  function initials(name) {
-    return String(name || "Member")
-      .trim()
-      .split(/\s+/)
-      .slice(0, 2)
-      .map(part => part.charAt(0).toUpperCase())
-      .join("") || "M";
-  }
-
-  function showToast(message, isError = false) {
-    const region = $("#toastRegion");
-    const toast = document.createElement("div");
-
-    toast.className = `toast${isError ? " error" : ""}`;
-    toast.textContent = message;
-    region.appendChild(toast);
-
-    setTimeout(() => toast.remove(), 4000);
-  }
-
-  function explainError(error) {
-    const message = error?.message || "An unknown error occurred.";
-
-    if (/invalid login credentials/i.test(message)) {
-      return "Incorrect email or password. Please try again.";
+    function esc(value) {
+      return String(value ?? "").replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[c]);
     }
 
-    if (/email not confirmed/i.test(message)) {
-      return "Please confirm your email address before logging in.";
+    function slugify(name) {
+      return String(name || "").toLowerCase().replace(/&/g, " and ")
+        .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
     }
 
-    if (/invalid email/i.test(message)) {
-      return "Please enter a valid email address.";
+    function nameOf(user) {
+      return user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Member";
     }
 
-    if (/password/i.test(message) && /at least|short/i.test(message)) {
-      return "Your password is too short. Please use at least 8 characters.";
+    function initials(name) {
+      return String(name || "M").trim().split(/\s+/).slice(0, 2)
+        .map(p => p.charAt(0).toUpperCase()).join("") || "M";
     }
 
-    if (/row-level security|permission denied|violates row-level security/i.test(message)) {
-      return "Database permission denied. Please check the Supabase RLS policies.";
+    function timeAgo(timestamp) {
+      const date = new Date(timestamp);
+      if (isNaN(date)) return "";
+      const minutes = Math.max(0, Math.floor((Date.now() - date) / 60000));
+      if (minutes < 1) return "Just now";
+      if (minutes < 60) return minutes + " min ago";
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return hours + " hr" + (hours > 1 ? "s" : "") + " ago";
+      const days = Math.floor(hours / 24);
+      if (days < 7) return days + " day" + (days > 1 ? "s" : "") + " ago";
+      return date.toLocaleDateString();
     }
 
-    if (/fetch|network|failed to connect/i.test(message)) {
-      return "Connection failed. Check your internet and Supabase project settings.";
+    function explain(error) {
+      const message = error?.message || "Something went wrong.";
+      if (/invalid login credentials/i.test(message)) return "Incorrect email or password.";
+      if (/email not confirmed/i.test(message)) return "Please confirm your email address first.";
+      if (/row-level security|permission denied/i.test(message)) return "Permission denied. Please check your account.";
+      return message;
     }
 
-    return message;
-  }
-
-  function openModal(id) {
-    const modal = document.getElementById(id);
-    if (!modal) return;
-
-    modal.classList.remove("hidden");
-    document.body.classList.add("modal-open");
-  }
-
-  function closeModal(id) {
-    const modal = document.getElementById(id);
-    if (!modal) return;
-
-    modal.classList.add("hidden");
-
-    if ($$(".modal-backdrop:not(.hidden)").length === 0) {
-      document.body.classList.remove("modal-open");
-    }
-  }
-
-  function closeAllModals() {
-    $$(".modal-backdrop").forEach(modal =>
-      modal.classList.add("hidden")
-    );
-    document.body.classList.remove("modal-open");
-  }
-
-  function openAuthModal(mode = "login") {
-    currentAuthMode = mode === "register" ? "register" : "login";
-    updateAuthModal();
-    openModal("authModal");
-  }
-
-  function updateAuthModal() {
-    const registering = currentAuthMode === "register";
-
-    $("#authModalTitle").textContent = registering
-      ? "Create your account"
-      : "Welcome back";
-
-    $("#authModalSubtitle").textContent = registering
-      ? "Join the PSIR academic community."
-      : "Log in to continue to PSIR Forum.";
-
-    $("#authNameField").classList.toggle("hidden", !registering);
-    $("#authName").required = registering;
-
-    $("#authPassword").autocomplete = registering
-      ? "new-password"
-      : "current-password";
-
-    $("#authSubmitButton").textContent = registering
-      ? "Create account"
-      : "Log in";
-
-    $("#switchAuthMode").textContent = registering
-      ? "Already have an account? Log in"
-      : "Need an account? Register";
-
-    $("#authMessage").classList.add("hidden");
-    $("#authForm").reset();
-  }
-
-  function displayName(user) {
-    return user?.user_metadata?.full_name ||
-      user?.user_metadata?.name ||
-      user?.email?.split("@")[0] ||
-      "Community Member";
-  }
-
-  function categoryIdFor(name) {
-    const found = categoryRows.find(
-      category => category.name.toLowerCase() === name.toLowerCase()
-    );
-
-    return found?.id ?? null;
-  }
-
-  function categoryNameFor(id) {
-    const found = categoryRows.find(
-      category => String(category.id) === String(id)
-    );
-
-    return found?.name || "General Discussion";
-  }
-
-  function relativeDate(timestamp) {
-    const date = new Date(timestamp);
-
-    if (Number.isNaN(date.getTime())) return "Recently";
-
-    const minutes = Math.max(
-      0,
-      Math.floor((Date.now() - date.getTime()) / 60000)
-    );
-
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes} min ago`;
-
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours} hr${hours === 1 ? "" : "s"} ago`;
-
-    const days = Math.floor(hours / 24);
-    if (days < 7) return `${days} day${days === 1 ? "" : "s"} ago`;
-
-    return date.toLocaleDateString();
-  }
-
-  // Load categories from Supabase.
-  async function loadCategories() {
-    const { data, error } = await db
-      .from("categories")
-      .select("id, name, slug")
-      .order("id");
-
-    if (error) throw error;
-
-    categoryRows = data || [];
-
-    if (categoryRows.length === 0) {
-      throw new Error(
-        "Your categories table is empty. Add the eight PSIR categories in Supabase first."
-      );
-    }
-  }
-
-  // Load the public profile names.
-  async function loadProfiles() {
-    const { data, error } = await db
-      .from("profiles")
-      .select("id, full_name, university, is_verified");
-
-    if (error) {
-      console.warn("Profiles could not be loaded:", error.message);
-      return {};
+    function toast(message, isError) {
+      const node = document.createElement("div");
+      node.className = "toast" + (isError ? " error" : "");
+      node.textContent = message;
+      $("toastRegion").appendChild(node);
+      setTimeout(() => node.remove(), 4000);
     }
 
-    const result = {};
+    function debounce(fn, ms) {
+      let timer;
+      return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), ms);
+      };
+    }
 
-    (data || []).forEach(profile => {
-      result[profile.id] = profile;
-    });
+    // ---------- state ----------
+    let me = null;
+    let role = "guest";
+    let categories = [];
+    let posts = [];
+    let bookmarks = new Set();
+    let openThreadId = null;
+    let routeReady = false;
+    const filter = { category: "All", search: "", bookmarksOnly: false };
 
-    return result;
-  }
+    function categoryName(id) {
+      const found = categories.find(c => String(c.id) === String(id));
+      return found ? found.name : "General Discussion";
+    }
 
-  // Load discussions, replies, and bookmarks from the database.
-  async function loadPosts() {
-    const list = $("#discussionList");
+    function categoryId(name) {
+      const found = categories.find(c => c.name === name);
+      return found ? found.id : null;
+    }
 
-    list.innerHTML = `
-      <div class="side-card">
-        Loading community discussions...
-      </div>
-    `;
+    // ---------- data ----------
+    async function loadCategories() {
+      const { data, error } = await db.from("categories").select("id, name, slug").order("id");
+      if (error) throw error;
+      categories = data || [];
+    }
 
-    try {
-      await loadCategories();
+    async function loadRole() {
+      role = "guest";
+      if (!me) return;
+      const { data } = await db.from("profiles").select("role").eq("id", me.id).maybeSingle();
+      role = data?.role || "student";
+    }
 
-      const { data: threads, error: threadError } = await db
-        .from("threads")
-        .select(
-          "id, category_id, author_id, title, body, content_type, is_hidden, created_at"
-        )
-        .eq("is_hidden", false)
-        .order("created_at", { ascending: false });
+    async function loadBookmarks() {
+      bookmarks = new Set();
+      if (!me) return;
+      const { data, error } = await db.from("bookmarks").select("thread_id").eq("user_id", me.id);
+      if (error) { console.warn("Bookmarks:", error.message); return; }
+      (data || []).forEach(row => bookmarks.add(row.thread_id));
+    }
 
-      if (threadError) throw threadError;
+    async function loadPosts() {
+      const list = $("discussionList");
+      list.innerHTML = '<p class="muted">Loading discussions...</p>';
 
-      const profiles = await loadProfiles();
-      const threadRows = threads || [];
-      const threadIds = threadRows.map(thread => thread.id);
+      try {
+        if (!categories.length) await loadCategories();
 
-      let replies = [];
-
-      if (threadIds.length > 0) {
-        const { data, error } = await db
-          .from("replies")
-          .select("id, thread_id, author_id, body, is_hidden, created_at")
-          .in("thread_id", threadIds)
+        const { data: threads, error: threadError } = await db.from("threads")
+          .select("id, category_id, author_id, title, body, content_type, created_at, edited_at")
           .eq("is_hidden", false)
-          .order("created_at", { ascending: true });
+          .order("created_at", { ascending: false })
+          .limit(200);
+        if (threadError) throw threadError;
 
-        if (error) throw error;
-        replies = data || [];
-      }
+        const threadIds = threads.map(t => t.id);
+        const authorIds = [...new Set(threads.map(t => t.author_id))];
 
-      const repliesByThread = {};
+        const [profilesRes, repliesRes] = await Promise.all([
+          authorIds.length
+            ? db.from("profiles").select("id, full_name").in("id", authorIds)
+            : Promise.resolve({ data: [], error: null }),
+          threadIds.length
+            ? db.from("replies").select("id, thread_id, author_id, body, created_at")
+                .in("thread_id", threadIds).eq("is_hidden", false).order("created_at")
+            : Promise.resolve({ data: [], error: null })
+        ]);
+        if (profilesRes.error) throw profilesRes.error;
+        if (repliesRes.error) throw repliesRes.error;
 
-      replies.forEach(reply => {
-        if (!repliesByThread[reply.thread_id]) {
-          repliesByThread[reply.thread_id] = [];
-        }
+        const names = new Map(profilesRes.data.map(p => [p.id, p.full_name]));
+        const repliesByThread = new Map();
 
-        repliesByThread[reply.thread_id].push({
-          id: reply.id,
-          author:
-            profiles[reply.author_id]?.full_name ||
-            (reply.author_id === currentUser?.id
-              ? displayName(currentUser)
-              : "Community Member"),
-          body: reply.body,
-          createdAt: reply.created_at
+        repliesRes.data.forEach(r => {
+          if (!repliesByThread.has(r.thread_id)) repliesByThread.set(r.thread_id, []);
+          repliesByThread.get(r.thread_id).push({
+            id: r.id,
+            body: r.body,
+            author: names.get(r.author_id) || "Member"
+          });
         });
-      });
 
-      posts = threadRows.map(thread => ({
-        id: thread.id,
-        title: thread.title,
-        body: thread.body,
-        contentType: thread.content_type || "Discussion",
-        category: categoryNameFor(thread.category_id),
-        author:
-          profiles[thread.author_id]?.full_name ||
-          (thread.author_id === currentUser?.id
-            ? displayName(currentUser)
-            : "Community Member"),
-        authorId: thread.author_id,
-        createdAt: thread.created_at,
-        replies: repliesByThread[thread.id] || []
-      }));
+        posts = threads.map(t => ({
+          id: t.id,
+          authorId: t.author_id,
+          title: t.title,
+          body: t.body,
+          contentType: t.content_type || "Discussion",
+          createdAt: t.created_at,
+          edited: !!t.edited_at,
+          category: categoryName(t.category_id),
+          author: names.get(t.author_id) || "Member",
+          replies: repliesByThread.get(t.id) || []
+        }));
 
-      await loadBookmarks();
-      renderDiscussions();
-    } catch (error) {
-      console.error("Could not load discussions:", error);
+        await loadBookmarks();
 
-      list.innerHTML = `
-        <div class="side-card">
-          <h3>Unable to load discussions</h3>
-          <p>${escapeHTML(explainError(error))}</p>
-          <button class="btn btn-primary" id="retryLoadButton" type="button">
-            Try again
-          </button>
+        if (!routeReady) {
+          routeReady = true;
+          applyRoute();
+        } else {
+          render();
+        }
+      } catch (error) {
+        console.error("Could not load discussions:", error);
+        list.innerHTML = "";
+        const box = document.createElement("div");
+        box.className = "error-box";
+        box.textContent = "Could not load discussions: " + explain(error);
+        list.appendChild(box);
+      }
+    }
+
+    // ---------- rendering ----------
+    function buildCard(post) {
+      const saved = bookmarks.has(post.id);
+      const mine = !!me && post.authorId === me.id;
+      const count = post.replies.length;
+      const isHub = post.category === HUB;
+
+      const card = document.createElement("article");
+      card.className = "discussion-card";
+      card.id = "post-" + post.id;
+
+      card.innerHTML = `
+        <div class="post-topline">
+          <span class="pill">${esc(post.category)}</span>
+          ${isHub ? `<span class="pill pill-gold">${esc(post.contentType)}</span>` : ""}
+          <span class="post-date">${esc(timeAgo(post.createdAt))}${post.edited ? " · edited" : ""}</span>
+        </div>
+        <h3 class="post-title">${esc(post.title)}</h3>
+        <p class="post-body">${esc(post.body)}</p>
+        <div class="post-footer">
+          <div class="post-author">
+            <div class="avatar" aria-hidden="true">${esc(initials(post.author))}</div>
+            <div>
+              <div class="author-name">${esc(post.author)}</div>
+              <span class="author-role">Community contributor</span>
+            </div>
+          </div>
+          <div class="post-actions">
+            <button class="text-action ${saved ? "saved" : ""}" type="button"
+              data-action="bookmark" data-id="${esc(post.id)}" aria-pressed="${saved}">
+              ${saved ? "Saved" : "Save"}
+            </button>
+            <button class="text-action" type="button" data-action="replies"
+              data-id="${esc(post.id)}" aria-expanded="false">
+              ${count} ${count === 1 ? "reply" : "replies"}
+            </button>
+            ${mine ? `<button class="text-action" type="button" data-action="delete" data-id="${esc(post.id)}">Delete</button>` : ""}
+          </div>
+        </div>
+        <div class="reply-area hidden" id="replies-${esc(post.id)}">
+          <div class="reply-list">
+            ${count
+              ? post.replies.map(r => `
+                  <div class="reply-item"><strong>${esc(r.author)}</strong>${esc(r.body)}</div>
+                `).join("")
+              : '<p class="muted small">No replies yet. Start the conversation.</p>'}
+          </div>
+          <form class="reply-form" data-reply-form="${esc(post.id)}">
+            <input name="reply" maxlength="1500" required aria-label="Write a reply"
+              placeholder="${me ? "Write a thoughtful reply..." : "Log in to reply"}"
+              ${me ? "" : "disabled"}>
+            <button type="submit" ${me ? "" : "disabled"}>Reply</button>
+          </form>
         </div>
       `;
-
-      $("#retryLoadButton").addEventListener("click", loadPosts);
-    }
-  }
-
-  async function loadBookmarks() {
-    bookmarks = [];
-
-    if (!currentUser) return;
-
-    const { data, error } = await db
-      .from("bookmarks")
-      .select("thread_id")
-      .eq("user_id", currentUser.id);
-
-    if (error) {
-      console.warn("Bookmarks could not be loaded:", error.message);
-      return;
+      return card;
     }
 
-    bookmarks = (data || []).map(row => row.thread_id);
-  }
+    function render() {
+      const list = $("discussionList");
+      const term = filter.search.toLowerCase();
 
-  function renderDiscussions() {
-    const searchTerm = $("#searchInput").value.trim().toLowerCase();
-    const selectedCategory = $("#categoryFilter").value;
+      let rows = posts.filter(p => filter.category === "All" || p.category === filter.category);
+      if (filter.bookmarksOnly) rows = rows.filter(p => bookmarks.has(p.id));
+      if (term) {
+        rows = rows.filter(p => [
+          p.title, p.body, p.category, p.author,
+          ...p.replies.map(r => r.author + " " + r.body)
+        ].join(" ").toLowerCase().includes(term));
+      }
 
-    let filtered = [...posts];
+      $("discussionHeading").textContent = filter.bookmarksOnly
+        ? "My bookmarked discussions"
+        : filter.category === "All" ? "Community discussions" : filter.category;
 
-    if (currentCategory !== "All") {
-      filtered = filtered.filter(
-        post => post.category === currentCategory
-      );
-    }
+      $("categoryFilter").value = filter.category;
 
-    if (selectedCategory !== "All") {
-      filtered = filtered.filter(
-        post => post.category === selectedCategory
-      );
-    }
-
-    if (searchTerm) {
-      filtered = filtered.filter(post => {
-        const replyText = post.replies
-          .map(reply => `${reply.author} ${reply.body}`)
-          .join(" ");
-
-        return [
-          post.title,
-          post.body,
-          post.category,
-          post.author,
-          replyText
-        ].join(" ").toLowerCase().includes(searchTerm);
+      document.querySelectorAll(".category-card[data-category]").forEach(card => {
+        card.classList.toggle("active",
+          card.dataset.category === filter.category && !filter.bookmarksOnly);
       });
-    }
 
-    if (currentBookmarkOnly) {
-      filtered = filtered.filter(post => bookmarks.includes(post.id));
-    }
-
-    $("#discussionHeading").textContent = currentBookmarkOnly
-      ? "My bookmarked discussions"
-      : currentCategory === "All"
-        ? "Community discussions"
-        : currentCategory;
-
-    $$(".category-card").forEach(card => {
-      card.classList.toggle(
-        "active",
-        card.dataset.category === currentCategory
-      );
-    });
-
-    const list = $("#discussionList");
-    const empty = $("#emptyState");
-
-    if (filtered.length === 0) {
       list.innerHTML = "";
-      empty.classList.remove("hidden");
+      $("emptyState").classList.toggle("hidden", rows.length > 0);
 
-      $("#emptyTitle").textContent = currentBookmarkOnly
-        ? "No bookmarked discussions"
-        : "No matching discussions";
-
-      $("#emptyDescription").textContent = currentBookmarkOnly
-        ? "Log in and save discussions to find them here."
-        : "Try a different search or category, or start a new conversation.";
-
-      return;
-    }
-
-    empty.classList.add("hidden");
-
-    list.innerHTML = filtered.map(post => {
-      const saved = bookmarks.includes(post.id);
-      const replies = post.replies || [];
-      const isOwner = currentUser && post.authorId === currentUser.id;
-
-      return `
-        <article class="discussion-card" id="post-${escapeHTML(post.id)}">
-          <div class="post-topline">
-            <span class="pill">${escapeHTML(post.category)}</span>
-            ${post.category === "Hub of Idea Discussion Club" ? `<span class="pill">${escapeHTML(post.contentType || "News")}</span>` : ""}
-            <span class="post-date">${escapeHTML(relativeDate(post.createdAt))}</span>
-          </div>
-
-          <h3 class="post-title">${escapeHTML(post.title)}</h3>
-          <p class="post-body">${escapeHTML(post.body)}</p>
-
-          <div class="post-footer">
-            <div class="post-author">
-              <div class="avatar" aria-hidden="true">
-                ${escapeHTML(initials(post.author))}
-              </div>
-              <div>
-                <div class="author-name">${escapeHTML(post.author)}</div>
-                <span class="author-role">Community contributor</span>
-              </div>
-            </div>
-
-            <div class="post-actions">
-              <button class="text-action ${saved ? "saved" : ""}"
-                type="button" data-action="bookmark"
-                data-id="${escapeHTML(post.id)}"
-                aria-pressed="${saved}">
-                ${saved ? "🔖 Saved" : "♧ Save"}
-              </button>
-
-              <button class="text-action" type="button"
-                data-action="replies" data-id="${escapeHTML(post.id)}"
-                aria-expanded="false">
-                💬 ${replies.length}
-                ${replies.length === 1 ? "reply" : "replies"}
-              </button>
-
-              ${isOwner ? `
-                <button class="text-action" type="button"
-                  data-action="delete" data-id="${escapeHTML(post.id)}">
-                  Delete
-                </button>
-              ` : ""}
-            </div>
-          </div>
-
-          <div class="reply-area hidden" id="replies-${escapeHTML(post.id)}">
-            <div class="reply-list">
-              ${replies.length
-                ? replies.map(reply => `
-                  <div class="reply-item">
-                    <strong>${escapeHTML(reply.author)}</strong>
-                    ${escapeHTML(reply.body)}
-                  </div>
-                `).join("")
-                : `<p class="muted small">No replies yet. Start the conversation.</p>`
-              }
-            </div>
-
-            <form class="reply-form" data-reply-form="${escapeHTML(post.id)}">
-              <input name="reply" type="text" maxlength="1500" required
-                aria-label="Write a reply"
-                placeholder="${currentUser ? "Write a thoughtful reply..." : "Log in to reply"}"
-                ${currentUser ? "" : "disabled"}>
-              <button type="submit" ${currentUser ? "" : "disabled"}>
-                Reply
-              </button>
-            </form>
-          </div>
-        </article>
-      `;
-    }).join("");
-  }
-
-  async function toggleBookmark(id) {
-    if (!currentUser) {
-      showToast("Please log in to save discussions.", true);
-      openAuthModal("login");
-      return;
-    }
-
-    if (bookmarks.includes(id)) {
-      const { error } = await db
-        .from("bookmarks")
-        .delete()
-        .eq("user_id", currentUser.id)
-        .eq("thread_id", id);
-
-      if (error) {
-        showToast(explainError(error), true);
+      if (!rows.length) {
+        $("emptyTitle").textContent = filter.bookmarksOnly ? "No bookmarked discussions" : "No matching discussions";
+        $("emptyDescription").textContent = filter.bookmarksOnly
+          ? "Save discussions to find them here."
+          : "Try a different search or category, or start a new conversation.";
         return;
       }
 
-      bookmarks = bookmarks.filter(savedId => savedId !== id);
-      showToast("Removed from your bookmarks.");
-    } else {
-      const { error } = await db
-        .from("bookmarks")
-        .insert({
-          user_id: currentUser.id,
-          thread_id: id
-        });
+      rows.forEach(post => list.appendChild(buildCard(post)));
 
-      if (error) {
-        showToast(explainError(error), true);
-        return;
+      if (openThreadId) {
+        const area = document.getElementById("replies-" + openThreadId);
+        if (area) area.classList.remove("hidden");
       }
-
-      bookmarks.push(id);
-      showToast("Discussion saved to your bookmarks.");
     }
 
-    renderDiscussions();
-  }
+    // Reads the address so /categories/... and /bookmarks open the right view
+    function applyRoute() {
+      const path = location.pathname.replace(/\/+$/, "") || "/";
+      const match = path.match(/^\/categories\/([a-z0-9-]+)$/);
 
-  function toggleReplies(id, button) {
-    const area = document.getElementById(`replies-${id}`);
-    if (!area) return;
-
-    const opening = area.classList.contains("hidden");
-    area.classList.toggle("hidden", !opening);
-
-    if (button) {
-      button.setAttribute("aria-expanded", String(opening));
-    }
-  }
-
-  async function handleReply(form) {
-    if (!currentUser) {
-      showToast("Please log in before replying.", true);
-      openAuthModal("login");
-      return;
-    }
-
-    const threadId = form.dataset.replyForm;
-    const input = $('input[name="reply"]', form);
-    const body = input.value.trim();
-
-    if (!body) return;
-
-    const { error } = await db.from("replies").insert({
-      thread_id: threadId,
-      author_id: currentUser.id,
-      body
-    });
-
-    if (error) {
-      showToast(explainError(error), true);
-      return;
-    }
-
-    showToast("Your reply has been published.");
-    await loadPosts();
-
-    const area = document.getElementById(`replies-${threadId}`);
-    if (area) area.classList.remove("hidden");
-  }
-
-  async function deleteDiscussion(id) {
-    if (!currentUser) return;
-
-    if (!confirm("Are you sure you want to delete this discussion?")) {
-      return;
-    }
-
-    const { error } = await db
-      .from("threads")
-      .delete()
-      .eq("id", id)
-      .eq("author_id", currentUser.id);
-
-    if (error) {
-      showToast(explainError(error), true);
-      return;
-    }
-
-    showToast("Discussion deleted.");
-    await loadPosts();
-  }
-
-  function resetFilters() {
-    currentCategory = "All";
-    currentBookmarkOnly = false;
-    $("#categoryFilter").value = "All";
-    $("#searchInput").value = "";
-    renderDiscussions();
-  }
-
-  async function refreshSession() {
-    const { data, error } = await db.auth.getSession();
-
-    if (error) {
-      console.error("Could not check session:", error);
-    }
-
-    currentUser = data?.session?.user || null;
-
-    updateAccountButtons();
-    await loadPosts();
-  }
-
-  function updateAccountButtons() {
-    const actions = $(".nav-actions");
-
-    if (!actions) return;
-
-    if (!currentUser) {
-      actions.innerHTML = `
-        <button class="btn btn-outline" type="button" data-auth="login">
-          Log in
-        </button>
-        <button class="btn btn-primary" type="button" data-auth="register">
-          Join forum
-        </button>
-      `;
-    } else {
-      actions.innerHTML = `
-        <span class="small muted">
-          ${escapeHTML(displayName(currentUser))}
-        </span>
-        <button class="btn btn-outline" type="button" id="logoutButton">
-          Log out
-        </button>
-      `;
-
-      $("#logoutButton").addEventListener("click", async () => {
-        const { error } = await db.auth.signOut();
-
-        if (error) {
-          showToast(explainError(error), true);
-          return;
+      if (match) {
+        const found = categories.find(c => slugify(c.name) === match[1]);
+        if (found) {
+          filter.category = found.name;
+          filter.bookmarksOnly = false;
         }
-
-        currentUser = null;
-        bookmarks = [];
-        showToast("You have logged out.");
-        updateAccountButtons();
-        await loadPosts();
-      });
+      } else if (path === "/bookmarks") {
+        filter.category = "All";
+        filter.bookmarksOnly = true;
+      }
+      render();
     }
 
-    $$("[data-auth]").forEach(button => {
-      button.addEventListener("click", () => {
-        openAuthModal(button.dataset.auth);
-      });
-    });
-  }
-
-  // Mobile navigation
-  $("#mobileMenuButton").addEventListener("click", () => {
-    const links = $("#navLinks");
-    const isOpen = links.classList.toggle("open");
-
-    $("#mobileMenuButton").setAttribute("aria-expanded", String(isOpen));
-    $("#mobileMenuButton").textContent = isOpen ? "×" : "☰";
-  });
-
-  $$("#navLinks a").forEach(link => {
-    link.addEventListener("click", () => {
-      $("#navLinks").classList.remove("open");
-      $("#mobileMenuButton").setAttribute("aria-expanded", "false");
-      $("#mobileMenuButton").textContent = "☰";
-    });
-  });
-
-  // Open discussion form
-  [
-    "#heroStartButton",
-    "#newDiscussionButton",
-    "#emptyCreateButton",
-    "#sidebarCreateButton",
-    "#ctaCreateButton",
-    "#footerNewDiscussion"
-  ].forEach(selector => {
-    $(selector).addEventListener("click", event => {
-      event.preventDefault();
-
-      if (!currentUser) {
-        showToast("Please log in to start a discussion.", true);
-        openAuthModal("login");
+    // ---------- bookmarks, replies, and deleting ----------
+    async function toggleBookmark(id) {
+      if (!me) {
+        toast("Please log in to save discussions.", true);
+        openAuth("login");
         return;
       }
 
-      $("#discussionForm").reset();
-      $("#discussionError").classList.add("hidden");
-      $("#postAuthor").value = displayName(currentUser);
-
-      if (currentCategory !== "All") {
-        $("#postCategory").value = currentCategory;
-      }
-
-      openModal("discussionModal");
-    });
-  });
-
-  // Open authentication form
-  $$("[data-auth]").forEach(button => {
-    button.addEventListener("click", () =>
-      openAuthModal(button.dataset.auth)
-    );
-  });
-
-  $("#aboutJoinButton").addEventListener("click", () => {
-    openAuthModal("register");
-  });
-
-  $$(".close-modal").forEach(button => {
-    button.addEventListener("click", () => closeModal(button.dataset.close));
-  });
-
-  $$(".modal-backdrop").forEach(backdrop => {
-    backdrop.addEventListener("click", event => {
-      if (event.target === backdrop) closeModal(backdrop.id);
-    });
-  });
-
-  document.addEventListener("keydown", event => {
-    if (event.key === "Escape") closeAllModals();
-  });
-
-  // Register or log in with Supabase.
-  $("#authForm").addEventListener("submit", async event => {
-    event.preventDefault();
-
-    const message = $("#authMessage");
-    const submitButton = $("#authSubmitButton");
-    const email = $("#authEmail").value.trim();
-    const password = $("#authPassword").value;
-    const name = $("#authName").value.trim();
-
-    message.classList.add("hidden");
-    submitButton.disabled = true;
-    submitButton.textContent = "Please wait...";
-
-    try {
-      if (currentAuthMode === "register") {
-        const { data, error } = await db.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: name,
-              name
-            }
-          }
-        });
-
-        if (error) throw error;
-
-        if (data.session) {
-          currentUser = data.session.user;
-          closeModal("authModal");
-          showToast("Your account has been created.");
-          updateAccountButtons();
-          await loadPosts();
-        } else {
-          message.textContent =
-            "Registration submitted. Check your email for a confirmation link, then log in.";
-          message.classList.remove("hidden");
-        }
+      if (bookmarks.has(id)) {
+        const { error } = await db.from("bookmarks").delete()
+          .eq("user_id", me.id).eq("thread_id", id);
+        if (error) { toast(explain(error), true); return; }
+        bookmarks.delete(id);
+        toast("Removed from your bookmarks.");
       } else {
-        const { data, error } = await db.auth.signInWithPassword({
-          email,
-          password
-        });
-
-        if (error) throw error;
-
-        currentUser = data.user;
-        closeModal("authModal");
-        showToast("Welcome back to PSIR Forum!");
-        updateAccountButtons();
-        await loadPosts();
+        const { error } = await db.from("bookmarks")
+          .insert({ user_id: me.id, thread_id: id });
+        if (error) { toast(explain(error), true); return; }
+        bookmarks.add(id);
+        toast("Saved to your bookmarks.");
       }
-    } catch (error) {
-      message.textContent = explainError(error);
-      message.classList.remove("hidden");
-    } finally {
-      submitButton.disabled = false;
-      updateAuthModalButtonText();
-    }
-  });
-
-  function updateAuthModalButtonText() {
-    $("#authSubmitButton").textContent =
-      currentAuthMode === "register" ? "Create account" : "Log in";
-  }
-
-  $("#switchAuthMode").addEventListener("click", () => {
-    currentAuthMode =
-      currentAuthMode === "login" ? "register" : "login";
-    updateAuthModal();
-  });
-
-  // Publish a discussion.
-  $("#discussionForm").addEventListener("submit", async event => {
-    event.preventDefault();
-
-    const errorElement = $("#discussionError");
-    errorElement.classList.add("hidden");
-
-    if (!currentUser) {
-      errorElement.textContent = "Please log in before publishing.";
-      errorElement.classList.remove("hidden");
-      return;
+      render();
     }
 
-    const title = $("#postTitle").value.trim();
-    const category = $("#postCategory").value;
-    const body = $("#postBody").value.trim();
-    const contentType = $("#postContentType").value;
-    const categoryId = categoryIdFor(category);
+    async function postReply(form) {
+      if (!me) {
+        toast("Please log in before replying.", true);
+        openAuth("login");
+        return;
+      }
 
-    if (category === "Hub of Idea Discussion Club" && contentType === "Discussion") {
-      errorElement.textContent = "Please choose News, Journal, or Blog for Hub of Idea posts.";
-      errorElement.classList.remove("hidden");
-      return;
+      const threadId = form.dataset.replyForm;
+      const input = form.querySelector('input[name="reply"]');
+      const body = input.value.trim();
+      if (!body) return;
+
+      const { error } = await db.from("replies").insert({
+        thread_id: threadId,
+        author_id: me.id,
+        body
+      });
+      if (error) { toast(explain(error), true); return; }
+
+      openThreadId = threadId;
+      toast("Your reply has been published.");
+      await loadPosts();
     }
 
-    if (!title || !body) {
-      errorElement.textContent = "Please complete all required fields.";
-      errorElement.classList.remove("hidden");
-      return;
+    async function deleteDiscussion(id) {
+      if (!me) return;
+      if (!confirm("Are you sure you want to delete this discussion?")) return;
+
+      const { data, error } = await db.from("threads").delete()
+        .eq("id", id).eq("author_id", me.id).select("id");
+      if (error) { toast(explain(error), true); return; }
+      if (!data || !data.length) {
+        toast("Could not delete. You may not have permission.", true);
+        return;
+      }
+      toast("Discussion deleted.");
+      await loadPosts();
     }
 
-    if (categoryId === null) {
-      errorElement.textContent =
-        "This category was not found in your Supabase categories table.";
-      errorElement.classList.remove("hidden");
-      return;
+    // ---------- accounts ----------
+    let authMode = "login";
+
+    function updateAuthText() {
+      const registering = authMode === "register";
+      $("authModalTitle").textContent = registering ? "Create your account" : "Welcome back";
+      $("authModalSubtitle").textContent = registering
+        ? "Join the PSIR academic community."
+        : "Log in to continue to PSIR Forum.";
+      $("authNameField").classList.toggle("hidden", !registering);
+      $("authName").required = registering;
+      $("authSubmitButton").textContent = registering ? "Create account" : "Log in";
+      $("switchAuthMode").textContent = registering
+        ? "Already have an account? Log in"
+        : "Need an account? Register";
     }
 
-    const { error } = await db.from("threads").insert({
-      title,
-      body,
-      category_id: categoryId,
-      author_id: currentUser.id,
-      content_type: contentType
+    function openModal(id) {
+      $(id).classList.remove("hidden");
+      document.body.classList.add("modal-open");
+    }
+
+    function closeModal(id) {
+      $(id).classList.add("hidden");
+      if (!document.querySelector(".modal-backdrop:not(.hidden)")) {
+        document.body.classList.remove("modal-open");
+      }
+    }
+
+    function openAuth(mode) {
+      authMode = mode === "register" ? "register" : "login";
+      updateAuthText();
+      $("authMessage").classList.add("hidden");
+      $("authForm").reset();
+      openModal("authModal");
+    }
+
+    function renderNav() {
+      const box = $("navActions");
+      if (!me) {
+        box.innerHTML = `
+          <button class="btn btn-outline" type="button" data-auth="login">Log in</button>
+          <button class="btn btn-primary" type="button" data-auth="register">Join forum</button>`;
+      } else {
+        box.innerHTML = `
+          <span class="small muted">${esc(nameOf(me))}</span>
+          <button class="btn btn-outline" type="button" id="logoutButton">Log out</button>`;
+      }
+    }
+
+    $("switchAuthMode").addEventListener("click", () => {
+      authMode = authMode === "login" ? "register" : "login";
+      updateAuthText();
     });
 
-    if (error) {
-      errorElement.textContent = explainError(error);
-      errorElement.classList.remove("hidden");
-      return;
+    $("authForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const message = $("authMessage");
+      const button = $("authSubmitButton");
+      const email = $("authEmail").value.trim();
+      const password = $("authPassword").value;
+      const name = $("authName").value.trim();
+
+      message.classList.add("hidden");
+      button.disabled = true;
+
+      try {
+        if (authMode === "register") {
+          const { data, error } = await db.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: name } }
+          });
+          if (error) throw error;
+
+          if (data.session) {
+            closeModal("authModal");
+            toast("Your account has been created.");
+          } else {
+            message.textContent = "Registration submitted. Check your email for a confirmation link, then log in.";
+            message.classList.remove("hidden");
+          }
+        } else {
+          const { error } = await db.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          closeModal("authModal");
+          toast("Welcome back to PSIR Forum!");
+        }
+      } catch (error) {
+        message.textContent = explain(error);
+        message.classList.remove("hidden");
+      } finally {
+        button.disabled = false;
+        updateAuthText();
+      }
+    });
+
+    db.auth.onAuthStateChange((_event, session) => {
+      me = session?.user || null;
+      // Run the data work after the auth callback finishes
+      setTimeout(async () => {
+        renderNav();
+        await loadRole();
+        await loadPosts();
+      }, 0);
+    });
+
+    // ---------- discussion form ----------
+    function syncContentType() {
+      $("postContentType").value = $("postCategory").value === HUB ? "News" : "Discussion";
     }
 
-    closeModal("discussionModal");
-    showToast("Your discussion has been published!");
-    resetFilters();
-    await loadPosts();
+    function openDiscussion() {
+      if (!me) {
+        toast("Please log in to start a discussion.", true);
+        openAuth("login");
+        return;
+      }
+      $("discussionForm").reset();
+      $("postAuthor").value = nameOf(me);
+      $("discussionError").classList.add("hidden");
+      if (filter.category !== "All") $("postCategory").value = filter.category;
+      syncContentType();
+      openModal("discussionModal");
+    }
 
-    $("#discussions").scrollIntoView({
-      behavior: "smooth",
-      block: "start"
+    $("postCategory").addEventListener("change", syncContentType);
+
+    $("discussionForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const errorBox = $("discussionError");
+      const showError = text => {
+        errorBox.textContent = text;
+        errorBox.classList.remove("hidden");
+      };
+      errorBox.classList.add("hidden");
+
+      if (!me) return showError("Please log in before publishing.");
+
+      const title = $("postTitle").value.trim();
+      const body = $("postBody").value.trim();
+      const category = $("postCategory").value;
+      const type = $("postContentType").value;
+
+      if (!title || !body) return showError("Please complete all required fields.");
+      if (category === HUB && type === "Discussion") {
+        return showError("For Hub of Idea, choose News, Journal, or Blog.");
+      }
+
+      const id = categoryId(category);
+      if (id === null) return showError("This category was not found in your database.");
+
+      const { error } = await db.from("threads").insert({
+        category_id: id,
+        author_id: me.id,
+        title,
+        body,
+        content_type: type
+      });
+      if (error) return showError(explain(error));
+
+      closeModal("discussionModal");
+      toast("Your discussion has been published!");
+      filter.category = category;
+      filter.search = "";
+      filter.bookmarksOnly = false;
+      $("searchInput").value = "";
+      await loadPosts();
+      $("discussions").scrollIntoView({ behavior: "smooth" });
     });
-  });
 
-  // Keep the publishing type appropriate for the selected category.
-  $("#postCategory").addEventListener("change", () => {
-    const isHub = $("#postCategory").value === "Hub of Idea Discussion Club";
-    $("#postContentType").value = isHub ? "News" : "Discussion";
-  });
+    // ---------- clicks and filters ----------
+    document.addEventListener("click", event => {
+      const authButton = event.target.closest("[data-auth]");
+      if (authButton) return openAuth(authButton.dataset.auth);
 
-  // Category filters
-  $$(".category-card").forEach(card => {
-    card.addEventListener("click", () => {
-      currentCategory = card.dataset.category;
-      currentBookmarkOnly = false;
-      $("#categoryFilter").value = "All";
-      renderDiscussions();
+      if (event.target.closest("#logoutButton")) {
+        db.auth.signOut().then(() => toast("You have logged out."));
+        return;
+      }
 
-      $("#discussions").scrollIntoView({
-        behavior: "smooth",
-        block: "start"
+      const closeButton = event.target.closest("[data-close]");
+      if (closeButton) return closeModal(closeButton.dataset.close);
+
+      if (event.target.closest("#newDiscussionButton, #sidebarCreateButton, #ctaCreateButton, #emptyCreateButton, #footerNewDiscussion")) {
+        event.preventDefault();
+        return openDiscussion();
+      }
+
+      const categoryCard = event.target.closest(".category-card[data-category]");
+      if (categoryCard) {
+        filter.category = categoryCard.dataset.category;
+        filter.bookmarksOnly = false;
+        filter.search = "";
+        $("searchInput").value = "";
+        render();
+        return;
+      }
+
+      if (event.target.closest("#footerBookmarks")) {
+        event.preventDefault();
+        if (!me) {
+          toast("Please log in to see your bookmarks.", true);
+          return openAuth("login");
+        }
+        filter.category = "All";
+        filter.bookmarksOnly = true;
+        filter.search = "";
+        $("searchInput").value = "";
+        render();
+        $("discussions").scrollIntoView({ behavior: "smooth" });
+      }
+    });
+
+    document.querySelectorAll(".modal-backdrop").forEach(backdrop => {
+      backdrop.addEventListener("click", event => {
+        if (event.target === backdrop) closeModal(backdrop.id);
       });
     });
-  });
 
-  $("#allTopicsButton").addEventListener("click", () => {
-    resetFilters();
-
-    $("#discussions").scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-  });
-
-  $("#searchInput").addEventListener("input", () => {
-    currentBookmarkOnly = false;
-    renderDiscussions();
-  });
-
-  $("#categoryFilter").addEventListener("change", () => {
-    currentCategory = "All";
-    currentBookmarkOnly = false;
-    renderDiscussions();
-  });
-
-  // Discussion buttons and reply forms
-  $("#discussionList").addEventListener("click", event => {
-    const button = event.target.closest("button[data-action]");
-    if (!button) return;
-
-    const id = button.dataset.id;
-
-    if (button.dataset.action === "bookmark") {
-      toggleBookmark(id);
-    }
-
-    if (button.dataset.action === "replies") {
-      toggleReplies(id, button);
-    }
-
-    if (button.dataset.action === "delete") {
-      deleteDiscussion(id);
-    }
-  });
-
-  $("#discussionList").addEventListener("submit", event => {
-    const form = event.target.closest("form[data-reply-form]");
-    if (!form) return;
-
-    event.preventDefault();
-    handleReply(form);
-  });
-
-  // Bookmarks page
-  $("#footerBookmarks").addEventListener("click", event => {
-    event.preventDefault();
-
-    if (!currentUser) {
-      showToast("Please log in to see your bookmarks.", true);
-      openAuthModal("login");
-      return;
-    }
-
-    currentCategory = "All";
-    currentBookmarkOnly = true;
-    $("#categoryFilter").value = "All";
-    $("#searchInput").value = "";
-    renderDiscussions();
-
-    $("#discussions").scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-  });
-
-  // Update session when the authentication state changes.
-  db.auth.onAuthStateChange((_event, session) => {
-    currentUser = session?.user || null;
-
-    // Refresh data outside the auth callback to avoid blocking it.
-    setTimeout(async () => {
-      updateAccountButtons();
-      await loadPosts();
-    }, 0);
-  });
-
-  // Initialize page
-  $("#currentYear").textContent = new Date().getFullYear();
-
-  refreshSession();
-
-})();
-</script>
-  <script src="features.js"></script>
-  <script src="https://sdk.videosdk.live/js-sdk/1.1.1/videosdk.js"></script>
-<script src="audio-room.js"></script>
-<script id="psir-language-switcher">
-(() => {
-  const translations = {
-    "🎓 An academic community for curious minds":"🎓 ለማወቅ ጉጉት ላላቸው የአካዳሚክ ማህበረሰብ",
-    "Think critically. Debate respectfully.":"በትችት ያስቡ። በአክብሮት ይወያዩ።",
-    "Learn together.":"አብረን እንማር።",
-    "Political Science & International Relations":"የፖለቲካ ሳይንስና ዓለም አቀፍ ግንኙነት",
-    "Home":"መነሻ", "Categories":"ምድቦች", "Discussions":"ውይይቶች", "Audio Room":"የድምፅ ክፍል", "About":"ስለ መድረኩ",
-    "Log in":"ግባ", "Join forum":"መድረኩን ተቀላቀል", "A space for ideas and dialogue":"የሐሳብና ውይይት መድረክ",
-    "Understand the world.":"ዓለምን ይረዱ።", "Shape the debate.":"ውይይት ይቅረጹ።",
-    "Connect with students, researchers, and curious minds to explore politics, international affairs, diplomacy, governance, and the ideas shaping our world.":"ፖለቲካን፣ ዓለም አቀፍ ጉዳዮችን፣ ዲፕሎማሲን፣ አስተዳደርንና ዓለማችንን የሚቀርጹ ሐሳቦችን ለመመርመር ከተማሪዎች፣ ከተመራማሪዎችና ከሌሎች ጉጉት ካላቸው ጋር ይገናኙ።",
-    "Start a discussion →":"ውይይት ይጀምሩ →", "Explore topics":"ርዕሶችን ያስሱ", "Explore the big questions":"ትልልቅ ጥያቄዎችን ያስሱ",
-    "Ideas worth discussing. Perspectives worth understanding.":"ሊወያዩባቸው የሚገቡ ሐሳቦች። ሊረዱ የሚገቡ አመለካከቶች።",
-    "Global Affairs":"ዓለም አቀፍ ጉዳዮች", "Power, conflict, and cooperation":"ኃይል፣ ግጭትና ትብብር",
-    "Political Theory":"የፖለቲካ ንድፈ ሐሳብ", "Ideas, ideologies, and institutions":"ሐሳቦች፣ ርዕዮተ ዓለሞችና ተቋማት",
-    "Diplomacy & Governance":"ዲፕሎማሲና አስተዳደር", "Policy, negotiation, and leadership":"ፖሊሲ፣ ድርድርና አመራር",
-    "Explore by topic":"በርዕስ ያስሱ", "Find your area of interest and join the conversation.":"የሚስብዎትን ርዕስ ይምረጡና ውይይቱን ይቀላቀሉ።",
-    "View all discussions":"ሁሉንም ውይይቶች ይመልከቱ", "International Relations":"ዓለም አቀፍ ግንኙነት",
-    "Global power, security, foreign policy, and world order.":"ዓለም አቀፍ ኃይል፣ ደህንነት፣ የውጭ ፖሊሲና የዓለም ሥርዓት።",
-    "Political Science":"የፖለቲካ ሳይንስ", "Political systems, ideologies, elections, and institutions.":"የፖለቲካ ሥርዓቶች፣ ርዕዮተ ዓለሞች፣ ምርጫዎችና ተቋማት።",
-    "Diplomacy & Foreign Policy":"ዲፕሎማሲና የውጭ ፖሊሲ", "Negotiations, international cooperation, and statecraft.":"ድርድሮች፣ ዓለም አቀፍ ትብብርና የመንግሥት ዲፕሎማሲ።",
-    "Research & Academia":"ምርምርና አካዳሚክ", "Research methods, academic writing, and scholarly debate.":"የምርምር ዘዴዎች፣ አካዳሚክ ጽሑፍና ምሁራዊ ውይይት።",
-    "Peace & Security":"ሰላምና ደህንነት", "Conflict prevention, peacebuilding, and security studies.":"ግጭትን መከላከል፣ ሰላምን መገንባትና የደህንነት ጥናት።",
-    "Governance & Public Policy":"አስተዳደርና የሕዝብ ፖሊሲ", "Public institutions, development, and policy decisions.":"የሕዝብ ተቋማት፣ ልማትና የፖሊሲ ውሳኔዎች።",
-    "African Affairs":"የአፍሪካ ጉዳዮች", "African politics, regional integration, and development.":"የአፍሪካ ፖለቲካ፣ የክልል ውህደትና ልማት።",
-    "General Discussion":"አጠቃላይ ውይይት", "Questions, opportunities, and conversations across PSIR.":"በPSIR ዙሪያ ጥያቄዎች፣ ዕድሎችና ውይይቶች።",
-    "Hub of Idea Discussion Club":"የሐሳብ ማዕድ ክለብ ማዕከል", "Publish and explore club news, journals, and blogs.":"የክለቡን ዜናዎች፣ የምርምር መጽሔቶችና ብሎጎች ያትሙና ያስሱ።",
-    "Community discussions":"የማህበረሰብ ውይይቶች", "Ask questions, share insights, and learn from different perspectives.":"ጥያቄዎችን ይጠይቁ፣ ግንዛቤዎችን ያጋሩና ከተለያዩ አመለካከቶች ይማሩ።",
-    "＋ New discussion":"＋ አዲስ ውይይት", "All categories":"ሁሉም ምድቦች", "No discussions yet":"እስካሁን ውይይቶች የሉም",
-    "Start the first conversation and help build the PSIR community.":"የመጀመሪያውን ውይይት ይጀምሩና የPSIR ማህበረሰብን ለመገንባት ያግዙ።",
-    "Community principles":"የማህበረሰቡ መርሆዎች", "Evidence over assumptions":"ግምት ሳይሆን ማስረጃ", "Support arguments with credible sources.":"ክርክሮችን ታማኝ ምንጮች በመጠቀም ይደግፉ።",
-    "Respect different views":"የተለያዩ አመለካከቶችን ያክብሩ", "Challenge ideas without attacking people.":"ሰዎችን ሳያጠቁ ሐሳቦችን ይተቹ።",
-    "Learn together":"አብረን እንማር", "Ask questions and share knowledge.":"ጥያቄዎችን ይጠይቁና እውቀትን ያጋሩ።",
-    "Getting started":"መጀመሪያ ጀምር", "Have a question about politics, diplomacy, governance, or research? Start a discussion and invite others to contribute.":"ስለ ፖለቲካ፣ ዲፕሎማሲ፣ አስተዳደር ወይም ምርምር ጥያቄ አለዎት? ውይይት ይጀምሩና ሌሎችን ይጋብዙ።",
-    "About the community":"ስለ ማህበረሰቡ", "A forum for thoughtful political and international dialogue.":"ለጥልቅ የፖለቲካና ዓለም አቀፍ ውይይት የተዘጋጀ መድረክ።",
-    "PSIR Forum is designed as a meeting place for people interested in Political Science and International Relations. It encourages discussion, academic curiosity, and the exchange of ideas.":"PSIR Forum በፖለቲካ ሳይንስና በዓለም አቀፍ ግንኙነት ፍላጎት ያላቸው ሰዎች የሚገናኙበት መድረክ ነው። ውይይትን፣ አካዳሚክ ጉጉትንና የሐሳብ ልውውጥን ያበረታታል።",
-    "Whether you are a student beginning your studies, a researcher developing an argument, or simply interested in world affairs, you can use this space to explore questions and learn from others.":"ትምህርትዎን የጀመሩ ተማሪ፣ ክርክር የሚያዳብሩ ተመራማሪ ወይም በዓለም ጉዳዮች ፍላጎት ያለዎት ሰው ቢሆኑም፣ ጥያቄዎችን ለማስሳትና ከሌሎች ለመማር ይህን መድረክ መጠቀም ይችላሉ።",
-    "Join the conversation":"ውይይቱን ይቀላቀሉ", "Critical thinking":"ትችታዊ አስተሳሰብ", "Examine assumptions, compare perspectives, and ask better questions.":"ግምቶችን ይመርምሩ፣ አመለካከቶችን ያነጻጽሩና የተሻሉ ጥያቄዎችን ይጠይቁ።",
-    "Global perspectives":"ዓለም አቀፍ አመለካከቶች", "Discuss local, regional, and international issues with an open mind.":"የአካባቢ፣ የክልልና ዓለም አቀፍ ጉዳዮችን በክፍት አስተሳሰብ ይወያዩ።",
-    "Academic development":"አካዳሚክ እድገት", "Exchange ideas about research, theory, policy, and professional growth.":"ስለ ምርምር፣ ንድፈ ሐሳብ፣ ፖሊሲና ሙያዊ እድገት ሐሳቦችን ይለዋወጡ።",
-    "Responsible participation":"ኃላፊነት ያለው ተሳትፎ", "Keep conversations constructive and avoid harassment or personal attacks.":"ውይይቶችን ገንቢ ያድርጉ፤ ትንኮሳንና የግል ጥቃትን ያስወግዱ።",
-    "Have an idea worth discussing?":"ሊወያዩበት የሚገባ ሐሳብ አለዎት?", "Share a question, propose an argument, or start an academic conversation.":"ጥያቄ ያጋሩ፣ ክርክር ያቅርቡ ወይም አካዳሚክ ውይይት ይጀምሩ።",
-    "Create a discussion →":"ውይይት ይፍጠሩ →", "Explore":"ያስሱ", "Topics":"ርዕሶች", "Academic Audio Room":"የአካዳሚክ ድምፅ ክፍል", "About PSIR Forum":"ስለ PSIR Forum", "Participate":"ይሳተፉ", "My bookmarks":"ያስቀመጥኳቸው", "Community principles":"የማህበረሰቡ መርሆዎች",
-    "Connect with us":"ያግኙን", "Telegram Channel":"የቴሌግራም ቻናል", "Facebook Page":"የፌስቡክ ገጽ",
-    "A community for thoughtful discussion of Political Science, International Relations, diplomacy, governance, and global affairs.":"በፖለቲካ ሳይንስ፣ በዓለም አቀፍ ግንኙነት፣ በዲፕሎማሲ፣ በአስተዳደርና በዓለም አቀፍ ጉዳዮች ላይ ለጥልቅ ውይይት የተዘጋጀ ማህበረሰብ።",
-    "All rights reserved.":"መብቱ የተጠበቀ ነው።", "Start a discussion":"ውይይት ይጀምሩ", "Share a question or idea with the PSIR community.":"ጥያቄ ወይም ሐሳብ ከPSIR ማህበረሰብ ጋር ያጋሩ።",
-    "Discussion title":"የውይይት ርዕስ", "What would you like to discuss?":"ስለ ምን መወያየት ይፈልጋሉ?", "Category":"ምድብ", "Publishing type":"የህትመት ዓይነት", "Discussion":"ውይይት", "News":"ዜና", "Journal":"የምርምር መጽሔት", "Blog":"ብሎግ",
-    "For Hub of Idea Discussion Club, choose News, Journal, or Blog.":"ለሐሳብ ውይይት ክለብ ማዕከል ዜና፣ የምርምር መጽሔት ወይም ብሎግ ይምረጡ።",
-    "Display name":"የሚታይ ስም", "How should your name appear?":"ስምዎ እንዴት እንዲታይ ይፈልጋሉ?", "Your discussion":"ውይይትዎ", "Explain your question, share your argument, or provide context...":"ጥያቄዎን ያብራሩ፣ ክርክርዎን ያጋሩ ወይም የጀርባ ሁኔታ ያቅርቡ...",
-    "Maximum 5,000 characters. Be respectful and constructive.":"ከፍተኛው 5,000 ፊደሎች ነው። በአክብሮትና በገንቢ መንገድ ይጻፉ።", "Your discussion will be published to the PSIR Forum community. Please keep your contributions respectful and constructive.":"ውይይትዎ በPSIR Forum ማህበረሰብ ውስጥ ይታተማል። አስተዋጽኦዎን በአክብሮትና በገንቢ መንገድ ያቅርቡ።", "Publish discussion":"ውይይትን አትም",
-    "Welcome to PSIR Forum":"ወደ PSIR Forum እንኳን በደህና መጡ", "Connect with the academic community.":"ከአካዳሚክ ማህበረሰቡ ጋር ይገናኙ።", "Your name":"ስምዎ", "Email address":"የኢሜይል አድራሻ", "Password":"የይለፍ ቃል", "At least 8 characters":"ቢያንስ 8 ቁምፊዎች", "Your account is secured through Supabase authentication. Never share your password with anyone.":"መለያዎ በSupabase ማረጋገጫ የተጠበቀ ነው። የይለፍ ቃልዎን ለማንም አያጋሩ።", "Continue":"ቀጥል", "Need an account? Register":"መለያ የለዎትም? ይመዝገቡ",
-    "Search discussions, ideas, or topics...":"ውይይቶችን፣ ሐሳቦችን ወይም ርዕሶችን ይፈልጉ...", "No bookmarked discussions":"የተቀመጡ ውይይቶች የሉም", "No matching discussions":"የሚዛመዱ ውይይቶች አልተገኙም", "Log in and save discussions to find them here.":"እዚህ ለማግኘት ይግቡና ውይይቶችን ያስቀምጡ።", "Try a different search or category, or start a new conversation.":"ሌላ ፍለጋ ወይም ምድብ ይሞክሩ፣ ወይም አዲስ ውይይት ይጀምሩ።",
-    "Community contributor":"የማህበረሰብ አስተዋጽኦ አቅራቢ", "Saved":"ተቀምጧል", "Save":"አስቀምጥ", "reply":"መልስ", "replies":"መልሶች", "Delete":"ሰርዝ", "No replies yet. Start the conversation.":"እስካሁን መልስ የለም። ውይይቱን ይጀምሩ።", "Write a thoughtful reply...":"ገንቢ መልስ ይጻፉ...", "Log in to reply":"ለመመለስ ይግቡ", "Reply":"መልስ ይስጡ",
-    "Please log in to save discussions.":"ውይይቶችን ለማስቀመጥ እባክዎ ይግቡ።", "Removed from your bookmarks.":"ከተቀመጡት ውይይቶች ተወግዷል።", "Discussion saved to your bookmarks.":"ውይይቱ በተቀመጡት ውስጥ ተቀምጧል።", "Please log in before replying.":"መልስ ከመስጠትዎ በፊት እባክዎ ይግቡ።", "Your reply has been published.":"መልስዎ ታትሟል።", "Discussion deleted.":"ውይይቱ ተሰርዟል።", "You have logged out.":"ከመለያዎ ወጥተዋል።", "Please log in to start a discussion.":"ውይይት ለመጀመር እባክዎ ይግቡ።", "Please wait...":"እባክዎ ይጠብቁ...", "Your account has been created.":"መለያዎ ተፈጥሯል።", "Welcome back to PSIR Forum!":"ወደ PSIR Forum እንኳን በደህና ተመለሱ!", "Please log in before publishing.":"ከማተምዎ በፊት እባክዎ ይግቡ።", "Please choose News, Journal, or Blog for Hub of Idea posts.":"ለHub of Idea ልጥፎች ዜና፣ የምርምር መጽሔት ወይም ብሎግ ይምረጡ።", "Please complete all required fields.":"እባክዎ ሁሉንም አስፈላጊ መስኮች ይሙሉ።", "Your discussion has been published!":"ውይይትዎ ታትሟል!", "Please log in to see your bookmarks.":"ያስቀመጧቸውን ለማየት እባክዎ ይግቡ።"
-  };
-  const attrs = {
-    "Search discussions":"ውይይቶችን ይፈልጉ", "Filter by category":"በምድብ ያጣሩ", "Write a reply":"መልስ ይጻፉ", "PSIR Forum homepage":"የPSIR Forum መነሻ ገጽ", "Toggle navigation":"አሰሳን ይቀያይሩ", "Close dialog":"መስኮቱን ዝጋ"
-  };
-  const reverse = Object.fromEntries(Object.entries(translations).map(([en,am])=>[am,en]));
-  let lang = localStorage.getItem('psir-language') || 'en';
-  const norm = s => (s || '').replace(/\s+/g,' ').trim();
-  function convertText(node, target) {
-    const val = norm(node.nodeValue);
-    if (!val) return;
-    const dict = target === 'am' ? translations : reverse;
-    if (dict[val]) {
-      const leading = (node.nodeValue.match(/^\s*/) || [''])[0];
-      const trailing = (node.nodeValue.match(/\s*$/) || [''])[0];
-      node.nodeValue = leading + dict[val] + trailing;
-    }
-  }
-  function apply(target) {
-    lang = target;
-    document.documentElement.lang = target === 'am' ? 'am' : 'en';
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach(n=>convertText(n,target));
-    document.querySelectorAll('[placeholder]').forEach(el=>{
-      const dict = target==='am' ? translations : reverse;
-      const original = el.getAttribute('placeholder');
-      if(dict[original]) el.setAttribute('placeholder',dict[original]);
-    });
-    document.querySelectorAll('[aria-label]').forEach(el=>{
-      const dict = target==='am' ? attrs : Object.fromEntries(Object.entries(attrs).map(([a,b])=>[b,a]));
-      const original = el.getAttribute('aria-label'); if(dict[original]) el.setAttribute('aria-label',dict[original]);
-    });
-    const btn=document.getElementById('psirLanguageButton');
-    if(btn){ btn.textContent = target==='am' ? '🇬🇧 English' : '🇪🇹 አማርኛ'; btn.setAttribute('aria-label', target==='am' ? 'Switch to English' : 'ወደ አማርኛ ቀይር'); }
-    const meta=document.querySelector('meta[name="description"]');
-    if(meta) meta.content=target==='am' ? 'PSIR Forum የፖለቲካ ሳይንስና ዓለም አቀፍ ግንኙነት ማህበረሰብ ነው።' : 'PSIR Forum is a community for students, researchers, and professionals interested in Political Science and International Relations.';
-    localStorage.setItem('psir-language',target);
-  }
-  function addButton(){
-    const actions=document.querySelector('.nav-actions'); if(!actions || document.getElementById('psirLanguageButton')) return;
-    const b=document.createElement('button'); b.id='psirLanguageButton'; b.type='button'; b.className='btn btn-outline'; b.style.padding='9px 11px'; b.style.whiteSpace='nowrap';
-    b.addEventListener('click',()=>apply(lang==='en'?'am':'en')); actions.prepend(b);
-    apply(lang);
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',addButton); else addButton();
-  const observer=new MutationObserver(records=>{
-    if(!document.getElementById('psirLanguageButton')) addButton();
-    if(lang!=='am') return;
-    observer.disconnect();
-    for(const record of records){
-      if(record.type==='characterData') convertText(record.target,'am');
-      for(const n of record.addedNodes||[]){
-        if(n.nodeType===Node.TEXT_NODE) convertText(n,'am');
-        else if(n.nodeType===Node.ELEMENT_NODE){
-          const walker=document.createTreeWalker(n,NodeFilter.SHOW_TEXT); while(walker.nextNode()) convertText(walker.currentNode,'am');
-          n.querySelectorAll?.('[placeholder]').forEach(el=>{if(translations[el.placeholder])el.placeholder=translations[el.placeholder]});
-        }
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        document.querySelectorAll(".modal-backdrop").forEach(m => m.classList.add("hidden"));
+        document.body.classList.remove("modal-open");
       }
-    }
-    observer.observe(document.body,{subtree:true,childList:true,characterData:true});
-  });
-  observer.observe(document.body,{subtree:true,childList:true,characterData:true});
-  window.PSIRForumLanguage={set:apply,get:()=>lang};
-})();
-</script>
-<script src="stats.js"></script>
-<script src="theme.js"></script>
-<script src="views.js"></script>
-<script src="kmeet-room.js"></script>
-<script src="profile-link.js"></script>
+    });
+
+    $("discussionList").addEventListener("click", event => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      const id = button.dataset.id;
+
+      if (button.dataset.action === "bookmark") toggleBookmark(id);
+
+      if (button.dataset.action === "replies") {
+        const area = document.getElementById("replies-" + id);
+        if (!area) return;
+        const hiddenNow = area.classList.toggle("hidden");
+        openThreadId = hiddenNow ? null : id;
+        button.setAttribute("aria-expanded", String(!hiddenNow));
+      }
+
+      if (button.dataset.action === "delete") deleteDiscussion(id);
+    });
+
+    $("discussionList").addEventListener("submit", event => {
+      const form = event.target.closest("form[data-reply-form]");
+      if (!form) return;
+      event.preventDefault();
+      postReply(form);
+    });
+
+    $("searchInput").addEventListener("input", debounce(() => {
+      filter.search = $("searchInput").value.trim();
+      render();
+    }, 250));
+
+    $("categoryFilter").addEventListener("change", () => {
+      filter.category = $("categoryFilter").value;
+      filter.bookmarksOnly = false;
+      render();
+    });
+
+    $("newDiscussionButton").addEventListener("click", openDiscussion);
+
+    window.addEventListener("popstate", applyRoute);
+
+    // ---------- mobile menu ----------
+    $("mobileMenuButton").addEventListener("click", () => {
+      const open = $("navLinks").classList.toggle("open");
+      $("mobileMenuButton").setAttribute("aria-expanded", String(open));
+      $("mobileMenuButton").textContent = open ? "×" : "☰";
+    });
+
+    $("navLinks").addEventListener("click", event => {
+      if (event.target.closest("a")) $("navLinks").classList.remove("open");
+    });
+
+    $("currentYear").textContent = new Date().getFullYear();
+  })();
+  </script>
+
+  <!-- Feature scripts (each one adds one part of the page) -->
+  <script src="features.js"></script>
+  <script src="theme.js"></script>
+  <script src="views.js"></script>
+  <script src="kmeet-room.js"></script>
+  <script src="profile-link.js"></script>
+  <script src="stats.js"></script>
+  <script src="featured.js"></script>
   <script src="contacts.js"></script>
 </body>
 </html>
