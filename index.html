@@ -1332,349 +1332,7 @@
         transition-duration: 0.01ms !important;
       }
     }
-
-
-    /* Homepage polish: stronger hierarchy, spacious cards, and mobile-first details */
-    .navbar {
-      box-shadow: 0 5px 22px rgba(16, 43, 70, 0.045);
-    }
-
-    .brand-mark {
-      position: relative;
-      box-shadow: 0 7px 18px rgba(16, 43, 70, 0.16);
-    }
-
-    .hero {
-      padding: clamp(64px, 8vw, 96px) 0 clamp(64px, 7vw, 88px);
-      background:
-        radial-gradient(ellipse at 78% 15%, rgba(231, 180, 81, 0.20), transparent 28%),
-        radial-gradient(ellipse at 0% 100%, rgba(40, 100, 160, 0.24), transparent 38%),
-        linear-gradient(125deg, #091d31 0%, #123654 58%, #20517b 100%);
-    }
-
-    .hero h1 {
-      max-width: 760px;
-      letter-spacing: -2.2px;
-      text-wrap: balance;
-    }
-
-    .hero-copy {
-      line-height: 1.8;
-      max-width: 590px;
-    }
-
-    .hero-actions .btn {
-      min-height: 48px;
-      padding-inline: 20px;
-    }
-
-    .hero-actions .btn-gold {
-      box-shadow: 0 8px 22px rgba(231, 180, 81, 0.16);
-    }
-
-    .hero-card {
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12);
-      border-color: rgba(255, 255, 255, 0.19);
-    }
-
-    .value-strip {
-      background: #fff;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .value-strip-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      padding-block: 22px;
-      gap: 22px;
-    }
-
-    .value-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    .value-icon {
-      display: grid;
-      place-items: center;
-      width: 42px;
-      height: 42px;
-      flex: 0 0 42px;
-      border-radius: 13px;
-      color: var(--navy);
-      background: #fff5dc;
-      font-size: 1.25rem;
-      font-weight: 850;
-    }
-
-    .value-item strong,
-    .value-item span:not(.value-icon) {
-      display: block;
-    }
-
-    .value-item strong {
-      color: var(--navy);
-      font-size: 0.93rem;
-    }
-
-    .value-item div span {
-      color: var(--muted);
-      font-size: 0.81rem;
-      line-height: 1.45;
-      margin-top: 2px;
-    }
-
-    .categories-section {
-      background: linear-gradient(180deg, #f5f7fa 0%, #eef3f8 100%);
-    }
-
-    .section-kicker {
-      display: block;
-      color: var(--blue);
-      font-size: 0.72rem;
-      font-weight: 850;
-      letter-spacing: 1.6px;
-      margin-bottom: 8px;
-    }
-
-    .category-grid {
-      gap: 18px;
-    }
-
-    .category-card {
-      min-height: 190px;
-      padding: 23px;
-      border-color: #e0e7ef;
-      box-shadow: 0 5px 18px rgba(16, 43, 70, 0.025);
-    }
-
-    .category-card:hover,
-    .category-card:focus-visible {
-      border-color: rgba(40, 100, 160, 0.55);
-      box-shadow: 0 14px 30px rgba(16, 43, 70, 0.09);
-      transform: translateY(-4px);
-    }
-
-    .category-emoji {
-      display: inline-grid;
-      place-items: center;
-      width: 46px;
-      height: 46px;
-      border-radius: 14px;
-      background: #edf4fb;
-      margin-bottom: 15px;
-      font-size: 1.45rem;
-    }
-
-    .category-card strong {
-      line-height: 1.35;
-    }
-
-    .category-card p {
-      line-height: 1.6;
-    }
-
-    .section-heading {
-      margin-bottom: 32px;
-    }
-
-    .cta {
-      background: linear-gradient(120deg, #fff 0%, #f3f7fb 100%);
-    }
-
-    .cta-inner {
-      border: 1px solid #e0e8f1;
-      border-radius: 20px;
-      padding: 30px;
-      background: #fff;
-      box-shadow: 0 12px 32px rgba(16, 43, 70, 0.05);
-    }
-
-    @media (max-width: 900px) {
-      .value-strip-grid {
-        gap: 14px;
-      }
-      .value-item {
-        align-items: flex-start;
-      }
-      .category-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 640px) {
-      .hero {
-        padding: 54px 0 58px;
-      }
-      .hero-grid {
-        gap: 30px;
-      }
-      .hero h1 {
-        font-size: clamp(2.45rem, 12vw, 3.5rem);
-        letter-spacing: -1.5px;
-      }
-      .eyebrow {
-        font-size: 0.67rem;
-        letter-spacing: 1px;
-        line-height: 1.6;
-      }
-      .hero-actions {
-        display: grid;
-        grid-template-columns: 1fr;
-      }
-      .hero-actions .btn {
-        width: 100%;
-      }
-      .value-strip-grid {
-        grid-template-columns: 1fr;
-        gap: 17px;
-        padding-block: 20px;
-      }
-      .value-item {
-        align-items: center;
-      }
-      .category-grid {
-        grid-template-columns: 1fr;
-      }
-      .category-card {
-        min-height: auto;
-      }
-      .section-heading {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-      .cta-inner {
-        padding: 22px;
-      }
-    }
-
-  
-
-    /* Accessibility contrast fixes: keep every key label readable on mobile. */
-    .hero h1,
-    .hero h1:first-line {
-      color: #ffffff !important;
-      opacity: 1 !important;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
-    }
-    .hero h1 span {
-      color: #ffd166 !important;
-    }
-    .hero-copy { color: #f1f6fb !important; }
-    .hero-card h2,
-    .hero-topic strong { color: #ffffff !important; }
-    .hero-card > p,
-    .hero-topic small { color: #e4edf6 !important; }
-    .hero-card { background: rgba(255, 255, 255, 0.12); }
-    .footer-copy,
-    .footer-links,
-    .social-links,
-    .footer-bottom { color: #e0eaf3 !important; }
-    .footer-links a,
-    .social-links a { color: #e0eaf3 !important; }
-    .footer-links a:hover,
-    .social-links a:hover { color: #ffd166 !important; }
-    .muted,
-    .cta p { color: #526477; }
-    .hero .btn-secondary { color: #ffffff; border-color: rgba(255,255,255,.65); }
-
   </style>
-
-  <style id="psir-footer-contrast-fix">
-    /* Strong footer contrast in light, dark, and system theme modes. */
-    footer,
-    footer .footer-brand,
-    footer h2,
-    footer h3,
-    footer h4,
-    footer p,
-    footer .footer-copy,
-    footer .footer-links,
-    footer .footer-links a,
-    footer .social-links,
-    footer .social-links a,
-    footer .footer-bottom,
-    footer .footer-bottom a {
-      color: #edf4fb !important;
-      opacity: 1 !important;
-      text-shadow: none !important;
-    }
-
-    footer h2,
-    footer h3,
-    footer h4 {
-      color: #ffffff !important;
-      font-weight: 800 !important;
-    }
-
-    footer a {
-      text-decoration-color: rgba(237, 244, 251, 0.55);
-      text-underline-offset: 3px;
-    }
-
-    footer a:hover,
-    footer a:focus-visible {
-      color: #ffd166 !important;
-    }
-
-    footer .footer-copy,
-    footer p {
-      color: #d5e2ee !important;
-    }
-
-    footer .footer-links a,
-    footer .social-links a {
-      display: inline-flex;
-      align-items: center;
-      min-height: 28px;
-      color: #e5eef7 !important;
-    }
-
-    footer .footer-links a:hover,
-    footer .social-links a:hover {
-      color: #ffd166 !important;
-    }
-
-    @media (max-width: 560px) {
-      footer .footer-grid {
-        gap: 24px;
-      }
-
-      footer h3 {
-        margin-bottom: 10px;
-      }
-
-      footer .footer-links,
-      footer .social-links {
-        gap: 7px;
-      }
-    }
-  </style>
-
-
-  <style id="psir-footer-final-contrast-fix">
-    /* Final high-contrast footer overrides; keep the navy footer and existing layout. */
-    body footer { background-color: #0a2035 !important; color: #edf4fb !important; opacity: 1 !important; filter: none !important; }
-    body footer .footer-brand { color: #ffffff !important; opacity: 1 !important; }
-    body footer h1, body footer h2, body footer h3, body footer h4,
-    body footer .footer-grid h3, body footer .footer-grid > div > h3 {
-      color: #ffffff !important; opacity: 1 !important; visibility: visible !important;
-      font-weight: 800 !important; text-shadow: none !important;
-    }
-    body footer p, body footer .footer-copy, body footer .footer-bottom,
-    body footer .footer-links, body footer .social-links {
-      color: #dbe7f2 !important; opacity: 1 !important; visibility: visible !important;
-    }
-    body footer .footer-links a, body footer .social-links a, body footer .footer-bottom a {
-      color: #edf4fb !important; opacity: 1 !important; visibility: visible !important;
-      text-decoration: none; text-shadow: none !important;
-    }
-    body footer a:hover, body footer a:focus-visible { color: #ffd166 !important; }
-    body footer .footer-grid > div { opacity: 1 !important; filter: none !important; }
-  </style>
-
 </head>
 
 <body>
@@ -1737,7 +1395,7 @@
           </p>
 
           <div class="hero-actions">
-            <a class="btn btn-gold" href="#discussions">Explore Discussions <span aria-hidden="true">→</span></a>
+            <a class="btn btn-gold" href="/discussions">Explore Discussions</a>
             <button class="btn btn-outline" type="button" id="heroStartButton" data-auth="register">
               Join the Community
             </button>
@@ -1778,21 +1436,10 @@
         </div>
       </div>
     </section>
-
-    <section class="value-strip" aria-label="What makes PSIR Forum useful">
-      <div class="container value-strip-grid">
-        <div class="value-item"><span class="value-icon" aria-hidden="true">✦</span><div><strong>Think critically</strong><span>Explore ideas with curiosity.</span></div></div>
-        <div class="value-item"><span class="value-icon" aria-hidden="true">↔</span><div><strong>Hear diverse perspectives</strong><span>Learn through respectful debate.</span></div></div>
-        <div class="value-item"><span class="value-icon" aria-hidden="true">◎</span><div><strong>Grow academically</strong><span>Connect ideas with research.</span></div></div>
-      </div>
-    </section>
-
-    <section class="section categories-section" id="categories" aria-labelledby="categoriesHeading">
       <div class="container">
         <div class="section-heading">
           <div>
-            <span class="section-kicker">FIND YOUR FIELD</span>
-            <h2 id="categoriesHeading">Explore by topic</h2>
+            <h2>Explore by topic</h2>
             <p>Find your area of interest and join the conversation.</p>
           </div>
           <button class="btn btn-outline" type="button" id="allTopicsButton">
@@ -2982,6 +2629,7 @@
 
   // Open discussion form
   [
+    "#heroStartButton",
     "#newDiscussionButton",
     "#emptyCreateButton",
     "#sidebarCreateButton",
@@ -3408,6 +3056,5 @@
 <script src="kmeet-room.js"></script>
 <script src="profile-link.js"></script>
   <script src="contacts.js"></script>
-<script src="featured.js"></script>
 </body>
 </html>
