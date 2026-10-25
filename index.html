@@ -2871,10 +2871,6 @@
     );
   });
 
-  $("#aboutJoinButton").addEventListener("click", () => {
-    openAuthModal("register");
-  });
-
   $$(".close-modal").forEach(button => {
     button.addEventListener("click", () => closeModal(button.dataset.close));
   });
