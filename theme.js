@@ -183,6 +183,14 @@
     @media (prefers-reduced-motion: reduce) {
       html body button, html body .btn { transition: none !important; }
     }
+    /* Hero text stays readable on the navy background in every mode */
+    html body .hero h1 { color: #ffffff !important; }
+    html body .hero h1 span { color: #e7b451 !important; }
+    html body .hero h2, html body .hero strong, html body .hero-topic strong { color: #ffffff !important; }
+    html body .hero .eyebrow { color: #e7b451 !important; }
+    html body .hero p, html body .hero .hero-copy { color: #d6e2ee !important; }
+    html body .hero-card p, html body .hero-topic small { color: #c8d8e7 !important; }
+
   `;
 
   const style = document.createElement("style");

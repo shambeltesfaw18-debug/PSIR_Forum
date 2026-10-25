@@ -89,6 +89,12 @@
     }
   };
 
+  // Hide the hero "Join the Community" button for members who are already logged in
+  function syncJoinButton() {
+    const join = document.getElementById("heroStartButton");
+    if (join) join.style.display = loggedIn ? "none" : "";
+  }
+
   let loggedIn = false;
   let roomCategory = null;
   let roomView = false;
@@ -302,12 +308,12 @@
   window.addEventListener("popstate", () => route(location.pathname, location.hash));
 
   db.auth.getSession().then(({ data }) => {
-    loggedIn = !!data.session;
+    loggedIn = !!data.session; syncJoinButton();
     renderRooms();
   });
 
   db.auth.onAuthStateChange((_event, session) => {
-    loggedIn = !!session;
+    loggedIn = !!session; syncJoinButton();
     if (!loggedIn) closeRoom();
     setTimeout(renderRooms, 0);
   });
