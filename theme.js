@@ -191,6 +191,13 @@
     html body .hero p, html body .hero .hero-copy { color: #d6e2ee !important; }
     html body .hero-card p, html body .hero-topic small { color: #c8d8e7 !important; }
 
+    /* Hero background: world image with a navy overlay so the text stays readable */
+    html body .hero {
+      background:
+        linear-gradient(120deg, rgba(16, 43, 70, 0.92), rgba(24, 62, 96, 0.86)),
+        url("https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1600&q=70") center / cover no-repeat !important;
+    }
+
   `;
 
   const style = document.createElement("style");
