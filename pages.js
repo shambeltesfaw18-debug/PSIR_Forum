@@ -7,7 +7,7 @@
 
   const SECTIONS = ["home", "categories", "discussions", "about", "cta"];
   const VIEWS = {
-    home: ["home", "categories", "about", "cta"],
+    home: ["home", "about", "cta"],
     categories: ["categories"],
     forum: ["discussions"],
     category: ["discussions"]
