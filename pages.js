@@ -48,24 +48,24 @@
     });
   }
 
-  // ---------- kMeet live room panel ----------
+  // ---------- Rooms module (one card, two options) ----------
   const discussions = document.getElementById("discussions");
   const panel = document.createElement("section");
-  panel.id = "psirRoom";
+  panel.id = "psirRooms";
   panel.style.cssText = "margin:0 0 22px;padding:18px;border:1px solid #e2e8ef;border-radius:16px;background:#fff;display:none;";
 
   const panelTitle = document.createElement("h3");
-  panelTitle.textContent = "Live room";
-  panelTitle.style.cssText = "margin:0 0 6px;color:#102b46;";
+  panelTitle.textContent = "Rooms";
+  panelTitle.style.cssText = "margin:0 0 4px;color:#102b46;";
 
   const info = document.createElement("p");
-  info.style.cssText = "margin:0 0 12px;color:#64748b;";
+  info.style.cssText = "margin:0 0 14px;color:#64748b;";
 
-  const actions = document.createElement("div");
-  actions.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;align-items:center;";
+  const options = document.createElement("div");
+  options.style.cssText = "display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;";
 
   const roomBox = document.createElement("div");
-  panel.append(panelTitle, info, actions, roomBox);
+  panel.append(panelTitle, info, options, roomBox);
 
   if (discussions) {
     const layout = discussions.querySelector(".community-layout");
@@ -76,10 +76,27 @@
     }
   }
 
+  const ROOM_TYPES = {
+    video: {
+      title: "Video discussion",
+      text: "Camera and microphone on. For debates and open conversation.",
+      suffix: ""
+    },
+    audio: {
+      title: "Audio seminar",
+      text: "A separate room for talks and presentations. Keep your camera off.",
+      suffix: "-seminar"
+    }
+  };
+
   let loggedIn = false;
   let roomCategory = null;
   let roomView = false;
-  let roomOpen = false;
+  let openType = null;   // "video", "audio", or null
+
+  function roomUrl(type) {
+    return KMEET + roomCategory.slug + ROOM_TYPES[type].suffix;
+  }
 
   function makeButton(label, onClick, secondary) {
     const b = document.createElement("button");
@@ -94,20 +111,20 @@
   function closeRoom() {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     roomBox.innerHTML = "";
-    roomOpen = false;
+    openType = null;
   }
 
-  function openRoom() {
+  function openRoom(type) {
     if (!roomCategory) return;
     roomBox.innerHTML = "";
     const frame = document.createElement("iframe");
-    frame.src = KMEET + roomCategory.slug;
-    frame.title = "PSIR live room";
+    frame.src = roomUrl(type);
+    frame.title = ROOM_TYPES[type].title + " for " + roomCategory.name;
     frame.allow = "camera; microphone; fullscreen; display-capture; autoplay";
-    frame.style.cssText = "width:100%;height:70vh;min-height:420px;border:0;border-radius:12px;margin-top:12px;background:#000;";
+    frame.style.cssText = "width:100%;height:70vh;min-height:420px;border:0;border-radius:12px;margin-top:14px;background:#000;";
     roomBox.appendChild(frame);
-    roomOpen = true;
-    renderRoom();
+    openType = type;
+    renderRooms();
   }
 
   function fullScreen() {
@@ -119,40 +136,56 @@
     if (request) request.call(roomBox).catch(() => {});
   }
 
-  function renderRoom() {
+  function renderRooms() {
     panel.style.display = roomView ? "block" : "none";
     if (!roomView) return;
 
-    actions.innerHTML = "";
+    options.innerHTML = "";
+    roomBox.innerHTML = roomBox.innerHTML; // keep any open frame
 
     if (!roomCategory) {
-      info.textContent = "This category has no live room yet.";
+      info.textContent = "This category has no room yet.";
       return;
     }
     if (!loggedIn) {
-      info.textContent = "Log in to join the live room for " + roomCategory.name + ".";
+      info.textContent = "Log in to join the rooms for " + roomCategory.name + ".";
       return;
     }
 
-    if (roomOpen) {
-      info.textContent = "You are in the live room for " + roomCategory.name + ".";
-      actions.append(
-        makeButton("Full screen", fullScreen),
-        makeButton("Leave room", () => { closeRoom(); renderRoom(); }, true)
-      );
-    } else {
-      info.textContent = "Join the video and audio room for " + roomCategory.name +
-        ". Your microphone and camera start off.";
-      actions.append(makeButton("Join live room", openRoom));
-    }
+    info.textContent = openType
+      ? "You are in the " + ROOM_TYPES[openType].title.toLowerCase() + " for " + roomCategory.name + "."
+      : "Choose a room for " + roomCategory.name + ".";
 
-    const link = document.createElement("a");
-    link.href = KMEET + roomCategory.slug;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.textContent = "Open in a new tab";
-    link.style.cssText = "color:#1f6f78;font-weight:600;";
-    actions.append(link);
+    Object.keys(ROOM_TYPES).forEach(type => {
+      const card = document.createElement("div");
+      card.style.cssText = "border:1px solid #e2e8ef;border-radius:12px;padding:14px;background:#f8fafc;";
+
+      const title = document.createElement("strong");
+      title.textContent = ROOM_TYPES[type].title;
+      title.style.cssText = "display:block;color:#102b46;margin-bottom:4px;";
+
+      const text = document.createElement("p");
+      text.textContent = ROOM_TYPES[type].text;
+      text.style.cssText = "margin:0 0 10px;color:#64748b;font-size:14px;";
+
+      card.append(title, text);
+
+      if (openType === type) {
+        card.append(
+          makeButton("Full screen", fullScreen),
+          makeButton("Leave room", () => { closeRoom(); renderRooms(); }, true)
+        );
+      } else if (openType) {
+        const note = document.createElement("p");
+        note.textContent = "Leave the open room first.";
+        note.style.cssText = "margin:0;color:#64748b;font-size:13px;";
+        card.appendChild(note);
+      } else {
+        card.appendChild(makeButton("Join", () => openRoom(type)));
+      }
+
+      options.appendChild(card);
+    });
   }
 
   let categoriesPromise = null;
@@ -172,7 +205,6 @@
   // ---------- routing ----------
   let programmatic = false;
 
-  // Uses the page's own category card, so the discussion filter stays in sync
   function selectCategoryCard(name) {
     const card = Array.from(document.querySelectorAll(".category-card[data-category]"))
       .find(c => c.dataset.category === name);
@@ -188,10 +220,13 @@
     showView(parsed.view);
     roomView = parsed.view === "category";
 
-    if (parsed.view === "home") {
+    if (parsed.view !== "category") {
       closeRoom();
       roomCategory = null;
-      renderRoom();
+      renderRooms();
+    }
+
+    if (parsed.view === "home") {
       window.scrollTo({ top: 0, behavior: "auto" });
       if (hash === "#about") {
         const about = document.getElementById("about");
@@ -200,18 +235,7 @@
       return;
     }
 
-    if (parsed.view === "categories") {
-      closeRoom();
-      roomCategory = null;
-      renderRoom();
-      window.scrollTo({ top: 0, behavior: "auto" });
-      return;
-    }
-
-    if (parsed.view === "forum") {
-      closeRoom();
-      roomCategory = null;
-      renderRoom();
+    if (parsed.view === "categories" || parsed.view === "forum") {
       window.scrollTo({ top: 0, behavior: "auto" });
       if ((pathname || "").replace(/\/+$/, "") === "/bookmarks") {
         const control = document.getElementById("footerBookmarks");
@@ -224,20 +248,18 @@
       return;
     }
 
-    // Single category
     window.scrollTo({ top: 0, behavior: "auto" });
     try {
       const categories = await loadCategories();
       const found = categories.find(c => slugify(c.name) === parsed.slug) || null;
-      if (!roomCategory || !found || roomCategory.slug !== found.slug) closeRoom();
       roomCategory = found;
       if (found) selectCategoryCard(found.name);
     } catch (error) {
       console.error("pages.js: could not load categories", error);
       roomCategory = null;
-      info.textContent = "The live room could not load: " + (error.message || "unknown error");
+      info.textContent = "The rooms could not load: " + (error.message || "unknown error");
     }
-    renderRoom();
+    renderRooms();
   }
 
   function navigate(path, hash) {
@@ -246,7 +268,6 @@
     route(path, hash);
   }
 
-  // Clicks on category cards, internal links, and menu links
   document.addEventListener("click", event => {
     if (programmatic) return;
 
@@ -280,18 +301,17 @@
 
   window.addEventListener("popstate", () => route(location.pathname, location.hash));
 
-  // Sign-in state updates the kMeet panel
   db.auth.getSession().then(({ data }) => {
     loggedIn = !!data.session;
-    renderRoom();
+    renderRooms();
   });
 
   db.auth.onAuthStateChange((_event, session) => {
     loggedIn = !!session;
-    setTimeout(renderRoom, 0);
+    if (!loggedIn) closeRoom();
+    setTimeout(renderRooms, 0);
   });
 
-  // Start: unknown addresses go to the home page
   if (parse(location.pathname).unknown) {
     history.replaceState(null, "", "/");
   }
