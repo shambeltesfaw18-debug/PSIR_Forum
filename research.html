@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Research & Academia Hub of PSIR Forum: share knowledge, publish research, and connect ideas.">
+  <meta name="description" content="Research & Academia Hub of PSIR Forum: submit research, read approved publications, and connect ideas.">
   <meta name="theme-color" content="#102b46">
   <title>Research &amp; Academia Hub | PSIR Forum</title>
   <style>
-    :root { --navy:#102b46; --navy-2:#183e60; --blue:#2864a0; --gold:#e7b451; --bg:#f3f6fa; --surface:#fff; --text:#172b3d; --muted:#5b6b7b; --line:#dfe7ef; }
+    :root { --navy:#102b46; --blue:#2864a0; --gold:#e7b451; --bg:#f3f6fa; --surface:#fff; --text:#172b3d; --muted:#5b6b7b; --line:#dfe7ef; }
     * { box-sizing:border-box; }
     body { margin:0; font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; color:var(--text); background:var(--bg); line-height:1.6; }
     a { color:inherit; text-decoration:none; }
@@ -17,37 +17,47 @@
     .brand { font-weight:850; color:var(--navy); letter-spacing:.4px; }
     .top-links { display:flex; gap:18px; flex-wrap:wrap; font-size:.92rem; font-weight:650; color:#45596d; }
     .top-links a:hover, .top-links a[aria-current="page"] { color:var(--blue); }
-    .hero { background:linear-gradient(125deg,#0b2137,#173e61 75%,#24517a); color:#fff; padding:64px 0; }
-    .eyebrow { color:var(--gold); text-transform:uppercase; letter-spacing:1.5px; font-size:.75rem; font-weight:850; margin:0 0 14px; }
-    .hero h1 { margin:0 0 12px; font-size:clamp(2rem,4.5vw,3.4rem); line-height:1.12; letter-spacing:-1px; }
-    .hero p { color:#d6e2ee; max-width:640px; margin:0; font-size:1.05rem; }
-    .section { padding:44px 0; }
-    .section h2 { color:var(--navy); margin:0 0 6px; font-size:1.6rem; letter-spacing:-.4px; }
-    .section > .container > p.lead { color:var(--muted); margin:0 0 22px; }
+    .hero { background:linear-gradient(125deg,#0b2137,#173e61 75%,#24517a); color:#fff; padding:60px 0; }
+    .eyebrow { color:var(--gold); text-transform:uppercase; letter-spacing:1.5px; font-size:.75rem; font-weight:850; margin:0 0 12px; }
+    .hero h1 { margin:0 0 12px; font-size:clamp(2rem,4.5vw,3.3rem); line-height:1.12; letter-spacing:-1px; }
+    .hero p { color:#d6e2ee; max-width:640px; margin:0 0 22px; font-size:1.05rem; }
+    .btn { display:inline-block; border:none; cursor:pointer; background:var(--gold); color:#182b3c; padding:12px 20px; border-radius:999px; font-weight:750; font-size:.95rem; font:inherit; }
+    .btn-navy { background:var(--navy); color:#fff; }
+    .btn-line { background:#fff; color:var(--navy); border:1px solid var(--line); }
+    .btn-small { padding:7px 12px; font-size:.85rem; }
+    .btn:disabled { opacity:.55; cursor:default; }
+    .section { padding:40px 0; }
+    .section h2 { color:var(--navy); margin:0 0 6px; font-size:1.55rem; letter-spacing:-.4px; }
+    .lead { color:var(--muted); margin:0 0 20px; }
     .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
-    .card { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:20px; }
-    .card h3 { margin:0 0 6px; color:var(--navy); font-size:1.05rem; }
+    .card { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:18px; }
+    .card h3 { margin:0 0 6px; color:var(--navy); font-size:1.02rem; }
     .card p { margin:0; color:var(--muted); font-size:.9rem; }
-    .tag { display:inline-block; font-size:.72rem; font-weight:800; padding:4px 9px; border-radius:6px; margin-bottom:10px; }
-    .tag.live { background:#e6f4ea; color:#24794c; }
-    .tag.soon { background:#fff4dc; color:#835c13; }
-    .tag.staff { background:#edf3f9; color:#315b83; }
-    .thread { display:block; padding:16px 18px; background:#fff; border:1px solid var(--line); border-radius:14px; margin-bottom:12px; }
-    .thread:hover { border-color:var(--gold); }
-    .thread strong { color:var(--navy); display:block; margin-bottom:4px; }
-    .meta { color:var(--muted); font-size:.82rem; }
-    .empty { background:#fff; border:1px dashed #c8d4e0; border-radius:14px; padding:22px; color:var(--muted); }
-    .note { background:#fff8e1; border:1px solid #f0e2a6; color:#6b5300; border-radius:12px; padding:14px 16px; font-size:.9rem; }
-    .stats { display:flex; gap:12px; flex-wrap:wrap; margin:0 0 26px; }
-    .stat { background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px 16px; min-width:150px; }
-    .stat strong { display:block; font-size:1.5rem; color:var(--navy); }
-    .stat span { color:var(--muted); font-size:.85rem; }
-    .btn { display:inline-block; background:var(--navy); color:#fff; padding:11px 18px; border-radius:999px; font-weight:700; font-size:.92rem; margin-top:12px; }
-    .btn-outline { background:#fff; color:var(--navy); border:1px solid var(--line); }
-    footer { background:#0a2035; color:#b8c7d4; padding:26px 0; font-size:.85rem; margin-top:30px; }
+    .pub { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:12px; }
+    .pub h3 { margin:0 0 6px; color:var(--navy); font-size:1.08rem; }
+    .pub .meta { color:var(--muted); font-size:.83rem; margin-bottom:8px; }
+    .pub p { margin:0; color:#3c4f61; font-size:.93rem; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .tag { display:inline-block; font-size:.72rem; font-weight:800; padding:4px 9px; border-radius:6px; margin:0 6px 6px 0; background:#edf3f9; color:#315b83; }
+    .s-draft { background:#eef1f5; color:#4a5b6c; } .s-submitted, .s-under_review { background:#fff4dc; color:#835c13; }
+    .s-revision_requested { background:#fde9d9; color:#9a4a12; } .s-approved { background:#e6f4ea; color:#24794c; }
+    .s-rejected { background:#fdecea; color:#a3172b; } .s-withdrawn { background:#eef1f5; color:#4a5b6c; }
+    .notice { background:#fff8e1; border:1px solid #f0e2a6; color:#6b5300; border-radius:12px; padding:12px 14px; font-size:.9rem; margin:0 0 14px; }
+    .error { background:#fdecea; border-color:#f4c7c3; color:#8c2929; }
+    .ok { background:#e6f4ea; border-color:#bfe3cb; color:#1b5e20; }
+    .empty { background:#fff; border:1px dashed #c8d4e0; border-radius:14px; padding:20px; color:var(--muted); }
+    .panel { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:22px; margin-top:14px; }
+    .field { margin-bottom:14px; }
+    .field label { display:block; font-weight:700; color:var(--navy); font-size:.9rem; margin-bottom:6px; }
+    .field input, .field select, .field textarea { width:100%; border:1px solid #cfd9e4; border-radius:10px; padding:11px 12px; font:inherit; background:#fff; color:var(--text); }
+    .field textarea { min-height:100px; resize:vertical; }
+    .help { color:var(--muted); font-size:.8rem; margin-top:4px; }
+    .row-btns { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+    .preview { background:#f5f8fb; border:1px solid var(--line); border-radius:12px; padding:16px; margin-top:16px; }
+    .preview h4 { margin:0 0 6px; color:var(--navy); }
+    footer { background:#0a2035; color:#b8c7d4; padding:24px 0; font-size:.85rem; margin-top:30px; }
     footer a:hover { color:var(--gold); }
     :focus-visible { outline:3px solid var(--gold); outline-offset:2px; }
-    @media (max-width:640px) { .top-links { gap:12px; font-size:.85rem; } .hero { padding:44px 0; } }
+    @media (max-width:640px) { .top-links { gap:12px; font-size:.85rem; } .hero { padding:40px 0; } }
   </style>
 </head>
 <body>
@@ -68,63 +78,94 @@
       <p class="eyebrow">Research &amp; Academia</p>
       <h1>Research &amp; Academia Hub</h1>
       <p>Share knowledge. Publish research. Connect ideas. Advance understanding.</p>
+      <button class="btn" type="button" id="submitOpen">Submit Research</button>
+      <span id="loginHint" class="hint" style="color:#dfe5ee;margin-left:12px;font-size:.9rem;"></span>
+    </div>
+  </section>
+
+  <section class="section" style="padding-bottom:0;">
+    <div class="container">
+      <div id="globalMsg" class="notice" hidden></div>
+
+      <div id="formPanel" class="panel" hidden>
+        <h2 id="formTitle">Submit research</h2>
+        <p class="lead">Drafts stay private. A submitted piece is reviewed by a moderator before it appears in the library.</p>
+        <form id="pubForm" novalidate>
+          <div class="field"><label for="f_title">Title</label><input id="f_title" maxlength="200" required></div>
+          <div class="field"><label for="f_type">Publication type</label>
+            <select id="f_type">
+              <option>Research Paper</option><option>Academic Article</option><option>Literature Review</option>
+              <option>Policy Brief</option><option>Working Paper</option><option>Research Proposal</option>
+              <option>Undergraduate Thesis</option><option>Master's Thesis</option><option>Doctoral Dissertation</option>
+            </select></div>
+          <div class="field"><label for="f_field">Research field or subject</label><input id="f_field" maxlength="120" placeholder="e.g. Peace and security in the Horn of Africa"></div>
+          <div class="field"><label for="f_abstract">Abstract or summary</label><textarea id="f_abstract" maxlength="3000" placeholder="At least 50 characters to submit"></textarea></div>
+          <div class="field"><label for="f_body">Full article or paper</label><textarea id="f_body" rows="10" maxlength="50000" placeholder="At least 300 characters to submit"></textarea>
+            <div class="help">PDF upload will be added in a later update. You can paste the full text here.</div></div>
+          <div class="field"><label for="f_keywords">Keywords</label><input id="f_keywords" maxlength="300" placeholder="Separate keywords with commas"></div>
+          <div class="field"><label for="f_language">Language</label>
+            <select id="f_language"><option>English</option><option>Amharic</option></select></div>
+          <div class="field"><label for="f_institution">Institution or affiliation (optional)</label><input id="f_institution" maxlength="150"></div>
+          <div class="field"><label for="f_coauthors">Co-authors (optional)</label><input id="f_coauthors" maxlength="300" placeholder="Names only; each co-author must agree to be listed"></div>
+          <div class="field"><label for="f_refs">References or bibliography</label><textarea id="f_refs" maxlength="20000" placeholder="List the sources you used"></textarea></div>
+          <div class="field" style="display:flex;gap:10px;align-items:flex-start;">
+            <input type="checkbox" id="f_declare" style="margin-top:4px;width:auto;">
+            <label for="f_declare" style="font-weight:600;margin:0;">I declare that this work is my own (or my co-authors' with consent), that I have permission to publish it, and that I have cited my sources. I understand that publication is moderated and is not formal peer review.</label>
+          </div>
+          <div class="row-btns">
+            <button class="btn btn-line btn-small" type="button" id="btnPreview">Preview</button>
+            <button class="btn btn-line btn-small" type="button" id="btnDraft">Save draft</button>
+            <button class="btn btn-navy btn-small" type="button" id="btnSubmit">Submit for review</button>
+            <button class="btn btn-line btn-small" type="button" id="btnCancel">Cancel</button>
+          </div>
+        </form>
+        <div id="previewBox" class="preview" hidden></div>
+        <p id="formMsg" class="help"></p>
+      </div>
     </div>
   </section>
 
   <section class="section">
     <div class="container">
-      <div class="stats">
-        <div class="stat"><strong id="statDiscussions">–</strong><span>Research discussions</span></div>
-        <div class="stat"><strong id="statPublications">0</strong><span>Approved publications</span></div>
-      </div>
+      <h2>Recently Published</h2>
+      <p class="lead">Approved publications. Each one has been reviewed by a moderator. This is moderated publication, not formal peer review.</p>
+      <div id="library"><p class="help">Loading…</p></div>
     </div>
   </section>
 
   <section class="section" style="padding-top:0;">
     <div class="container">
-      <h2>Recent research discussions</h2>
-      <p class="lead">Questions and ideas posted in the Research &amp; Academia category.</p>
-      <div id="recentThreads"><p class="meta">Loading…</p></div>
-      <a class="btn btn-outline" href="/categories/research-and-academia">Open the category</a>
+      <h2>My submissions</h2>
+      <p class="lead">Your drafts and submissions, with the status and any feedback from moderators.</p>
+      <div id="mine"><p class="help">Log in to see your submissions.</p></div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;" id="queueSection" hidden>
+    <div class="container">
+      <h2>Moderator review queue</h2>
+      <p class="lead">Visible to moderators only. Reviews are recorded with your name and the time of each decision.</p>
+      <div id="queue"></div>
     </div>
   </section>
 
   <section class="section" style="padding-top:0;">
     <div class="container">
       <h2>Hub sections</h2>
-      <p class="lead">Each section opens as its part of the hub becomes available.</p>
+      <p class="lead">More sections will open as the hub grows.</p>
       <div class="grid">
-        <div class="card"><span class="tag live">Available now</span><h3>Recently Published</h3><p>Approved work will appear here. Nothing has been published yet.</p></div>
-        <div class="card"><span class="tag soon">Coming soon</span><h3>Featured Research</h3><p>Selected approved publications, chosen by moderators.</p></div>
-        <div class="card"><span class="tag soon">Coming soon</span><h3>Research Papers</h3><p>Full research papers and their abstracts.</p></div>
-        <div class="card"><span class="tag soon">Coming soon</span><h3>Academic Articles</h3><p>Articles on political science and international relations.</p></div>
-        <div class="card"><span class="tag soon">Coming soon</span><h3>Policy Briefs</h3><p>Short, policy-focused summaries of research.</p></div>
-        <div class="card"><span class="tag soon">Coming soon</span><h3>Literature Reviews</h3><p>Overviews of existing research on a topic.</p></div>
-        <div class="card"><span class="tag soon">Coming soon</span><h3>Working Papers</h3><p>Research in progress, shared for feedback.</p></div>
-        <div class="card"><span class="tag soon">Coming soon</span><h3>Research Proposals</h3><p>Proposed projects seeking feedback or collaborators.</p></div>
-        <div class="card"><span class="tag soon">Coming soon</span><h3>Theses</h3><p>Undergraduate, master's, and doctoral theses.</p></div>
-        <div class="card"><span class="tag soon">Coming soon</span><h3>Research Questions</h3><p>Open questions that members want to explore.</p></div>
-        <div class="card"><span class="tag soon">Coming soon</span><h3>Academic Collaboration</h3><p>Find people working on similar subjects.</p></div>
-        <div class="card"><span class="tag soon">Coming soon</span><h3>Researcher Directory</h3><p>Public academic profiles, with members' consent.</p></div>
-        <div class="card"><span class="tag staff">Moderators only</span><h3>Awaiting Review</h3><p>Submissions waiting for moderation. Visible to moderators only.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" style="padding-top:0;">
-    <div class="container">
-      <div class="note">
-        <strong>About publishing on PSIR Forum.</strong> Publication on PSIR Forum is moderated. It does not
-        constitute formal peer review, journal acceptance, or institutional endorsement. A full academic
-        publishing policy will be published with the submission feature.
+        <div class="card"><h3>Research Papers</h3><p>Full research papers, once approved.</p></div>
+        <div class="card"><h3>Academic Articles</h3><p>Articles on political science and international relations.</p></div>
+        <div class="card"><h3>Policy Briefs</h3><p>Short, policy-focused summaries of research.</p></div>
+        <div class="card"><h3>Literature Reviews</h3><p>Overviews of existing research on a topic.</p></div>
+        <div class="card"><h3>Theses</h3><p>Undergraduate, master's, and doctoral theses.</p></div>
+        <div class="card"><h3>Research Questions</h3><p>Open questions members want to explore. See the category discussions.</p></div>
       </div>
     </div>
   </section>
 
   <footer>
-    <div class="container">
-      <a href="/">PSIR Forum</a> · <a href="/info.html?page=guidelines">Community Guidelines</a> · <a href="/info.html?page=contact">Contact</a>
-    </div>
+    <div class="container"><a href="/">PSIR Forum</a> · <a href="/info.html?page=guidelines">Community Guidelines</a> · <a href="/info.html?page=contact">Contact</a></div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -133,55 +174,286 @@
     "use strict";
     const SUPABASE_URL = "https://updxillknwufqekfzkur.supabase.co";
     const SUPABASE_KEY = "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5";
-    const CATEGORY_NAME = "Research & Academia";
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const STAFF = ["admin", "moderator"];
+    const STATUS = {
+      draft: "Draft", submitted: "Submitted", under_review: "Under review",
+      revision_requested: "Revision requested", approved: "Approved", rejected: "Rejected", withdrawn: "Withdrawn"
+    };
+    let me = null, isStaff = false, editingId = null, saving = false;
 
-    function esc(v) {
-      return String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]);
+    const $ = id => document.getElementById(id);
+    function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]); }
+    function fmt(iso) { return iso ? new Date(iso).toLocaleDateString() : ""; }
+    function say(text, kind) {
+      const box = $("globalMsg");
+      box.textContent = text;
+      box.className = "notice" + (kind === "error" ? " error" : kind === "ok" ? " ok" : "");
+      box.hidden = false;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    function formMsg(text, bad) { $("formMsg").textContent = text; $("formMsg").style.color = bad ? "#a3172b" : "#1b5e20"; }
+    function tag(status) { return '<span class="tag s-' + esc(status) + '">' + esc(STATUS[status] || status) + "</span>"; }
+
+    async function loadUser() {
+      const { data } = await db.auth.getSession();
+      me = data.session ? data.session.user : null;
+      isStaff = false;
+      if (me) {
+        const { data: p } = await db.from("profiles").select("role").eq("id", me.id).maybeSingle();
+        isStaff = !!p && STAFF.includes(p.role);
+      }
+      $("loginHint").textContent = me ? "" : "Log in on the home page to submit.";
+      $("queueSection").hidden = !isStaff;
     }
 
-    async function load() {
-      const box = document.getElementById("recentThreads");
+    async function namesFor(ids) {
+      const map = new Map();
+      const unique = [...new Set(ids.filter(Boolean))];
+      if (!unique.length) return map;
+      const { data } = await db.from("profiles").select("id, full_name").in("id", unique);
+      (data || []).forEach(p => map.set(p.id, p.full_name || "Member"));
+      return map;
+    }
+
+    async function loadLibrary() {
+      const box = $("library");
       try {
-        const { data: cat, error: catErr } = await db.from("categories").select("id, name").eq("name", CATEGORY_NAME).maybeSingle();
-        if (catErr) throw catErr;
-        if (!cat) {
-          document.getElementById("statDiscussions").textContent = "0";
-          box.innerHTML = '<div class="empty">The Research &amp; Academia category was not found.</div>';
-          return;
-        }
-
-        const countRes = await db.from("threads").select("id", { count: "exact", head: true })
-          .eq("category_id", cat.id).eq("is_hidden", false);
-        if (countRes.error) throw countRes.error;
-        document.getElementById("statDiscussions").textContent = String(countRes.count ?? 0);
-
-        const { data: threads, error } = await db.from("threads")
-          .select("id, title, body, created_at, author_id")
-          .eq("category_id", cat.id).eq("is_hidden", false)
-          .order("created_at", { ascending: false }).limit(6);
+        const { data, error } = await db.from("publications")
+          .select("id, title, abstract, publication_type, research_field, keywords, language, author_id, decided_at")
+          .eq("status", "approved").order("decided_at", { ascending: false }).limit(50);
         if (error) throw error;
-
-        if (!threads.length) {
-          box.innerHTML = '<div class="empty">No research discussions yet. Start one from the category page.</div>';
-          return;
-        }
-
-        const ids = [...new Set(threads.map(t => t.author_id))];
-        const { data: people } = await db.from("profiles").select("id, full_name").in("id", ids);
-        const names = new Map((people || []).map(p => [p.id, p.full_name]));
-
-        box.innerHTML = threads.map(t => `
-          <a class="thread" href="/categories/research-and-academia">
-            <strong>${esc(t.title)}</strong>
-            <span class="meta">${esc(names.get(t.author_id) || "Member")} · ${new Date(t.created_at).toLocaleDateString()}</span>
-          </a>`).join("");
+        if (!data.length) { box.innerHTML = '<div class="empty">No approved publications yet. Submitted work is reviewed before it appears here.</div>'; return; }
+        const names = await namesFor(data.map(d => d.author_id));
+        box.innerHTML = data.map(d => `
+          <article class="pub">
+            <h3>${esc(d.title)}</h3>
+            <div class="meta">${esc(names.get(d.author_id) || "Member")} · ${esc(d.publication_type)} · ${esc(d.research_field || "")} · ${esc(d.language)} · Published on PSIR Forum ${fmt(d.decided_at)}</div>
+            <p>${esc((d.abstract || "").slice(0, 400))}${(d.abstract || "").length > 400 ? "…" : ""}</p>
+            ${d.keywords ? `<div style="margin-top:8px;">${d.keywords.split(",").map(k => k.trim()).filter(Boolean).slice(0,6).map(k => '<span class="tag">' + esc(k) + "</span>").join("")}</div>` : ""}
+          </article>`).join("");
       } catch (err) {
-        console.error("Research hub:", err);
-        box.innerHTML = '<div class="empty">Could not load research discussions. Please refresh the page.</div>';
+        box.innerHTML = '<div class="notice error">Could not load publications: ' + esc(err.message) + "</div>";
       }
     }
-    load();
+
+    async function loadMine() {
+      const box = $("mine");
+      if (!me) { box.innerHTML = '<div class="empty">Log in on the home page to see and submit your research.</div>'; return; }
+      try {
+        const { data, error } = await db.from("publications").select("*").eq("author_id", me.id).order("updated_at", { ascending: false });
+        if (error) throw error;
+        if (!data.length) { box.innerHTML = '<div class="empty">You have no submissions yet. Use Submit Research to start.</div>'; return; }
+        box.innerHTML = data.map(p => {
+          const canEdit = p.status === "draft" || p.status === "revision_requested";
+          const canWithdraw = p.status === "submitted" || p.status === "under_review";
+          const canDelete = p.status === "draft";
+          return `
+          <article class="pub">
+            <h3>${esc(p.title)}</h3>
+            <div class="meta">${esc(p.publication_type)} · Updated ${fmt(p.updated_at)} · ${tag(p.status)}</div>
+            ${p.reviewer_notes ? '<p><strong>Moderator feedback:</strong> ' + esc(p.reviewer_notes) + "</p>" : ""}
+            ${p.status === "approved" ? '<p class="help" style="margin-top:8px;">Published on PSIR Forum. This is moderated publication, not formal peer review.</p>' : ""}
+            <div class="row-btns">
+              ${canEdit ? '<button class="btn btn-line btn-small" data-act="edit" data-id="' + p.id + '">Edit</button>' : ""}
+              ${canWithdraw ? '<button class="btn btn-line btn-small" data-act="withdraw" data-id="' + p.id + '">Withdraw</button>' : ""}
+              ${canDelete ? '<button class="btn btn-line btn-small" data-act="delete" data-id="' + p.id + '">Delete draft</button>' : ""}
+            </div>
+          </article>`;
+        }).join("");
+      } catch (err) {
+        box.innerHTML = '<div class="notice error">Could not load your submissions: ' + esc(err.message) + "</div>";
+      }
+    }
+
+    async function loadQueue() {
+      if (!isStaff) return;
+      const box = $("queue");
+      try {
+        const { data, error } = await db.from("publications").select("*")
+          .in("status", ["submitted", "under_review"]).order("submitted_at", { ascending: true });
+        if (error) throw error;
+        if (!data.length) { box.innerHTML = '<div class="empty">Nothing is waiting for review.</div>'; return; }
+        const names = await namesFor(data.map(d => d.author_id));
+        box.innerHTML = data.map(d => `
+          <article class="pub">
+            <h3>${esc(d.title)}</h3>
+            <div class="meta">${esc(names.get(d.author_id) || "Member")} · ${esc(d.publication_type)} · ${esc(d.research_field || "")} · Submitted ${fmt(d.submitted_at)} · ${tag(d.status)}</div>
+            <p><strong>Abstract:</strong> ${esc(d.abstract || "")}</p>
+            <details style="margin-top:8px;"><summary>Read the full submission</summary>
+              <p style="margin-top:8px;">${esc(d.body || "(no full text)")}</p>
+              <p style="margin-top:8px;"><strong>References:</strong> ${esc(d.references_text || "none given")}</p>
+            </details>
+            <div class="field" style="margin-top:10px;"><label for="n_${d.id}">Feedback for the author (required for revision or rejection)</label>
+              <textarea id="n_${d.id}" maxlength="2000"></textarea></div>
+            <div class="row-btns">
+              ${d.status === "submitted" ? '<button class="btn btn-line btn-small" data-review="start" data-id="' + d.id + '">Start review</button>' : ""}
+              <button class="btn btn-navy btn-small" data-review="approve" data-id="${d.id}">Approve</button>
+              <button class="btn btn-line btn-small" data-review="revision" data-id="${d.id}">Request revision</button>
+              <button class="btn btn-line btn-small" data-review="reject" data-id="${d.id}">Reject</button>
+            </div>
+          </article>`).join("");
+      } catch (err) {
+        box.innerHTML = '<div class="notice error">Could not load the review queue: ' + esc(err.message) + "</div>";
+      }
+    }
+
+    function readForm() {
+      return {
+        title: $("f_title").value.trim(),
+        publication_type: $("f_type").value,
+        research_field: $("f_field").value.trim(),
+        abstract: $("f_abstract").value.trim(),
+        body: $("f_body").value.trim(),
+        keywords: $("f_keywords").value.trim(),
+        language: $("f_language").value,
+        institution: $("f_institution").value.trim() || null,
+        co_authors: $("f_coauthors").value.trim() || null,
+        references_text: $("f_refs").value.trim() || null,
+        declaration_accepted: $("f_declare").checked
+      };
+    }
+
+    function validate(d, forSubmit) {
+      if (d.title.length < 5) return "Please enter a title of at least 5 characters.";
+      if (!forSubmit) return null;
+      if (!d.research_field) return "Please enter the research field or subject.";
+      if (d.abstract.length < 50) return "The abstract needs at least 50 characters.";
+      if (d.body.length < 300) return "The full article needs at least 300 characters.";
+      if (!d.declaration_accepted) return "Please tick the declaration before submitting.";
+      return null;
+    }
+
+    function showPreview() {
+      const d = readForm();
+      const err = validate(d, false);
+      if (err) { formMsg(err, true); return; }
+      const box = $("previewBox");
+      box.innerHTML = `<h4>${esc(d.title)}</h4>
+        <p class="help">${esc(d.publication_type)} · ${esc(d.research_field || "field not set")} · ${esc(d.language)}</p>
+        <p><strong>Abstract:</strong> ${esc(d.abstract || "—")}</p>
+        <p style="white-space:pre-wrap;"><strong>Full text:</strong><br>${esc(d.body || "—")}</p>
+        <p><strong>Keywords:</strong> ${esc(d.keywords || "—")}</p>
+        <p><strong>References:</strong> ${esc(d.references_text || "—")}</p>`;
+      box.hidden = false;
+      formMsg("Check the preview. Submit when you are ready, or save a draft to continue later.", false);
+    }
+
+    function openForm(p) {
+      if (!me) { say("Please log in on the home page before submitting research.", "error"); return; }
+      editingId = p ? p.id : null;
+      $("formTitle").textContent = p ? "Edit your submission" : "Submit research";
+      $("f_title").value = p ? p.title : "";
+      $("f_type").value = p ? p.publication_type : "Research Paper";
+      $("f_field").value = p ? (p.research_field || "") : "";
+      $("f_abstract").value = p ? (p.abstract || "") : "";
+      $("f_body").value = p ? (p.body || "") : "";
+      $("f_keywords").value = p ? (p.keywords || "") : "";
+      $("f_language").value = p ? p.language : "English";
+      $("f_institution").value = p ? (p.institution || "") : "";
+      $("f_coauthors").value = p ? (p.co_authors || "") : "";
+      $("f_refs").value = p ? (p.references_text || "") : "";
+      $("f_declare").checked = p ? !!p.declaration_accepted : false;
+      $("previewBox").hidden = true;
+      formMsg("", false);
+      $("formPanel").hidden = false;
+      $("formPanel").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function closeForm() { $("formPanel").hidden = true; editingId = null; }
+
+    async function save(asSubmitted) {
+      if (saving) return;
+      const d = readForm();
+      const err = validate(d, asSubmitted);
+      if (err) { formMsg(err, true); return; }
+      saving = true;
+      [$("btnDraft"), $("btnSubmit"), $("btnPreview")].forEach(b => b.disabled = true);
+      const payload = { ...d, status: asSubmitted ? "submitted" : "draft", declaration_accepted: d.declaration_accepted };
+      if (asSubmitted) payload.submitted_at = new Date().toISOString();
+      try {
+        let result;
+        if (editingId) {
+          result = await db.from("publications").update(payload).eq("id", editingId).eq("author_id", me.id).select("id");
+        } else {
+          result = await db.from("publications").insert({ ...payload, author_id: me.id }).select("id");
+        }
+        if (result.error) throw result.error;
+        if (!result.data || !result.data.length) throw new Error("The change was not saved. Please log in again and retry.");
+        closeForm();
+        say(asSubmitted
+          ? "Submitted. A moderator will review your work before it is published. You can follow its status below."
+          : "Draft saved. Only you can see it until you submit it.", "ok");
+        await Promise.all([loadMine(), loadQueue()]);
+      } catch (e) {
+        formMsg("Could not save: " + e.message, true);
+      } finally {
+        saving = false;
+        [$("btnDraft"), $("btnSubmit"), $("btnPreview")].forEach(b => b.disabled = false);
+      }
+    }
+
+    async function authorAction(id, act) {
+      if (act === "edit") {
+        const { data } = await db.from("publications").select("*").eq("id", id).eq("author_id", me.id).maybeSingle();
+        if (data) openForm(data);
+        return;
+      }
+      if (act === "withdraw") {
+        if (!confirm("Withdraw this submission? It will leave the review queue.")) return;
+        const { data, error } = await db.from("publications").update({ status: "withdrawn" }).eq("id", id).eq("author_id", me.id).select("id");
+        if (error || !data || !data.length) { say("Could not withdraw: " + (error ? error.message : "permission denied"), "error"); return; }
+        say("Submission withdrawn.", "ok");
+      }
+      if (act === "delete") {
+        if (!confirm("Delete this draft? This cannot be undone.")) return;
+        const { data, error } = await db.from("publications").delete().eq("id", id).eq("author_id", me.id).select("id");
+        if (error || !data || !data.length) { say("Could not delete: " + (error ? error.message : "permission denied"), "error"); return; }
+        say("Draft deleted.", "ok");
+      }
+      await Promise.all([loadMine(), loadQueue(), loadLibrary()]);
+    }
+
+    async function moderatorAction(id, act) {
+      const note = (document.getElementById("n_" + id) || { value: "" }).value.trim();
+      const changes = { reviewer_id: me.id };
+      if (act === "start") changes.status = "under_review";
+      if (act === "approve") { changes.status = "approved"; changes.decided_at = new Date().toISOString(); }
+      if (act === "revision") {
+        if (note.length < 5) { say("Please write feedback for the author before requesting a revision.", "error"); return; }
+        changes.status = "revision_requested"; changes.reviewer_notes = note;
+      }
+      if (act === "reject") {
+        if (note.length < 5) { say("Please give a reason before rejecting a submission.", "error"); return; }
+        changes.status = "rejected"; changes.reviewer_notes = note; changes.decided_at = new Date().toISOString();
+      }
+      if (act === "approve" && note) changes.reviewer_notes = note;
+      const { data, error } = await db.from("publications").update(changes).eq("id", id).select("id");
+      if (error || !data || !data.length) { say("Could not update: " + (error ? error.message : "permission denied"), "error"); return; }
+      say("Decision saved.", "ok");
+      await Promise.all([loadQueue(), loadLibrary()]);
+    }
+
+    $("submitOpen").addEventListener("click", () => openForm(null));
+    $("btnPreview").addEventListener("click", showPreview);
+    $("btnDraft").addEventListener("click", () => save(false));
+    $("btnSubmit").addEventListener("click", () => save(true));
+    $("btnCancel").addEventListener("click", closeForm);
+    $("mine").addEventListener("click", e => {
+      const b = e.target.closest("button[data-act]");
+      if (b) authorAction(b.dataset.id, b.dataset.act);
+    });
+    $("queue").addEventListener("click", e => {
+      const b = e.target.closest("button[data-review]");
+      if (b) moderatorAction(b.dataset.id, b.dataset.review);
+    });
+
+    async function refreshAll() {
+      await loadUser();
+      await Promise.all([loadLibrary(), loadMine(), loadQueue()]);
+    }
+    db.auth.onAuthStateChange(() => setTimeout(refreshAll, 0));
+    refreshAll();
   })();
   </script>
 </body>
