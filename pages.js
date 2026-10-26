@@ -16,7 +16,7 @@
     "#home": "/",
     "#categories": "/categories",
     "#discussions": "/discussions",
-    "#audio": "/discussions",
+    "#audio": "/live",
     "#about": "/"
   };
 
@@ -35,7 +35,8 @@
     const path = (pathname || "/").replace(/\/+$/, "") || "/";
     if (path === "/") return { view: "home" };
     if (path === "/categories") return { view: "categories" };
-    if (path === "/discussions" || path === "/live" || path === "/bookmarks") return { view: "forum" };
+    if (path === "/live") return { view: "categories" };
+    if (path === "/discussions" || path === "/bookmarks") return { view: "forum" };
     const match = path.match(/^\/categories\/([a-z0-9-]+)$/);
     if (match) return { view: "category", slug: match[1] };
     return { view: "home", unknown: true };

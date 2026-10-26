@@ -203,6 +203,15 @@
       text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
     }
 
+    /* Keep the Light / Dark / System selector from covering content */
+    @media (max-width: 800px) {
+      html body { padding-bottom: 76px !important; }
+      #psirThemeChoice { right: 8px !important; bottom: 8px !important; transform: scale(0.92); transform-origin: right bottom; }
+    }
+    @media (min-width: 801px) {
+      #psirThemeChoice { bottom: 16px !important; right: 16px !important; }
+    }
+
   `;
 
   const style = document.createElement("style");
@@ -275,7 +284,18 @@
 
     // Hide the small icon, since the picture now fills the card
     const slot = card.querySelector(".category-emoji");
-    if (slot) slot.style.display = "none";
+    if (slot) {
+      slot.style.display = "grid";
+      slot.style.placeItems = "center";
+      slot.style.width = "44px";
+      slot.style.height = "44px";
+      slot.style.borderRadius = "12px";
+      slot.style.background = "rgba(255, 255, 255, 0.18)";
+      slot.style.border = "1px solid rgba(255, 255, 255, 0.28)";
+      slot.style.fontSize = "1.4rem";
+      slot.style.marginBottom = "12px";
+      slot.style.setProperty("color", "#ffffff", "important");
+    }
 
     card.style.setProperty(
       "background-image",
