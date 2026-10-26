@@ -56,6 +56,9 @@
     .preview h4 { margin:0 0 6px; color:var(--navy); }
     footer { background:#0a2035; color:#b8c7d4; padding:24px 0; font-size:.85rem; margin-top:30px; }
     footer a:hover { color:var(--gold); }
+    .abstract { font-style:italic; text-align:justify; white-space:pre-wrap; overflow-wrap:anywhere; hyphens:auto; line-height:1.75; margin:6px 0 0; color:#3c4f61; font-size:.95rem; max-width:100%; }
+    .abstract-wrap { margin-top:8px; }
+    details summary { cursor:pointer; color:#2864a0; font-weight:700; margin-top:8px; }
     :focus-visible { outline:3px solid var(--gold); outline-offset:2px; }
     @media (max-width:640px) { .top-links { gap:12px; font-size:.85rem; } .hero { padding:40px 0; } }
   </style>
@@ -267,7 +270,7 @@
           <article class="pub">
             <h3>${esc(d.title)}</h3>
             <div class="meta"><a href="/public-profile.html?id=${esc(d.author_id)}" style="color:var(--blue);font-weight:700;">${esc(name)}</a> · ${esc(d.publication_type)} · ${esc(d.research_field || "")} · ${esc(d.language)} · Published on PSIR Forum ${fmt(d.decided_at)}</div>
-            <p>${esc((d.abstract || "").slice(0, 400))}${(d.abstract || "").length > 400 ? "…" : ""}</p>
+            <div class="abstract-wrap"><p class="abstract">${esc((d.abstract || "").slice(0, 400))}${(d.abstract || "").length > 400 ? "…" : ""}</p>${(d.abstract || "").length > 400 ? '<details><summary>Read full abstract</summary><p class="abstract">' + esc(d.abstract) + "</p></details>" : ""}</div>
             ${kws.length ? '<div style="margin-top:8px;">' + kws.map(k => '<span class="tag">' + esc(k) + "</span>").join("") + "</div>" : ""}
             <div class="row-btns">${d.pdf_path ? '<button class="btn btn-line btn-small" data-pdf="' + esc(d.pdf_path) + '">Open PDF</button>' : ""}${isStaff ? '<button class="btn btn-line btn-small" data-del="' + esc(d.id) + '" data-pdf="' + esc(d.pdf_path || "") + '">Delete</button>' : ""}</div>
           </article>`;
@@ -317,7 +320,7 @@
           <article class="pub">
             <h3>${esc(d.title)}</h3>
             <div class="meta">${esc(names.get(d.author_id) || "Member")} · ${esc(d.publication_type)} · ${esc(d.research_field || "")} · Submitted ${fmt(d.submitted_at)} · ${tag(d.status)}</div>
-            <p><strong>Abstract:</strong> ${esc(d.abstract || "")}</p>
+            <div class="abstract-wrap"><strong>Abstract</strong><p class="abstract">${esc(d.abstract || "")}</p></div>
             <details style="margin-top:8px;"><summary>Read the full submission</summary>
               <p style="margin-top:8px;">${esc(d.body || "(no full text)")}</p>
               <p style="margin-top:8px;"><strong>References:</strong> ${esc(d.references_text || "none given")}</p>
@@ -369,7 +372,7 @@
       const box = $("previewBox");
       box.innerHTML = `<h4>${esc(d.title)}</h4>
         <p class="help">${esc(d.publication_type)} · ${esc(d.research_field || "field not set")} · ${esc(d.language)}</p>
-        <p><strong>Abstract:</strong> ${esc(d.abstract || "—")}</p>
+        <div class="abstract-wrap"><strong>Abstract</strong><p class="abstract">${esc(d.abstract || "—")}</p></div>
         <p><strong>PDF:</strong> ${esc($("f_pdf").files[0] ? $("f_pdf").files[0].name : (existingPdf ? "previously uploaded" : "none"))}</p>
         <p><strong>Keywords:</strong> ${esc(d.keywords || "—")}</p>
         <p><strong>References:</strong> ${esc(d.references_text || "—")}</p>`;
