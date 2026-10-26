@@ -297,4 +297,37 @@
     });
   });
 
+  // Category page: show the category picture as a banner behind the heading
+  function applyCategoryBanner() {
+    const heading = document.getElementById("discussionHeading");
+    if (!heading) return;
+    const band = heading.closest(".section-heading");
+    if (!band) return;
+
+    const src = CATEGORY_IMAGES[heading.textContent.trim()];
+    if (src) {
+      band.style.setProperty(
+        "background-image",
+        "linear-gradient(120deg, rgba(16, 43, 70, 0.82), rgba(16, 43, 70, 0.55)), url('" + src + "')",
+        "important"
+      );
+      band.style.setProperty("background-size", "cover", "important");
+      band.style.setProperty("background-position", "center", "important");
+      band.style.setProperty("min-height", "150px", "important");
+      band.style.setProperty("align-items", "flex-end", "important");
+    } else {
+      band.style.removeProperty("background-image");
+      band.style.removeProperty("background-size");
+      band.style.removeProperty("background-position");
+      band.style.removeProperty("min-height");
+      band.style.removeProperty("align-items");
+    }
+  }
+
+  const headingWatch = document.getElementById("discussionHeading");
+  if (headingWatch) {
+    new MutationObserver(applyCategoryBanner).observe(headingWatch, { childList: true, characterData: true, subtree: true });
+  }
+  applyCategoryBanner();
+
 })();
