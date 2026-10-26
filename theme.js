@@ -195,7 +195,7 @@
     html body .hero {
       background:
         linear-gradient(120deg, rgba(16, 43, 70, 0.55), rgba(24, 62, 96, 0.45)),
-        url("https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1600&q=70") center / cover no-repeat !important;
+        url("/images/world_map_hero.jpg") center / cover no-repeat !important;
     }
 
     /* Hero text shadow keeps the text readable over the lighter image */
