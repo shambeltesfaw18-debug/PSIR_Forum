@@ -468,7 +468,7 @@
             thumbPath = me.id + "/thumbs/" + crypto.randomUUID() + ".jpg";
             const tu = await db.storage.from("publications").upload(thumbPath, blob, { contentType: "image/jpeg", upsert: false });
             if (tu.error) throw tu.error;
-            thumbUpload = thumbPath;
+            thumbUploadOuter = thumbPath;
           } catch (coverErr) {
             console.warn("Cover preview not created:", coverErr);
             thumbPath = null;
