@@ -55,7 +55,7 @@
   panel.style.cssText = "margin:0 0 22px;padding:18px;border:1px solid #e2e8ef;border-radius:16px;background:#fff;display:none;";
 
   const panelTitle = document.createElement("h3");
-  panelTitle.textContent = "Rooms";
+  panelTitle.textContent = "Live room";
   panelTitle.style.cssText = "margin:0 0 4px;color:#102b46;";
 
   const info = document.createElement("p");
@@ -78,15 +78,10 @@
 
   const ROOM_TYPES = {
     video: {
-      title: "Video discussion",
-      text: "Camera and microphone on. For debates and open conversation.",
+      title: "Live room",
+      text: "Join the live video and audio room for this category. Your microphone and camera start off.",
       suffix: ""
     },
-    audio: {
-      title: "Audio seminar",
-      text: "A separate room for talks and presentations. Keep your camera off.",
-      suffix: "-seminar"
-    }
   };
 
   // Hide the hero "Join the Community" button for members who are already logged in
@@ -154,13 +149,13 @@
       return;
     }
     if (!loggedIn) {
-      info.textContent = "Log in to join the rooms for " + roomCategory.name + ".";
+      info.textContent = "Log in to join the live room for " + roomCategory.name + ".";
       return;
     }
 
     info.textContent = openType
       ? "You are in the " + ROOM_TYPES[openType].title.toLowerCase() + " for " + roomCategory.name + "."
-      : "Choose a room for " + roomCategory.name + ".";
+      : "Join the live room for " + roomCategory.name + ".";
 
     Object.keys(ROOM_TYPES).forEach(type => {
       const card = document.createElement("div");
