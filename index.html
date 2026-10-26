@@ -2035,14 +2035,7 @@
 
         <div class="form-field">
           <label for="postBody">Your discussion</label>
-          <textarea
-            class="field-textarea"
-            id="postBody"
-            name="body"
-            maxlength="5000"
-            required
-            placeholder="Explain your question, share your argument, or provide context..."
-          ></textarea>
+          <div id="postBody" class="rt-field" data-rt-mount data-placeholder="Explain your question, share your argument, or provide context. Use bold, lists, quotes, and links to structure it."></div>
           <div class="form-help">Maximum 5,000 characters. Be respectful and constructive.</div>
         </div>
 
@@ -2131,7 +2124,8 @@
 
   <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
 
-      <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+      <script src="richtext.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (() => {
   "use strict";
@@ -2580,7 +2574,7 @@
           </div>
 
           <h3 class="post-title">${escapeHTML(post.title)}</h3>
-          <p class="post-body">${escapeHTML(post.body)}</p>
+          <div class="post-body">${PSIRRich.display(post.body)}</div>
 
           <div class="post-footer">
             <div class="post-author">
@@ -2623,7 +2617,7 @@
                 ? replies.map(reply => `
                   <div class="reply-item">
                     <strong>${escapeHTML(reply.author)}</strong>
-                    ${escapeHTML(reply.body)}
+                    ${PSIRRich.display(reply.body)}
                   </div>
                 `).join("")
                 : `<p class="muted small">No replies yet. Start the conversation.</p>`
@@ -2631,10 +2625,7 @@
             </div>
 
             <form class="reply-form" data-reply-form="${escapeHTML(post.id)}">
-              <input name="reply" type="text" maxlength="1500" required
-                aria-label="Write a reply"
-                placeholder="${currentUser ? "Write a thoughtful reply..." : "Log in to reply"}"
-                ${currentUser ? "" : "disabled"}>
+              <div class="rt-field rt-reply" data-rt-mount data-placeholder="Write a reply…"></div>
               <button type="submit" ${currentUser ? "" : "disabled"}>
                 Reply
               </button>
@@ -2706,8 +2697,8 @@
     }
 
     const threadId = form.dataset.replyForm;
-    const input = $('input[name="reply"]', form);
-    const body = input.value.trim();
+    const input = form.querySelector('[data-rt-mount]');
+    const body = PSIRRich.encode(input);
 
     if (!body) return;
 
@@ -2975,7 +2966,7 @@
 
     const title = $("#postTitle").value.trim();
     const category = $("#postCategory").value;
-    const body = $("#postBody").value.trim();
+    const body = PSIRRich.encode($("#postBody"));
     const contentType = $("#postContentType").value;
     const categoryId = categoryIdFor(category);
 
