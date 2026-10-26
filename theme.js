@@ -194,8 +194,13 @@
     /* Hero background: world image with a navy overlay so the text stays readable */
     html body .hero {
       background:
-        linear-gradient(120deg, rgba(16, 43, 70, 0.92), rgba(24, 62, 96, 0.86)),
+        linear-gradient(120deg, rgba(16, 43, 70, 0.55), rgba(24, 62, 96, 0.45)),
         url("https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1600&q=70") center / cover no-repeat !important;
+    }
+
+    /* Hero text shadow keeps the text readable over the lighter image */
+    html body .hero h1, html body .hero p, html body .hero .eyebrow {
+      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
     }
 
   `;
@@ -252,7 +257,7 @@
 
   applyTheme();
 
-  // Category card pictures (files in the /images folder)
+  // Category cards: picture as the card background with a navy overlay for readable white text
   const CATEGORY_IMAGES = {
     "International Relations": "/images/international-relations.jpg",
     "Political Science": "/images/political-science.jpg",
@@ -266,22 +271,30 @@
 
   document.querySelectorAll(".category-card[data-category]").forEach(card => {
     const src = CATEGORY_IMAGES[card.dataset.category];
+    if (!src) return;
+
+    // Hide the small icon, since the picture now fills the card
     const slot = card.querySelector(".category-emoji");
-    if (!src || !slot) return;
-    slot.innerHTML = "";
-    slot.style.width = "56px";
-    slot.style.height = "56px";
-    slot.style.padding = "0";
-    slot.style.overflow = "hidden";
-    slot.style.background = "none";
-    const img = document.createElement("img");
-    img.src = src;
-    img.alt = "";
-    img.loading = "lazy";
-    img.width = 56;
-    img.height = 56;
-    img.style.cssText = "width:56px;height:56px;object-fit:cover;display:block;border-radius:12px;";
-    slot.appendChild(img);
+    if (slot) slot.style.display = "none";
+
+    card.style.setProperty(
+      "background-image",
+      "linear-gradient(180deg, rgba(16, 43, 70, 0.35) 0%, rgba(16, 43, 70, 0.9) 100%), url('" + src + "')",
+      "important"
+    );
+    card.style.setProperty("background-size", "cover", "important");
+    card.style.setProperty("background-position", "center", "important");
+    card.style.setProperty("background-color", "#102b46", "important");
+    card.style.minHeight = "230px";
+    card.style.display = "flex";
+    card.style.flexDirection = "column";
+    card.style.justifyContent = "flex-end";
+    card.style.overflow = "hidden";
+
+    card.querySelectorAll("strong, p, .explore-link").forEach(el => {
+      el.style.setProperty("color", "#ffffff", "important");
+      el.style.setProperty("text-shadow", "0 1px 8px rgba(0, 0, 0, 0.5)", "important");
+    });
   });
 
 })();
