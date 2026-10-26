@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Research & Academia Hub of PSIR Forum: share knowledge, publish research, and connect ideas.">
+  <meta name="theme-color" content="#102b46">
+  <title>Research &amp; Academia Hub | PSIR Forum</title>
+  <style>
+    :root { --navy:#102b46; --navy-2:#183e60; --blue:#2864a0; --gold:#e7b451; --bg:#f3f6fa; --surface:#fff; --text:#172b3d; --muted:#5b6b7b; --line:#dfe7ef; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; color:var(--text); background:var(--bg); line-height:1.6; }
+    a { color:inherit; text-decoration:none; }
+    .container { width:min(1160px, calc(100% - 36px)); margin:0 auto; }
+    header.top { background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10; }
+    .top-inner { min-height:70px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+    .brand { font-weight:850; color:var(--navy); letter-spacing:.4px; }
+    .top-links { display:flex; gap:18px; flex-wrap:wrap; font-size:.92rem; font-weight:650; color:#45596d; }
+    .top-links a:hover, .top-links a[aria-current="page"] { color:var(--blue); }
+    .hero { background:linear-gradient(125deg,#0b2137,#173e61 75%,#24517a); color:#fff; padding:64px 0; }
+    .eyebrow { color:var(--gold); text-transform:uppercase; letter-spacing:1.5px; font-size:.75rem; font-weight:850; margin:0 0 14px; }
+    .hero h1 { margin:0 0 12px; font-size:clamp(2rem,4.5vw,3.4rem); line-height:1.12; letter-spacing:-1px; }
+    .hero p { color:#d6e2ee; max-width:640px; margin:0; font-size:1.05rem; }
+    .section { padding:44px 0; }
+    .section h2 { color:var(--navy); margin:0 0 6px; font-size:1.6rem; letter-spacing:-.4px; }
+    .section > .container > p.lead { color:var(--muted); margin:0 0 22px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
+    .card { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:20px; }
+    .card h3 { margin:0 0 6px; color:var(--navy); font-size:1.05rem; }
+    .card p { margin:0; color:var(--muted); font-size:.9rem; }
+    .tag { display:inline-block; font-size:.72rem; font-weight:800; padding:4px 9px; border-radius:6px; margin-bottom:10px; }
+    .tag.live { background:#e6f4ea; color:#24794c; }
+    .tag.soon { background:#fff4dc; color:#835c13; }
+    .tag.staff { background:#edf3f9; color:#315b83; }
+    .thread { display:block; padding:16px 18px; background:#fff; border:1px solid var(--line); border-radius:14px; margin-bottom:12px; }
+    .thread:hover { border-color:var(--gold); }
+    .thread strong { color:var(--navy); display:block; margin-bottom:4px; }
+    .meta { color:var(--muted); font-size:.82rem; }
+    .empty { background:#fff; border:1px dashed #c8d4e0; border-radius:14px; padding:22px; color:var(--muted); }
+    .note { background:#fff8e1; border:1px solid #f0e2a6; color:#6b5300; border-radius:12px; padding:14px 16px; font-size:.9rem; }
+    .stats { display:flex; gap:12px; flex-wrap:wrap; margin:0 0 26px; }
+    .stat { background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px 16px; min-width:150px; }
+    .stat strong { display:block; font-size:1.5rem; color:var(--navy); }
+    .stat span { color:var(--muted); font-size:.85rem; }
+    .btn { display:inline-block; background:var(--navy); color:#fff; padding:11px 18px; border-radius:999px; font-weight:700; font-size:.92rem; margin-top:12px; }
+    .btn-outline { background:#fff; color:var(--navy); border:1px solid var(--line); }
+    footer { background:#0a2035; color:#b8c7d4; padding:26px 0; font-size:.85rem; margin-top:30px; }
+    footer a:hover { color:var(--gold); }
+    :focus-visible { outline:3px solid var(--gold); outline-offset:2px; }
+    @media (max-width:640px) { .top-links { gap:12px; font-size:.85rem; } .hero { padding:44px 0; } }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="container top-inner">
+      <a class="brand" href="/">PSIR FORUM</a>
+      <nav class="top-links" aria-label="Main navigation">
+        <a href="/">Home</a>
+        <a href="/categories">Categories</a>
+        <a href="/discussions">Discussions</a>
+        <a href="/research.html" aria-current="page">Research Hub</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <p class="eyebrow">Research &amp; Academia</p>
+      <h1>Research &amp; Academia Hub</h1>
+      <p>Share knowledge. Publish research. Connect ideas. Advance understanding.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="stats">
+        <div class="stat"><strong id="statDiscussions">–</strong><span>Research discussions</span></div>
+        <div class="stat"><strong id="statPublications">0</strong><span>Approved publications</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="container">
+      <h2>Recent research discussions</h2>
+      <p class="lead">Questions and ideas posted in the Research &amp; Academia category.</p>
+      <div id="recentThreads"><p class="meta">Loading…</p></div>
+      <a class="btn btn-outline" href="/categories/research-and-academia">Open the category</a>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="container">
+      <h2>Hub sections</h2>
+      <p class="lead">Each section opens as its part of the hub becomes available.</p>
+      <div class="grid">
+        <div class="card"><span class="tag live">Available now</span><h3>Recently Published</h3><p>Approved work will appear here. Nothing has been published yet.</p></div>
+        <div class="card"><span class="tag soon">Coming soon</span><h3>Featured Research</h3><p>Selected approved publications, chosen by moderators.</p></div>
+        <div class="card"><span class="tag soon">Coming soon</span><h3>Research Papers</h3><p>Full research papers and their abstracts.</p></div>
+        <div class="card"><span class="tag soon">Coming soon</span><h3>Academic Articles</h3><p>Articles on political science and international relations.</p></div>
+        <div class="card"><span class="tag soon">Coming soon</span><h3>Policy Briefs</h3><p>Short, policy-focused summaries of research.</p></div>
+        <div class="card"><span class="tag soon">Coming soon</span><h3>Literature Reviews</h3><p>Overviews of existing research on a topic.</p></div>
+        <div class="card"><span class="tag soon">Coming soon</span><h3>Working Papers</h3><p>Research in progress, shared for feedback.</p></div>
+        <div class="card"><span class="tag soon">Coming soon</span><h3>Research Proposals</h3><p>Proposed projects seeking feedback or collaborators.</p></div>
+        <div class="card"><span class="tag soon">Coming soon</span><h3>Theses</h3><p>Undergraduate, master's, and doctoral theses.</p></div>
+        <div class="card"><span class="tag soon">Coming soon</span><h3>Research Questions</h3><p>Open questions that members want to explore.</p></div>
+        <div class="card"><span class="tag soon">Coming soon</span><h3>Academic Collaboration</h3><p>Find people working on similar subjects.</p></div>
+        <div class="card"><span class="tag soon">Coming soon</span><h3>Researcher Directory</h3><p>Public academic profiles, with members' consent.</p></div>
+        <div class="card"><span class="tag staff">Moderators only</span><h3>Awaiting Review</h3><p>Submissions waiting for moderation. Visible to moderators only.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="container">
+      <div class="note">
+        <strong>About publishing on PSIR Forum.</strong> Publication on PSIR Forum is moderated. It does not
+        constitute formal peer review, journal acceptance, or institutional endorsement. A full academic
+        publishing policy will be published with the submission feature.
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <a href="/">PSIR Forum</a> · <a href="/info.html?page=guidelines">Community Guidelines</a> · <a href="/info.html?page=contact">Contact</a>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (() => {
+    "use strict";
+    const SUPABASE_URL = "https://updxillknwufqekfzkur.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5";
+    const CATEGORY_NAME = "Research & Academia";
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    function esc(v) {
+      return String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]);
+    }
+
+    async function load() {
+      const box = document.getElementById("recentThreads");
+      try {
+        const { data: cat, error: catErr } = await db.from("categories").select("id, name").eq("name", CATEGORY_NAME).maybeSingle();
+        if (catErr) throw catErr;
+        if (!cat) {
+          document.getElementById("statDiscussions").textContent = "0";
+          box.innerHTML = '<div class="empty">The Research &amp; Academia category was not found.</div>';
+          return;
+        }
+
+        const countRes = await db.from("threads").select("id", { count: "exact", head: true })
+          .eq("category_id", cat.id).eq("is_hidden", false);
+        if (countRes.error) throw countRes.error;
+        document.getElementById("statDiscussions").textContent = String(countRes.count ?? 0);
+
+        const { data: threads, error } = await db.from("threads")
+          .select("id, title, body, created_at, author_id")
+          .eq("category_id", cat.id).eq("is_hidden", false)
+          .order("created_at", { ascending: false }).limit(6);
+        if (error) throw error;
+
+        if (!threads.length) {
+          box.innerHTML = '<div class="empty">No research discussions yet. Start one from the category page.</div>';
+          return;
+        }
+
+        const ids = [...new Set(threads.map(t => t.author_id))];
+        const { data: people } = await db.from("profiles").select("id, full_name").in("id", ids);
+        const names = new Map((people || []).map(p => [p.id, p.full_name]));
+
+        box.innerHTML = threads.map(t => `
+          <a class="thread" href="/categories/research-and-academia">
+            <strong>${esc(t.title)}</strong>
+            <span class="meta">${esc(names.get(t.author_id) || "Member")} · ${new Date(t.created_at).toLocaleDateString()}</span>
+          </a>`).join("");
+      } catch (err) {
+        console.error("Research hub:", err);
+        box.innerHTML = '<div class="empty">Could not load research discussions. Please refresh the page.</div>';
+      }
+    }
+    load();
+  })();
+  </script>
+</body>
+</html>
