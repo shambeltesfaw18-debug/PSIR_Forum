@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#102b46">
+  <title>Member profile | PSIR Forum</title>
+  <style>
+    :root { --navy:#102b46; --blue:#2864a0; --gold:#e7b451; --bg:#f3f6fa; --line:#dfe7ef; --muted:#5b6b7b; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; color:#172b3d; background:var(--bg); line-height:1.6; }
+    a { color:var(--blue); }
+    .wrap { width:min(860px, calc(100% - 36px)); margin:0 auto; padding:28px 0 40px; }
+    .top { display:flex; gap:16px; flex-wrap:wrap; font-weight:650; margin-bottom:18px; }
+    .top a { color:#45596d; text-decoration:none; }
+    h1 { color:var(--navy); margin:0 0 4px; font-size:1.8rem; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:20px; margin-top:16px; }
+    .card h2 { color:var(--navy); font-size:1.15rem; margin:0 0 10px; }
+    .field { margin:6px 0; }
+    .field strong { color:var(--navy); }
+    .muted { color:var(--muted); font-size:.9rem; }
+    .pub { border-top:1px solid var(--line); padding:12px 0; }
+    .pub:first-child { border-top:none; padding-top:0; }
+    .pub h3 { margin:0 0 4px; color:var(--navy); font-size:1rem; }
+    .btn { display:inline-block; border:1px solid var(--line); background:#fff; color:var(--navy); padding:7px 12px; border-radius:999px; font:inherit; font-weight:650; cursor:pointer; margin-top:6px; }
+    .notice { background:#fdecea; color:#8c2929; border-radius:12px; padding:12px 14px; margin-top:14px; }
+    .tag { display:inline-block; background:#edf3f9; color:#315b83; font-size:.75rem; font-weight:800; padding:3px 9px; border-radius:6px; margin-right:6px; }
+    :focus-visible { outline:3px solid var(--gold); outline-offset:2px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="top" aria-label="Main navigation">
+      <a href="/">Home</a>
+      <a href="/categories">Categories</a>
+      <a href="/discussions">Discussions</a>
+      <a href="/research.html">Research Hub</a>
+    </nav>
+    <div id="content"><p class="muted">Loading profile…</p></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (() => {
+    "use strict";
+    const SUPABASE_URL = "https://updxillknwufqekfzkur.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5";
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const box = document.getElementById("content");
+
+    // Only these fields can ever appear, and only when the owner has made them public
+    const LABELS = {
+      institution: "Institution", department: "Department", academic_level: "Academic level",
+      field_of_study: "Field of study or profession", position_title: "Position or academic rank",
+      employer: "Employer or organization", employment_status: "Employment status",
+      graduation_year: "Graduation year", research_interests: "Research interests",
+      specializations: "Areas of specialization"
+    };
+
+    function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]); }
+    function notFound(text) { box.innerHTML = '<div class="notice">' + esc(text) + "</div>"; }
+
+    async function load() {
+      const id = new URLSearchParams(location.search).get("id") || "";
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+        notFound("This profile link is not valid.");
+        return;
+      }
+
+      try {
+        const [personRes, academicRes, pubsRes] = await Promise.all([
+          db.from("profiles").select("id, full_name").eq("id", id).maybeSingle(),
+          db.from("public_academic_profiles").select("*").eq("user_id", id).maybeSingle(),
+          db.from("publications").select("id, title, publication_type, research_field, decided_at, pdf_path")
+            .eq("author_id", id).eq("status", "approved").order("decided_at", { ascending: false }).limit(100)
+        ]);
+        if (personRes.error) throw personRes.error;
+        if (!personRes.data) { notFound("This member could not be found."); return; }
+
+        const person = personRes.data;
+        const academic = academicRes.error ? null : academicRes.data;
+        const pubs = pubsRes.error ? [] : (pubsRes.data || []);
+
+        let html = '<h1>' + esc(person.full_name || "Member") + "</h1>";
+        html += '<p class="muted">Member of PSIR Forum. Academic details are self-declared and not verified.</p>';
+
+        html += '<div class="card"><h2>Academic profile</h2>';
+        if (!academic) {
+          html += '<p class="muted">This member has not made an academic profile public.</p>';
+        } else {
+          html += '<div class="field"><strong>Identity: </strong>' + esc(academic.identity) + "</div>";
+          Object.keys(LABELS).forEach(key => {
+            const value = academic[key];
+            if (value === null || value === undefined || value === "") return;
+            html += '<div class="field"><strong>' + esc(LABELS[key]) + ": </strong>" + esc(value) + "</div>";
+          });
+        }
+        html += "</div>";
+
+        html += '<div class="card"><h2>Published on PSIR Forum</h2>';
+        if (!pubs.length) {
+          html += '<p class="muted">No approved publications yet.</p>';
+        } else {
+          html += pubs.map(p => '<div class="pub"><h3>' + esc(p.title) + '</h3>' +
+            '<div class="muted"><span class="tag">' + esc(p.publication_type) + "</span>" + esc(p.research_field || "") + " · " + esc(p.decided_at ? new Date(p.decided_at).toLocaleDateString() : "") + "</div>" +
+            (p.pdf_path ? '<button class="btn" data-pdf="' + esc(p.pdf_path) + '">Open PDF</button>' : "") + "</div>").join("");
+        }
+        html += "</div>";
+
+        box.innerHTML = html;
+      } catch (err) {
+        console.error("Public profile:", err);
+        notFound("The profile could not be loaded. Please try again.");
+      }
+    }
+
+    box.addEventListener("click", async event => {
+      const button = event.target.closest("button[data-pdf]");
+      if (!button) return;
+      const { data, error } = await db.storage.from("publications").createSignedUrl(button.dataset.pdf, 600);
+      if (error || !data) { alert("This PDF is not available right now."); return; }
+      window.open(data.signedUrl, "_blank", "noopener");
+    });
+
+    load();
+  })();
+  </script>
+</body>
+</html>
