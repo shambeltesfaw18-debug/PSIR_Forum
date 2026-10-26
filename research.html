@@ -100,8 +100,7 @@
             </select></div>
           <div class="field"><label for="f_field">Research field or subject</label><input id="f_field" maxlength="120" placeholder="e.g. Peace and security in the Horn of Africa"></div>
           <div class="field"><label for="f_abstract">Abstract or summary</label><textarea id="f_abstract" maxlength="3000" placeholder="At least 50 characters to submit"></textarea></div>
-          <div class="field"><label for="f_body">Full article or paper</label><textarea id="f_body" rows="10" maxlength="50000" placeholder="At least 300 characters to submit"></textarea>
-            <div class="help">PDF upload will be added in a later update. You can paste the full text here.</div></div>
+          <div class="field"><label for="f_pdf">Upload PDF (required to submit)</label><input type="file" id="f_pdf" accept="application/pdf"><div class="help">PDF only, up to 10 MB. You can save a draft without a PDF.</div></div>
           <div class="field"><label for="f_keywords">Keywords</label><input id="f_keywords" maxlength="300" placeholder="Separate keywords with commas"></div>
           <div class="field"><label for="f_language">Language</label>
             <select id="f_language"><option>English</option><option>Amharic</option></select></div>
@@ -180,7 +179,7 @@
       draft: "Draft", submitted: "Submitted", under_review: "Under review",
       revision_requested: "Revision requested", approved: "Approved", rejected: "Rejected", withdrawn: "Withdrawn"
     };
-    let me = null, isStaff = false, editingId = null, saving = false;
+    let me = null, isStaff = false, editingId = null, saving = false, existingPdf = null;
 
     const $ = id => document.getElementById(id);
     function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]); }
@@ -220,7 +219,7 @@
       const box = $("library");
       try {
         const { data, error } = await db.from("publications")
-          .select("id, title, abstract, publication_type, research_field, keywords, language, author_id, decided_at")
+          .select("id, title, abstract, publication_type, research_field, keywords, language, author_id, decided_at, pdf_path")
           .eq("status", "approved").order("decided_at", { ascending: false }).limit(50);
         if (error) throw error;
         if (!data.length) { box.innerHTML = '<div class="empty">No approved publications yet. Submitted work is reviewed before it appears here.</div>'; return; }
@@ -230,6 +229,7 @@
             <h3>${esc(d.title)}</h3>
             <div class="meta">${esc(names.get(d.author_id) || "Member")} · ${esc(d.publication_type)} · ${esc(d.research_field || "")} · ${esc(d.language)} · Published on PSIR Forum ${fmt(d.decided_at)}</div>
             <p>${esc((d.abstract || "").slice(0, 400))}${(d.abstract || "").length > 400 ? "…" : ""}</p>
+            <div class="row-btns">${d.pdf_path ? '<button class="btn btn-line btn-small" data-pdf="' + esc(d.pdf_path) + '">Open PDF</button>' : ""}${isStaff ? '<button class="btn btn-line btn-small" data-del="' + esc(d.id) + '" data-pdf="' + esc(d.pdf_path || "") + '">Delete</button>' : ""}</div>
             ${d.keywords ? `<div style="margin-top:8px;">${d.keywords.split(",").map(k => k.trim()).filter(Boolean).slice(0,6).map(k => '<span class="tag">' + esc(k) + "</span>").join("")}</div>` : ""}
           </article>`).join("");
       } catch (err) {
@@ -258,6 +258,7 @@
               ${canEdit ? '<button class="btn btn-line btn-small" data-act="edit" data-id="' + p.id + '">Edit</button>' : ""}
               ${canWithdraw ? '<button class="btn btn-line btn-small" data-act="withdraw" data-id="' + p.id + '">Withdraw</button>' : ""}
               ${canDelete ? '<button class="btn btn-line btn-small" data-act="delete" data-id="' + p.id + '">Delete draft</button>' : ""}
+              ${p.pdf_path ? '<button class="btn btn-line btn-small" data-pdf="' + esc(p.pdf_path) + '">Open PDF</button>' : ""}
             </div>
           </article>`;
         }).join("");
@@ -304,7 +305,7 @@
         publication_type: $("f_type").value,
         research_field: $("f_field").value.trim(),
         abstract: $("f_abstract").value.trim(),
-        body: $("f_body").value.trim(),
+        body: null,
         keywords: $("f_keywords").value.trim(),
         language: $("f_language").value,
         institution: $("f_institution").value.trim() || null,
@@ -319,7 +320,7 @@
       if (!forSubmit) return null;
       if (!d.research_field) return "Please enter the research field or subject.";
       if (d.abstract.length < 50) return "The abstract needs at least 50 characters.";
-      if (d.body.length < 300) return "The full article needs at least 300 characters.";
+      if (!$("f_pdf").files.length && !existingPdf) return "Please upload the PDF of your work.";
       if (!d.declaration_accepted) return "Please tick the declaration before submitting.";
       return null;
     }
@@ -332,7 +333,7 @@
       box.innerHTML = `<h4>${esc(d.title)}</h4>
         <p class="help">${esc(d.publication_type)} · ${esc(d.research_field || "field not set")} · ${esc(d.language)}</p>
         <p><strong>Abstract:</strong> ${esc(d.abstract || "—")}</p>
-        <p style="white-space:pre-wrap;"><strong>Full text:</strong><br>${esc(d.body || "—")}</p>
+        <p><strong>PDF:</strong> ${esc($("f_pdf").files[0] ? $("f_pdf").files[0].name : (existingPdf ? "previously uploaded" : "none"))}</p>
         <p><strong>Keywords:</strong> ${esc(d.keywords || "—")}</p>
         <p><strong>References:</strong> ${esc(d.references_text || "—")}</p>`;
       box.hidden = false;
@@ -347,7 +348,8 @@
       $("f_type").value = p ? p.publication_type : "Research Paper";
       $("f_field").value = p ? (p.research_field || "") : "";
       $("f_abstract").value = p ? (p.abstract || "") : "";
-      $("f_body").value = p ? (p.body || "") : "";
+      existingPdf = p ? (p.pdf_path || null) : null;
+      $("f_pdf").value = "";
       $("f_keywords").value = p ? (p.keywords || "") : "";
       $("f_language").value = p ? p.language : "English";
       $("f_institution").value = p ? (p.institution || "") : "";
@@ -369,9 +371,17 @@
       if (err) { formMsg(err, true); return; }
       saving = true;
       [$("btnDraft"), $("btnSubmit"), $("btnPreview")].forEach(b => b.disabled = true);
-      const payload = { ...d, status: asSubmitted ? "submitted" : "draft", declaration_accepted: d.declaration_accepted };
-      if (asSubmitted) payload.submitted_at = new Date().toISOString();
       try {
+        const file = $("f_pdf").files[0] || null;
+        let pdfPath = existingPdf;
+        if (file) {
+          pdfPath = me.id + "/" + crypto.randomUUID() + ".pdf";
+          const up = await db.storage.from("publications").upload(pdfPath, file, { contentType: "application/pdf", upsert: false });
+          if (up.error) throw new Error("PDF upload failed: " + up.error.message);
+        }
+        const payload = { ...d, status: asSubmitted ? "submitted" : "draft", declaration_accepted: d.declaration_accepted, pdf_path: pdfPath };
+        if (file) payload.pdf_name = file.name;
+        if (asSubmitted) payload.submitted_at = new Date().toISOString();
         let result;
         if (editingId) {
           result = await db.from("publications").update(payload).eq("id", editingId).eq("author_id", me.id).select("id");
@@ -432,6 +442,27 @@
       if (error || !data || !data.length) { say("Could not update: " + (error ? error.message : "permission denied"), "error"); return; }
       say("Decision saved.", "ok");
       await Promise.all([loadQueue(), loadLibrary()]);
+    }
+
+    document.addEventListener("click", async e => {
+      const del = e.target.closest("button[data-del]");
+      if (del) { deletePublication(del.dataset.del, del.dataset.pdf); return; }
+      const pdf = e.target.closest("button[data-pdf]");
+      if (pdf && pdf.dataset.pdf) {
+        const { data, error } = await db.storage.from("publications").createSignedUrl(pdf.dataset.pdf, 600);
+        if (error || !data) { say("Could not open the PDF: " + (error ? error.message : "not found"), "error"); return; }
+        window.open(data.signedUrl, "_blank", "noopener");
+      }
+    });
+
+    async function deletePublication(id, pdfPath) {
+      if (!isStaff) return;
+      if (!confirm("Delete this publication from the library? This cannot be undone.")) return;
+      const { data, error } = await db.from("publications").delete().eq("id", id).select("id");
+      if (error || !data || !data.length) { say("Could not delete: " + (error ? error.message : "permission denied"), "error"); return; }
+      if (pdfPath) await db.storage.from("publications").remove([pdfPath]);
+      say("Publication deleted.", "ok");
+      await Promise.all([loadLibrary(), loadMine(), loadQueue()]);
     }
 
     $("submitOpen").addEventListener("click", () => openForm(null));
