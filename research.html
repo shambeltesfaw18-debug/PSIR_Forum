@@ -58,10 +58,15 @@
     footer a:hover { color:var(--gold); }
     .abstract { font-style:italic; text-align:justify; white-space:pre-wrap; overflow-wrap:anywhere; hyphens:auto; line-height:1.75; margin:6px 0 0; color:#3c4f61; font-size:.95rem; max-width:100%; }
     .abstract-wrap { margin-top:8px; }
+    .thumb { display:block; width:100%; max-width:200px; aspect-ratio:3/4; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:linear-gradient(135deg,#eef3f9,#dfe8f2); padding:0; margin:0 0 12px; cursor:pointer; font:inherit; }
+    .thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+    .thumb-empty { display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:.8rem; text-align:center; padding:10px; cursor:default; }
+    .thumb-empty[data-pdf] { cursor:pointer; color:var(--blue); font-weight:700; }
     details summary { cursor:pointer; color:#2864a0; font-weight:700; margin-top:8px; }
     :focus-visible { outline:3px solid var(--gold); outline-offset:2px; }
     @media (max-width:640px) { .top-links { gap:12px; font-size:.85rem; } .hero { padding:40px 0; } }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
   <header class="top">
@@ -191,7 +196,7 @@
       draft: "Draft", submitted: "Submitted", under_review: "Under review",
       revision_requested: "Revision requested", approved: "Approved", rejected: "Rejected", withdrawn: "Withdrawn"
     };
-    let me = null, isStaff = false, editingId = null, saving = false, existingPdf = null;
+    let me = null, isStaff = false, editingId = null, saving = false, existingPdf = null, existingThumb = null;
 
     const $ = id => document.getElementById(id);
     function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]); }
@@ -227,6 +232,16 @@
       return map;
     }
 
+    function thumbHtml(thumbPath, pdfPath) {
+      if (thumbPath) {
+        return '<button type="button" class="thumb" data-thumb="' + esc(thumbPath) + '" data-pdf="' + esc(pdfPath || "") + '" aria-label="Open the full paper"><span class="thumb-empty">Loading cover…</span></button>';
+      }
+      if (pdfPath) {
+        return '<button type="button" class="thumb thumb-empty" data-pdf="' + esc(pdfPath) + '" aria-label="Open the full paper">Cover preview unavailable<br>Tap to open the PDF</button>';
+      }
+      return '<div class="thumb thumb-empty">No PDF attached</div>';
+    }
+
     let libraryRows = [];
     let libraryNames = new Map();
 
@@ -234,7 +249,7 @@
       const box = $("library");
       try {
         const { data, error } = await db.from("publications")
-          .select("id, title, abstract, publication_type, research_field, keywords, language, author_id, decided_at, pdf_path")
+          .select("id, title, abstract, publication_type, research_field, keywords, language, author_id, decided_at, pdf_path, thumb_path")
           .eq("status", "approved").order("decided_at", { ascending: false }).limit(200);
         if (error) throw error;
         libraryRows = data || [];
@@ -268,6 +283,7 @@
         const kws = (d.keywords || "").split(",").map(k => k.trim()).filter(Boolean).slice(0, 6);
         return `
           <article class="pub">
+            ${thumbHtml(d.thumb_path, d.pdf_path)}
             <h3>${esc(d.title)}</h3>
             <div class="meta"><a href="/public-profile.html?id=${esc(d.author_id)}" style="color:var(--blue);font-weight:700;">${esc(name)}</a> · ${esc(d.publication_type)} · ${esc(d.research_field || "")} · ${esc(d.language)} · Published on PSIR Forum ${fmt(d.decided_at)}</div>
             <div class="abstract-wrap"><p class="abstract">${esc((d.abstract || "").slice(0, 400))}${(d.abstract || "").length > 400 ? "…" : ""}</p>${(d.abstract || "").length > 400 ? '<details><summary>Read full abstract</summary><p class="abstract">' + esc(d.abstract) + "</p></details>" : ""}</div>
@@ -290,6 +306,7 @@
           const canDelete = p.status === "draft";
           return `
           <article class="pub">
+            ${thumbHtml(p.thumb_path, p.pdf_path)}
             <h3>${esc(p.title)}</h3>
             <div class="meta">${esc(p.publication_type)} · Updated ${fmt(p.updated_at)} · ${tag(p.status)}</div>
             ${p.reviewer_notes ? '<p><strong>Moderator feedback:</strong> ' + esc(p.reviewer_notes) + "</p>" : ""}
@@ -318,6 +335,7 @@
         const names = await namesFor(data.map(d => d.author_id));
         box.innerHTML = data.map(d => `
           <article class="pub">
+            ${thumbHtml(d.thumb_path, d.pdf_path)}
             <h3>${esc(d.title)}</h3>
             <div class="meta">${esc(names.get(d.author_id) || "Member")} · ${esc(d.publication_type)} · ${esc(d.research_field || "")} · Submitted ${fmt(d.submitted_at)} · ${tag(d.status)}</div>
             <div class="abstract-wrap"><strong>Abstract</strong><p class="abstract">${esc(d.abstract || "")}</p></div>
@@ -336,6 +354,25 @@
           </article>`).join("");
       } catch (err) {
         box.innerHTML = '<div class="notice error">Could not load the review queue: ' + esc(err.message) + "</div>";
+      }
+    }
+
+    async function renderCover(file) {
+      if (!window.pdfjsLib) throw new Error("preview library unavailable");
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      const data = await file.arrayBuffer();
+      const pdf = await window.pdfjsLib.getDocument({ data }).promise;
+      try {
+        const page = await pdf.getPage(1);
+        const base = page.getViewport({ scale: 1 });
+        const viewport = page.getViewport({ scale: 600 / base.width });
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.floor(viewport.width);
+        canvas.height = Math.floor(viewport.height);
+        await page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
+        return await new Promise((resolve, reject) => canvas.toBlob(b => b ? resolve(b) : reject(new Error("image not created")), "image/jpeg", 0.85));
+      } finally {
+        pdf.destroy();
       }
     }
 
@@ -389,6 +426,7 @@
       $("f_field").value = p ? (p.research_field || "") : "";
       $("f_abstract").value = p ? (p.abstract || "") : "";
       existingPdf = p ? (p.pdf_path || null) : null;
+      existingThumb = p ? (p.thumb_path || null) : null;
       $("f_pdf").value = "";
       $("f_keywords").value = p ? (p.keywords || "") : "";
       $("f_language").value = p ? p.language : "English";
@@ -412,6 +450,7 @@
       saving = true;
       [$("btnDraft"), $("btnSubmit"), $("btnPreview")].forEach(b => b.disabled = true);
       let newUpload = null;
+      let thumbUploadOuter = null;
       try {
         const file = $("f_pdf").files[0] || null;
         let pdfPath = existingPdf;
@@ -421,7 +460,22 @@
           if (up.error) throw new Error("PDF upload failed: " + up.error.message);
           newUpload = pdfPath;
         }
-        const payload = { ...d, status: asSubmitted ? "submitted" : "draft", declaration_accepted: d.declaration_accepted, pdf_path: pdfPath };
+        let thumbPath = existingThumb;
+        let thumbUpload = null;
+        if (file) {
+          try {
+            const blob = await renderCover(file);
+            thumbPath = me.id + "/thumbs/" + crypto.randomUUID() + ".jpg";
+            const tu = await db.storage.from("publications").upload(thumbPath, blob, { contentType: "image/jpeg", upsert: false });
+            if (tu.error) throw tu.error;
+            thumbUpload = thumbPath;
+          } catch (coverErr) {
+            console.warn("Cover preview not created:", coverErr);
+            thumbPath = null;
+            thumbUpload = null;
+          }
+        }
+        const payload = { ...d, status: asSubmitted ? "submitted" : "draft", declaration_accepted: d.declaration_accepted, pdf_path: pdfPath, thumb_path: thumbPath };
         if (file) payload.pdf_name = file.name;
         if (asSubmitted) payload.submitted_at = new Date().toISOString();
         let result;
@@ -432,16 +486,18 @@
         }
         if (result.error) throw result.error;
         if (!result.data || !result.data.length) throw new Error("The change was not saved. Please log in again and retry.");
-        if (file && existingPdf && existingPdf !== pdfPath) {
-          await db.storage.from("publications").remove([existingPdf]);
-        }
+        const oldPaths = [];
+        if (file && existingPdf && existingPdf !== pdfPath) oldPaths.push(existingPdf);
+        if (existingThumb && existingThumb !== thumbPath) oldPaths.push(existingThumb);
+        if (oldPaths.length) await db.storage.from("publications").remove(oldPaths);
         closeForm();
         say(asSubmitted
           ? "Submitted. A moderator will review your work before it is published. You can follow its status below."
           : "Draft saved. Only you can see it until you submit it.", "ok");
         await Promise.all([loadMine(), loadQueue()]);
       } catch (e) {
-        if (newUpload) await db.storage.from("publications").remove([newUpload]);
+        const created = [newUpload, thumbUploadOuter].filter(Boolean);
+        if (created.length) await db.storage.from("publications").remove(created);
         formMsg("Could not save: " + e.message, true);
       } finally {
         saving = false;
@@ -463,10 +519,11 @@
       }
       if (act === "delete") {
         if (!confirm("Delete this draft? This cannot be undone.")) return;
-        const { data: row } = await db.from("publications").select("pdf_path").eq("id", id).eq("author_id", me.id).maybeSingle();
+        const { data: row } = await db.from("publications").select("pdf_path, thumb_path").eq("id", id).eq("author_id", me.id).maybeSingle();
         const { data, error } = await db.from("publications").delete().eq("id", id).eq("author_id", me.id).select("id");
         if (error || !data || !data.length) { say("Could not delete: " + (error ? error.message : "permission denied"), "error"); return; }
-        if (row && row.pdf_path) await db.storage.from("publications").remove([row.pdf_path]);
+        const gone = [row && row.pdf_path, row && row.thumb_path].filter(Boolean);
+        if (gone.length) await db.storage.from("publications").remove(gone);
         say("Draft deleted.", "ok");
       }
       await Promise.all([loadMine(), loadQueue(), loadLibrary()]);
@@ -506,15 +563,45 @@
     async function deletePublication(id, pdfPath) {
       if (!isStaff) return;
       if (!confirm("Delete this publication from the library? This cannot be undone.")) return;
+      const { data: row } = await db.from("publications").select("thumb_path").eq("id", id).maybeSingle();
       const { data, error } = await db.from("publications").delete().eq("id", id).select("id");
       if (error || !data || !data.length) { say("Could not delete: " + (error ? error.message : "permission denied"), "error"); return; }
-      if (pdfPath) await db.storage.from("publications").remove([pdfPath]);
+      const gone = [pdfPath, row && row.thumb_path].filter(Boolean);
+      if (gone.length) await db.storage.from("publications").remove(gone);
       say("Publication deleted.", "ok");
       await Promise.all([loadLibrary(), loadMine(), loadQueue()]);
     }
 
     $("libSearch").addEventListener("input", renderLibrary);
     $("libType").addEventListener("change", renderLibrary);
+    async function hydrateThumbs(root) {
+      const nodes = Array.from(root.querySelectorAll("[data-thumb]:not([data-loaded])"));
+      if (!nodes.length) return;
+      nodes.forEach(n => { n.dataset.loaded = "1"; });
+      const fallback = n => { n.innerHTML = '<span class="thumb-empty">Cover preview unavailable</span>'; };
+      try {
+        const { data, error } = await db.storage.from("publications").createSignedUrls(nodes.map(n => n.dataset.thumb), 3600);
+        if (error || !data) { nodes.forEach(fallback); return; }
+        data.forEach((item, i) => {
+          const n = nodes[i];
+          if (item.error || !item.signedUrl) { fallback(n); return; }
+          const img = document.createElement("img");
+          img.src = item.signedUrl;
+          img.alt = "First page of the paper";
+          img.loading = "lazy";
+          img.onerror = () => fallback(n);
+          n.innerHTML = "";
+          n.appendChild(img);
+        });
+      } catch (e) {
+        nodes.forEach(fallback);
+      }
+    }
+    ["library", "queue", "mine"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) new MutationObserver(() => hydrateThumbs(el)).observe(el, { childList: true });
+    });
+
     $("submitOpen").addEventListener("click", () => openForm(null));
     $("btnPreview").addEventListener("click", showPreview);
     $("btnDraft").addEventListener("click", () => save(false));
