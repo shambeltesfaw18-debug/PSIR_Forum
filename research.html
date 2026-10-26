@@ -128,6 +128,15 @@
     <div class="container">
       <h2>Recently Published</h2>
       <p class="lead">Approved publications. Each one has been reviewed by a moderator. This is moderated publication, not formal peer review.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+        <input id="libSearch" type="search" placeholder="Search title, author, field, or keyword" style="flex:1;min-width:200px;border:1px solid #cfd9e4;border-radius:10px;padding:11px 12px;font:inherit;">
+        <select id="libType" style="border:1px solid #cfd9e4;border-radius:10px;padding:11px 12px;font:inherit;background:#fff;">
+          <option value="">All types</option>
+          <option>Research Paper</option><option>Academic Article</option><option>Literature Review</option>
+          <option>Policy Brief</option><option>Working Paper</option><option>Research Proposal</option>
+          <option>Undergraduate Thesis</option><option>Master's Thesis</option><option>Doctoral Dissertation</option>
+        </select>
+      </div>
       <div id="library"><p class="help">Loading…</p></div>
     </div>
   </section>
@@ -215,26 +224,54 @@
       return map;
     }
 
+    let libraryRows = [];
+    let libraryNames = new Map();
+
     async function loadLibrary() {
       const box = $("library");
       try {
         const { data, error } = await db.from("publications")
           .select("id, title, abstract, publication_type, research_field, keywords, language, author_id, decided_at, pdf_path")
-          .eq("status", "approved").order("decided_at", { ascending: false }).limit(50);
+          .eq("status", "approved").order("decided_at", { ascending: false }).limit(200);
         if (error) throw error;
-        if (!data.length) { box.innerHTML = '<div class="empty">No approved publications yet. Submitted work is reviewed before it appears here.</div>'; return; }
-        const names = await namesFor(data.map(d => d.author_id));
-        box.innerHTML = data.map(d => `
-          <article class="pub">
-            <h3>${esc(d.title)}</h3>
-            <div class="meta">${esc(names.get(d.author_id) || "Member")} · ${esc(d.publication_type)} · ${esc(d.research_field || "")} · ${esc(d.language)} · Published on PSIR Forum ${fmt(d.decided_at)}</div>
-            <p>${esc((d.abstract || "").slice(0, 400))}${(d.abstract || "").length > 400 ? "…" : ""}</p>
-            <div class="row-btns">${d.pdf_path ? '<button class="btn btn-line btn-small" data-pdf="' + esc(d.pdf_path) + '">Open PDF</button>' : ""}${isStaff ? '<button class="btn btn-line btn-small" data-del="' + esc(d.id) + '" data-pdf="' + esc(d.pdf_path || "") + '">Delete</button>' : ""}</div>
-            ${d.keywords ? `<div style="margin-top:8px;">${d.keywords.split(",").map(k => k.trim()).filter(Boolean).slice(0,6).map(k => '<span class="tag">' + esc(k) + "</span>").join("")}</div>` : ""}
-          </article>`).join("");
+        libraryRows = data || [];
+        libraryNames = await namesFor(libraryRows.map(d => d.author_id));
+        renderLibrary();
       } catch (err) {
         box.innerHTML = '<div class="notice error">Could not load publications: ' + esc(err.message) + "</div>";
       }
+    }
+
+    function renderLibrary() {
+      const box = $("library");
+      if (!libraryRows.length) {
+        box.innerHTML = '<div class="empty">No approved publications yet. Submitted work is reviewed before it appears here.</div>';
+        return;
+      }
+      const q = ($("libSearch").value || "").trim().toLowerCase();
+      const type = $("libType").value;
+      const rows = libraryRows.filter(d => {
+        if (type && d.publication_type !== type) return false;
+        if (!q) return true;
+        const hay = [d.title, libraryNames.get(d.author_id) || "", d.research_field || "", d.keywords || "", d.publication_type].join(" ").toLowerCase();
+        return hay.includes(q);
+      });
+      if (!rows.length) {
+        box.innerHTML = '<div class="empty">No publications match your search. Try different words or clear the filter.</div>';
+        return;
+      }
+      box.innerHTML = rows.map(d => {
+        const name = libraryNames.get(d.author_id) || "Member";
+        const kws = (d.keywords || "").split(",").map(k => k.trim()).filter(Boolean).slice(0, 6);
+        return `
+          <article class="pub">
+            <h3>${esc(d.title)}</h3>
+            <div class="meta"><a href="/public-profile.html?id=${esc(d.author_id)}" style="color:var(--blue);font-weight:700;">${esc(name)}</a> · ${esc(d.publication_type)} · ${esc(d.research_field || "")} · ${esc(d.language)} · Published on PSIR Forum ${fmt(d.decided_at)}</div>
+            <p>${esc((d.abstract || "").slice(0, 400))}${(d.abstract || "").length > 400 ? "…" : ""}</p>
+            ${kws.length ? '<div style="margin-top:8px;">' + kws.map(k => '<span class="tag">' + esc(k) + "</span>").join("") + "</div>" : ""}
+            <div class="row-btns">${d.pdf_path ? '<button class="btn btn-line btn-small" data-pdf="' + esc(d.pdf_path) + '">Open PDF</button>' : ""}${isStaff ? '<button class="btn btn-line btn-small" data-del="' + esc(d.id) + '" data-pdf="' + esc(d.pdf_path || "") + '">Delete</button>' : ""}</div>
+          </article>`;
+      }).join("");
     }
 
     async function loadMine() {
@@ -287,7 +324,7 @@
             </details>
             <div class="field" style="margin-top:10px;"><label for="n_${d.id}">Feedback for the author (required for revision or rejection)</label>
               <textarea id="n_${d.id}" maxlength="2000"></textarea></div>
-            <div class="row-btns">
+            <div class="row-btns">${d.pdf_path ? '<button class="btn btn-line btn-small" data-pdf="' + esc(d.pdf_path) + '">Open submitted PDF</button>' : '<span class="help">No PDF attached</span>'}
               ${d.status === "submitted" ? '<button class="btn btn-line btn-small" data-review="start" data-id="' + d.id + '">Start review</button>' : ""}
               <button class="btn btn-navy btn-small" data-review="approve" data-id="${d.id}">Approve</button>
               <button class="btn btn-line btn-small" data-review="revision" data-id="${d.id}">Request revision</button>
@@ -371,6 +408,7 @@
       if (err) { formMsg(err, true); return; }
       saving = true;
       [$("btnDraft"), $("btnSubmit"), $("btnPreview")].forEach(b => b.disabled = true);
+      let newUpload = null;
       try {
         const file = $("f_pdf").files[0] || null;
         let pdfPath = existingPdf;
@@ -378,6 +416,7 @@
           pdfPath = me.id + "/" + crypto.randomUUID() + ".pdf";
           const up = await db.storage.from("publications").upload(pdfPath, file, { contentType: "application/pdf", upsert: false });
           if (up.error) throw new Error("PDF upload failed: " + up.error.message);
+          newUpload = pdfPath;
         }
         const payload = { ...d, status: asSubmitted ? "submitted" : "draft", declaration_accepted: d.declaration_accepted, pdf_path: pdfPath };
         if (file) payload.pdf_name = file.name;
@@ -390,12 +429,16 @@
         }
         if (result.error) throw result.error;
         if (!result.data || !result.data.length) throw new Error("The change was not saved. Please log in again and retry.");
+        if (file && existingPdf && existingPdf !== pdfPath) {
+          await db.storage.from("publications").remove([existingPdf]);
+        }
         closeForm();
         say(asSubmitted
           ? "Submitted. A moderator will review your work before it is published. You can follow its status below."
           : "Draft saved. Only you can see it until you submit it.", "ok");
         await Promise.all([loadMine(), loadQueue()]);
       } catch (e) {
+        if (newUpload) await db.storage.from("publications").remove([newUpload]);
         formMsg("Could not save: " + e.message, true);
       } finally {
         saving = false;
@@ -417,8 +460,10 @@
       }
       if (act === "delete") {
         if (!confirm("Delete this draft? This cannot be undone.")) return;
+        const { data: row } = await db.from("publications").select("pdf_path").eq("id", id).eq("author_id", me.id).maybeSingle();
         const { data, error } = await db.from("publications").delete().eq("id", id).eq("author_id", me.id).select("id");
         if (error || !data || !data.length) { say("Could not delete: " + (error ? error.message : "permission denied"), "error"); return; }
+        if (row && row.pdf_path) await db.storage.from("publications").remove([row.pdf_path]);
         say("Draft deleted.", "ok");
       }
       await Promise.all([loadMine(), loadQueue(), loadLibrary()]);
@@ -465,6 +510,8 @@
       await Promise.all([loadLibrary(), loadMine(), loadQueue()]);
     }
 
+    $("libSearch").addEventListener("input", renderLibrary);
+    $("libType").addEventListener("change", renderLibrary);
     $("submitOpen").addEventListener("click", () => openForm(null));
     $("btnPreview").addEventListener("click", showPreview);
     $("btnDraft").addEventListener("click", () => save(false));
