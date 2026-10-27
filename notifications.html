@@ -192,6 +192,8 @@
       categories = data || [];
       const select = $("s_category");
       select.innerHTML = categories.map(c => '<option value="' + c.id + '">' + esc(c.name) + "</option>").join("");
+      const preset = new URLSearchParams(location.search).get("schedule");
+      if (preset) select.value = preset;
     }
 
     async function loadSessions() {
@@ -219,7 +221,10 @@
       const { data: profile } = await db.from("profiles").select("role").eq("id", me.id).maybeSingle();
       const canSchedule = !!profile && ["admin", "moderator", "scholar"].includes(profile.role);
       $("scheduleCard").hidden = !canSchedule;
-      if (canSchedule) await loadCategories();
+      if (canSchedule) {
+        await loadCategories();
+        if (new URLSearchParams(location.search).get("schedule")) $("scheduleCard").scrollIntoView({ behavior: "smooth" });
+      }
     }
 
     $("sessionForm").addEventListener("submit", async event => {

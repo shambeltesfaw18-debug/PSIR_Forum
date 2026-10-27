@@ -275,7 +275,8 @@
     "Peace & Security": "/images/peace-security.jpg",
     "Governance & Public Policy": "/images/governance-public-policy.jpg",
     "African Affairs": "/images/african-affairs.jpg",
-    "General Discussion": "/images/general-discussion.jpg"
+    "General Discussion": "/images/general-discussion.jpg",
+    "Hub of Idea Discussion Club": "/hub-of-idea-logo.png"
   };
 
   document.querySelectorAll(".category-card[data-category]").forEach(card => {

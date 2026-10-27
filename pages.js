@@ -66,7 +66,10 @@
   options.style.cssText = "display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;";
 
   const roomBox = document.createElement("div");
-  panel.append(panelTitle, info, options, roomBox);
+  const scheduleLink = document.createElement("a");
+  scheduleLink.textContent = "Schedule a session for this category";
+  scheduleLink.style.cssText = "display:none;margin-top:10px;color:#1f6f78;font-weight:600;";
+  panel.append(panelTitle, info, options, scheduleLink, roomBox);
 
   if (discussions) {
     const layout = discussions.querySelector(".community-layout");
@@ -92,6 +95,15 @@
   }
 
   let loggedIn = false;
+  let leader = false;
+  async function refreshLeader(session) {
+    leader = false;
+    if (session) {
+      const { data } = await db.from("profiles").select("role").eq("id", session.user.id).maybeSingle();
+      leader = !!data && ["admin", "moderator", "scholar"].includes(data.role);
+    }
+    renderRooms();
+  }
   let roomCategory = null;
   let roomView = false;
   let openType = null;   // "video", "audio", or null
@@ -141,6 +153,8 @@
   function renderRooms() {
     panel.style.display = roomView ? "block" : "none";
     if (!roomView) return;
+    scheduleLink.style.display = (loggedIn && leader && roomCategory) ? "inline-block" : "none";
+    if (roomCategory) scheduleLink.href = "/notifications.html?schedule=" + roomCategory.id;
 
     options.innerHTML = "";
     roomBox.innerHTML = roomBox.innerHTML; // keep any open frame
@@ -193,7 +207,7 @@
   let categoriesPromise = null;
   function loadCategories() {
     if (!categoriesPromise) {
-      categoriesPromise = db.from("categories").select("name, slug").then(({ data, error }) => {
+      categoriesPromise = db.from("categories").select("id, name, slug").then(({ data, error }) => {
         if (error) throw error;
         return data || [];
       }).catch(error => {
@@ -305,13 +319,13 @@
 
   db.auth.getSession().then(({ data }) => {
     loggedIn = !!data.session; syncJoinButton();
-    renderRooms();
+    refreshLeader(data.session);
   });
 
   db.auth.onAuthStateChange((_event, session) => {
     loggedIn = !!session; syncJoinButton();
     if (!loggedIn) closeRoom();
-    setTimeout(renderRooms, 0);
+    setTimeout(() => refreshLeader(session), 0);
   });
 
   if (parse(location.pathname).unknown) {
