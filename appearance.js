@@ -28,7 +28,9 @@
     "Preview": "ቅድመ-እይታ", "Log in": "ግባ", "Join forum": "መድረኩን ተቀላቀል",
     "Loading…": "በመጫን ላይ…", "Loading publication…": "ጽሑፉ በመጫን ላይ…",
     "Recently Published": "በቅርቡ የታተሙ", "Hub sections": "የማዕከሉ ክፍሎች",
-    "Write for the Journal ": "ለጆርናሉ ጻፍ "
+    "Write for the Journal ": "ለጆርናሉ ጻፍ ",
+    "Saved papers": "የተቀመጡ ጽሑፎች", "Remove": "አስወግድ", "Open": "ክፈት",
+    "Saved": "ተቀምጧል"
   };
   const REVERSE = {};
   Object.keys(DICT).forEach(k => { REVERSE[DICT[k]] = k; });
