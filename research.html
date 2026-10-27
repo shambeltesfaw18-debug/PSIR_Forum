@@ -77,6 +77,7 @@
         <a href="/categories">Categories</a>
         <a href="/discussions">Discussions</a>
         <a href="/research.html" aria-current="page">Research Hub</a>
+        <a href="/news.html">News &amp; Journal</a>
       </nav>
     </div>
   </header>
@@ -100,15 +101,20 @@
         <p class="lead">Drafts stay private. A submitted piece is reviewed by a moderator before it appears in the library.</p>
         <form id="pubForm" novalidate>
           <div class="field"><label for="f_title">Title</label><input id="f_title" maxlength="200" required></div>
+          <div class="field"><label for="f_section">Where should this appear?</label>
+          <select id="f_section"><option value="research">Research Hub (research papers and theses; PDF required)</option><option value="journal">Journal (opinion, analysis, or essay)</option><option value="news">News (a timely update with its source)</option></select></div>
           <div class="field"><label for="f_type">Publication type</label>
             <select id="f_type">
               <option>Research Paper</option><option>Academic Article</option><option>Literature Review</option>
               <option>Policy Brief</option><option>Working Paper</option><option>Research Proposal</option>
               <option>Undergraduate Thesis</option><option>Master's Thesis</option><option>Doctoral Dissertation</option>
+              <option>Opinion</option><option>Analysis</option><option>Essay</option><option>News Update</option>
             </select></div>
           <div class="field"><label for="f_field">Research field or subject</label><input id="f_field" maxlength="120" placeholder="e.g. Peace and security in the Horn of Africa"></div>
           <div class="field"><label for="f_abstract">Abstract or summary</label><textarea id="f_abstract" maxlength="3000" placeholder="At least 50 characters to submit"></textarea></div>
-          <div class="field"><label for="f_pdf">Upload PDF (required to submit)</label><input type="file" id="f_pdf" accept="application/pdf"><div class="help">PDF only, up to 10 MB. You can save a draft without a PDF.</div></div>
+          <div class="field"><label for="f_source_name">Source name (news only)</label><input id="f_source_name" maxlength="150" placeholder="e.g. Name of the outlet or agency"></div>
+          <div class="field"><label for="f_source_url">Source web address (news only, http or https)</label><input id="f_source_url" maxlength="500" placeholder="https://..."></div>
+          <div class="field"><label for="f_pdf">Upload PDF (required for research; optional for journal and news)</label><input type="file" id="f_pdf" accept="application/pdf"><div class="help">PDF only, up to 10 MB. You can save a draft without a PDF.</div></div>
           <div class="field"><label for="f_keywords">Keywords</label><input id="f_keywords" maxlength="300" placeholder="Separate keywords with commas"></div>
           <div class="field"><label for="f_language">Language</label>
             <select id="f_language"><option>English</option><option>Amharic</option></select></div>
@@ -250,7 +256,7 @@
       try {
         const { data, error } = await db.from("publications")
           .select("id, title, abstract, publication_type, research_field, keywords, language, author_id, decided_at, pdf_path, thumb_path")
-          .eq("status", "approved").order("decided_at", { ascending: false }).limit(200);
+          .eq("status", "approved").eq("section", "research").order("decided_at", { ascending: false }).limit(200);
         if (error) throw error;
         libraryRows = data || [];
         libraryNames = await namesFor(libraryRows.map(d => d.author_id));
@@ -388,16 +394,20 @@
         institution: $("f_institution").value.trim() || null,
         co_authors: $("f_coauthors").value.trim() || null,
         references_text: $("f_refs").value.trim() || null,
-        declaration_accepted: $("f_declare").checked
+        declaration_accepted: $("f_declare").checked,
+        section: $("f_section").value,
+        source_name: $("f_source_name").value.trim() || null,
+        source_url: $("f_source_url").value.trim() || null
       };
     }
 
     function validate(d, forSubmit) {
       if (d.title.length < 5) return "Please enter a title of at least 5 characters.";
+      if (d.source_url && !/^https?:\/\//i.test(d.source_url)) return "The source address must start with http:// or https://";
       if (!forSubmit) return null;
       if (!d.research_field) return "Please enter the research field or subject.";
       if (d.abstract.length < 50) return "The abstract needs at least 50 characters.";
-      if (!$("f_pdf").files.length && !existingPdf) return "Please upload the PDF of your work.";
+      if (d.section === "research" && !$("f_pdf").files.length && !existingPdf) return "Please upload the PDF of your research.";
       if (!d.declaration_accepted) return "Please tick the declaration before submitting.";
       return null;
     }
@@ -434,6 +444,9 @@
       $("f_coauthors").value = p ? (p.co_authors || "") : "";
       $("f_refs").value = p ? (p.references_text || "") : "";
       $("f_declare").checked = p ? !!p.declaration_accepted : false;
+      $("f_section").value = p ? (p.section || "research") : "research";
+      $("f_source_name").value = p ? (p.source_name || "") : "";
+      $("f_source_url").value = p ? (p.source_url || "") : "";
       $("previewBox").hidden = true;
       formMsg("", false);
       $("formPanel").hidden = false;

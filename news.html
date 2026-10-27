@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="News and Journal of PSIR Forum: timely updates, analysis, opinion, and essays on politics, international relations, and governance.">
+  <meta name="theme-color" content="#102b46">
+  <title>News &amp; Journal | PSIR Forum</title>
+  <style>
+    :root { --navy:#102b46; --blue:#2864a0; --gold:#e7b451; --bg:#f3f6fa; --line:#dfe7ef; --muted:#5b6b7b; --text:#172b3d; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; color:var(--text); background:var(--bg); line-height:1.6; }
+    a { color:var(--blue); }
+    .top { background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10; }
+    .top-inner { width:min(1100px, calc(100% - 36px)); margin:0 auto; min-height:64px; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+    .brand { font-weight:850; color:var(--navy); text-decoration:none; letter-spacing:.4px; }
+    .nav { display:flex; gap:16px; flex-wrap:wrap; font-weight:650; }
+    .nav a { color:#45596d; text-decoration:none; }
+    .nav a[aria-current="page"] { color:var(--blue); }
+    .hero { background:linear-gradient(125deg,#0b2137,#173e61 75%,#24517a); color:#fff; padding:52px 0; }
+    .wrap { width:min(1100px, calc(100% - 36px)); margin:0 auto; }
+    .eyebrow { color:var(--gold); text-transform:uppercase; letter-spacing:1.5px; font-size:.75rem; font-weight:850; margin:0 0 10px; }
+    .hero h1 { margin:0 0 10px; font-size:clamp(2rem,4.5vw,3.2rem); line-height:1.12; letter-spacing:-1px; }
+    .hero p { color:#d6e2ee; max-width:700px; margin:0; font-size:1.02rem; }
+    .defs { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-top:22px; }
+    .def { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16); border-radius:14px; padding:14px; font-size:.9rem; color:#dfe8f2; }
+    .def strong { display:block; color:#fff; margin-bottom:4px; }
+    .section { padding:34px 0 10px; }
+    h2 { color:var(--navy); margin:0 0 6px; font-size:1.5rem; letter-spacing:-.3px; }
+    .lead { color:var(--muted); margin:0 0 16px; }
+    .toolbar { display:flex; gap:10px; flex-wrap:wrap; margin:18px 0 6px; }
+    .toolbar input, .toolbar select { border:1px solid #cfd9e4; border-radius:10px; padding:11px 12px; font:inherit; background:#fff; color:var(--text); }
+    .toolbar input { flex:1; min-width:220px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:14px; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px; display:flex; flex-direction:column; gap:6px; }
+    .card h3 { margin:4px 0 2px; color:var(--navy); font-size:1.08rem; line-height:1.35; overflow-wrap:anywhere; }
+    .card h3 a { color:inherit; text-decoration:none; }
+    .card p { margin:0; color:#3c4f61; font-size:.93rem; overflow-wrap:anywhere; }
+    .meta { color:var(--muted); font-size:.82rem; }
+    .pill { display:inline-block; font-size:.72rem; font-weight:800; padding:3px 9px; border-radius:6px; background:#edf3f9; color:#315b83; width:fit-content; }
+    .pill.news { background:#fdecea; color:#a3172b; }
+    .pill.journal { background:#e8f1fa; color:#1f5a8f; }
+    .more { margin-top:auto; font-weight:700; }
+    .feature { background:#fff; border:1px solid var(--line); border-left:5px solid var(--gold); border-radius:18px; padding:24px; margin-top:8px; }
+    .feature h3 { font-size:1.4rem; color:var(--navy); margin:6px 0 8px; line-height:1.3; }
+    .empty { background:#fff; border:1px dashed #c8d4e0; border-radius:14px; padding:20px; color:var(--muted); }
+    .note { background:#fff8e1; border:1px solid #f0e2a6; color:#6b5300; border-radius:12px; padding:12px 14px; font-size:.9rem; margin:18px 0 0; }
+    .error { background:#fdecea; border-color:#f4c7c3; color:#8c2929; }
+    footer { background:#0a2035; color:#b8c7d4; padding:24px 0; font-size:.85rem; margin-top:34px; }
+    footer a { color:#b8c7d4; }
+    :focus-visible { outline:3px solid var(--gold); outline-offset:2px; }
+    @media (max-width:640px) { .nav { gap:12px; font-size:.86rem; } .hero { padding:38px 0; } }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <a class="brand" href="/">PSIR FORUM</a>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="/">Home</a>
+        <a href="/categories">Categories</a>
+        <a href="/discussions">Discussions</a>
+        <a href="/research.html">Research Hub</a>
+        <a href="/news.html" aria-current="page">News &amp; Journal</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">News &amp; Journal</p>
+      <h1>Current events, analysis, and essays</h1>
+      <p>Timely updates and commentary on politics, international relations, diplomacy, governance, and Ethiopian and African affairs.</p>
+      <div class="defs">
+        <div class="def"><strong>News</strong>Short, timely updates. Each item links to its original source.</div>
+        <div class="def"><strong>Journal</strong>Opinion pieces, analysis, and essays written by members.</div>
+        <div class="def"><strong>Research Hub</strong>Academic papers and theses. Found in the <a href="/research.html" style="color:#fff;">Research Hub</a>.</div>
+      </div>
+    </div>
+  </section>
+
+  <main class="wrap">
+    <div class="toolbar" role="search">
+      <input id="search" type="search" placeholder="Search news and journal items" aria-label="Search news and journal items">
+      <select id="section" aria-label="Show">
+        <option value="all">All items</option>
+        <option value="news">News only</option>
+        <option value="journal">Journal only</option>
+      </select>
+    </div>
+    <p class="note">Items are submitted by members and checked by moderators before they appear. They are not verified news reports, so check the original source for news.</p>
+
+    <section class="section" id="featuredSection">
+      <h2>Featured article</h2>
+      <p class="lead">The most recent approved journal article.</p>
+      <div id="featured"><p class="empty">Loading…</p></div>
+    </section>
+
+    <section class="section">
+      <h2>Latest news</h2>
+      <p class="lead">Recent timely updates, most recent first.</p>
+      <div id="news" class="grid"><p class="empty">Loading…</p></div>
+    </section>
+
+    <section class="section">
+      <h2>Recent journal articles and analysis</h2>
+      <p class="lead">Opinion, analysis, and essays from the community.</p>
+      <div id="journal" class="grid"><p class="empty">Loading…</p></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap"><a href="/">PSIR Forum</a> · <a href="/info.html?page=guidelines">Community Guidelines</a> · <a href="/info.html?page=contact">Contact</a></div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (() => {
+    "use strict";
+    const SUPABASE_URL = "https://updxillknwufqekfzkur.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5";
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const $ = id => document.getElementById(id);
+    let items = [], names = new Map();
+
+    function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]); }
+    function fmt(iso) { return iso ? new Date(iso).toLocaleDateString() : ""; }
+    function excerpt(text) {
+      const plain = String(text || "").replace(/\s+/g, " ").trim();
+      return plain.length > 220 ? plain.slice(0, 220) + "…" : plain;
+    }
+    function safeHttp(url) { return /^https?:\/\//i.test(url || "") ? url : null; }
+
+    function card(item) {
+      const kind = item.section === "news" ? "news" : "journal";
+      const src = safeHttp(item.source_url);
+      return `
+        <article class="card">
+          <span class="pill ${kind}">${kind === "news" ? "News" : "Journal"} · ${esc(item.publication_type)}</span>
+          <h3><a href="/publication.html?id=${esc(item.id)}">${esc(item.title)}</a></h3>
+          <div class="meta">${esc(names.get(item.author_id) || "Member")} · ${esc(fmt(item.decided_at || item.created_at))}</div>
+          <p>${esc(excerpt(item.abstract))}</p>
+          ${src ? '<div class="meta">Source: <a href="' + esc(src) + '" target="_blank" rel="noopener noreferrer">' + esc(item.source_name || "original report") + "</a></div>" : ""}
+          <a class="more" href="/publication.html?id=${esc(item.id)}">Read more →</a>
+        </article>`;
+    }
+
+    function visible(list) {
+      const q = $("search").value.trim().toLowerCase();
+      const pick = $("section").value;
+      return list.filter(i => {
+        if (pick !== "all" && i.section !== pick) return false;
+        if (!q) return true;
+        return [i.title, i.abstract, i.publication_type, names.get(i.author_id) || "", i.source_name || ""].join(" ").toLowerCase().includes(q);
+      });
+    }
+
+    function render() {
+      const list = visible(items);
+      const journalFeatured = items.find(i => i.section === "journal");
+      const newsList = list.filter(i => i.section === "news");
+      const journalList = list.filter(i => i.section === "journal" && (!journalFeatured || i.id !== journalFeatured.id));
+
+      $("featuredSection").hidden = !journalFeatured || $("section").value === "news";
+      if (journalFeatured && $("section").value !== "news") {
+        $("featured").innerHTML = `
+          <div class="feature">
+            <span class="pill journal">Journal · ${esc(journalFeatured.publication_type)}</span>
+            <h3><a href="/publication.html?id=${esc(journalFeatured.id)}" style="color:inherit;text-decoration:none;">${esc(journalFeatured.title)}</a></h3>
+            <div class="meta">${esc(names.get(journalFeatured.author_id) || "Member")} · ${esc(fmt(journalFeatured.decided_at || journalFeatured.created_at))}</div>
+            <p style="margin-top:10px;color:#3c4f61;">${esc(excerpt(journalFeatured.abstract))}</p>
+            <a class="more" href="/publication.html?id=${esc(journalFeatured.id)}">Read the article →</a>
+          </div>`;
+      }
+
+      $("news").innerHTML = $("section").value === "journal" ? ""
+        : (newsList.length ? newsList.map(card).join("")
+          : '<p class="empty">No news items yet. Approved news will appear here.</p>');
+      $("journal").innerHTML = $("section").value === "news" ? ""
+        : (journalList.length ? journalList.map(card).join("")
+          : '<p class="empty">No journal articles match your search yet.</p>');
+    }
+
+    async function load() {
+      try {
+        const { data, error } = await db.from("publications")
+          .select("id, title, abstract, publication_type, section, author_id, created_at, decided_at, source_name, source_url")
+          .eq("status", "approved").neq("section", "research")
+          .order("decided_at", { ascending: false, nullsFirst: false }).limit(200);
+        if (error) throw error;
+        items = data || [];
+        const ids = [...new Set(items.map(i => i.author_id))];
+        if (ids.length) {
+          const { data: people } = await db.from("profiles").select("id, full_name").in("id", ids);
+          names = new Map((people || []).map(p => [p.id, p.full_name]));
+        }
+        render();
+      } catch (err) {
+        console.error("News & Journal:", err);
+        const msg = '<div class="empty error">Could not load News &amp; Journal. Please refresh the page.</div>';
+        $("news").innerHTML = msg;
+        $("journal").innerHTML = "";
+      }
+    }
+
+    $("search").addEventListener("input", render);
+    $("section").addEventListener("change", render);
+    load();
+  })();
+  </script>
+</body>
+</html>
