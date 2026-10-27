@@ -38,37 +38,63 @@
     return new Date(iso).toLocaleDateString();
   }
 
+  function findHost() {
+    return document.getElementById("navActions") || document.querySelector(".nav-actions") ||
+           document.querySelector(".top-inner") || document.querySelector(".top-links") || document.querySelector(".bar");
+  }
+
   function ensureBell() {
-    if (bell) return true;
-    const host = document.getElementById("navActions") || document.querySelector(".nav-actions") ||
-                 document.querySelector(".top-inner") || document.querySelector(".top-links") || document.querySelector(".bar");
+    const host = findHost();
     if (!host) return false;
 
-    bell = document.createElement("button");
-    bell.type = "button";
-    bell.id = "psirBell";
-    bell.setAttribute("aria-label", "Notifications");
-    bell.style.cssText = "position:relative;border:1px solid #cfd9e4;background:#fff;color:#102b46;border-radius:999px;padding:6px 11px;font:inherit;cursor:pointer;margin-left:6px;";
-    bell.innerHTML = '<span aria-hidden="true">🔔</span>';
+    if (!bell) {
+      bell = document.createElement("button");
+      bell.type = "button";
+      bell.id = "psirBell";
+      bell.setAttribute("aria-label", "Notifications");
+      bell.style.cssText = "position:relative;border:1px solid #cfd9e4;background:#fff;color:#102b46;border-radius:999px;padding:6px 11px;font:inherit;cursor:pointer;margin-left:6px;";
+      bell.innerHTML = '<span aria-hidden="true">🔔</span>';
 
-    badge = document.createElement("span");
-    badge.style.cssText = "display:none;position:absolute;top:-5px;right:-5px;background:#e7b451;color:#102b46;font-size:11px;font-weight:800;border-radius:999px;padding:1px 6px;";
-    bell.appendChild(badge);
+      badge = document.createElement("span");
+      badge.id = "psirBellBadge";
+      badge.style.cssText = "display:none;position:absolute;top:-6px;right:-6px;min-width:19px;height:19px;padding:0 5px;box-sizing:border-box;background:#d32f2f;color:#fff;font-size:11px;font-weight:800;line-height:17px;text-align:center;border-radius:999px;border:2px solid #fff;";
+      bell.appendChild(badge);
 
-    panel = document.createElement("div");
-    panel.id = "psirPanel";
-    panel.hidden = true;
-    panel.setAttribute("role", "dialog");
-    panel.setAttribute("aria-label", "Notifications");
-    panel.style.cssText = "position:fixed;top:70px;right:12px;width:min(380px,calc(100% - 24px));max-height:70vh;overflow:auto;background:#fff;color:#172b3d;border:1px solid #dfe7ef;border-radius:14px;box-shadow:0 12px 40px rgba(16,43,70,.18);z-index:300;padding:12px;font-size:14px;";
-    document.body.appendChild(panel);
+      panel = document.createElement("div");
+      panel.id = "psirPanel";
+      panel.hidden = true;
+      panel.setAttribute("role", "dialog");
+      panel.setAttribute("aria-label", "Notifications");
+      panel.style.cssText = "position:fixed;top:70px;right:12px;width:min(380px,calc(100% - 24px));max-height:70vh;overflow:auto;background:#fff;color:#172b3d;border:1px solid #dfe7ef;border-radius:14px;box-shadow:0 12px 40px rgba(16,43,70,.18);z-index:300;padding:12px;font-size:14px;";
+      document.body.appendChild(panel);
 
-    bell.addEventListener("click", () => {
-      panel.hidden = !panel.hidden;
-      if (!panel.hidden) loadList();
-    });
-    host.appendChild(bell);
+      bell.addEventListener("click", () => {
+        panel.hidden = !panel.hidden;
+        if (!panel.hidden) loadList();
+      });
+    }
+
+    // Some pages redraw their navigation after sign-in; keep the bell attached
+    if (!host.contains(bell)) host.appendChild(bell);
+    if (!host.dataset.bellWatch) {
+      host.dataset.bellWatch = "1";
+      new MutationObserver(() => {
+        if (bell && !host.contains(bell)) host.appendChild(bell);
+      }).observe(host, { childList: true });
+    }
     return true;
+  }
+
+  function setBadge(count) {
+    if (!badge) return;
+    if (count > 0) {
+      badge.textContent = count > 99 ? "99+" : String(count);
+      badge.style.display = "inline-block";
+      bell.setAttribute("aria-label", "Notifications, " + count + " unread");
+    } else {
+      badge.style.display = "none";
+      bell.setAttribute("aria-label", "Notifications");
+    }
   }
 
   async function refreshCount() {
@@ -77,8 +103,7 @@
       .select("id", { count: "exact", head: true })
       .eq("recipient_id", me.id).is("read_at", null).is("dismissed_at", null);
     if (error) return;
-    badge.textContent = count > 9 ? "9+" : String(count || "");
-    badge.style.display = count ? "inline-block" : "none";
+    setBadge(count || 0);
   }
 
   async function loadList() {
