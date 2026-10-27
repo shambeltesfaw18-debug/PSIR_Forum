@@ -273,7 +273,7 @@
     "Diplomacy & Foreign Policy": "/images/diplomacy-foreign-policy.jpg",
     "Research & Academia": "/images/research-academia.jpg",
     "Peace & Security": "/images/peace-security.jpg",
-    "Governance & Public Policy": "/images/governance-public-policy.jpg",
+    "Governance & Public Policy": "/images/governance-public-policy.jpg?v=2",
     "African Affairs": "/images/african-affairs.jpg",
     "General Discussion": "/images/general-discussion.jpg",
     "Hub of Idea Discussion Club": "/hub-of-idea-logo.png"

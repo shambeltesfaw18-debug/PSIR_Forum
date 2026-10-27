@@ -17,7 +17,7 @@
     .nav { display:flex; gap:16px; flex-wrap:wrap; font-weight:650; }
     .nav a { color:#45596d; text-decoration:none; }
     .nav a[aria-current="page"] { color:var(--blue); }
-    .hero { background:linear-gradient(125deg,#0b2137,#173e61 75%,#24517a); color:#fff; padding:50px 0; }
+    .hero { background:linear-gradient(120deg, rgba(11,33,55,0.9), rgba(23,62,97,0.8)), url('/images/news-journal.jpg') center / cover no-repeat; color:#fff; padding:50px 0; }
     .wrap { width:min(1100px, calc(100% - 36px)); margin:0 auto; }
     .eyebrow { color:var(--gold); text-transform:uppercase; letter-spacing:1.5px; font-size:.75rem; font-weight:850; margin:0 0 10px; }
     .hero h1 { margin:0 0 10px; font-size:clamp(2rem,4.5vw,3.1rem); line-height:1.12; letter-spacing:-1px; }
@@ -51,6 +51,7 @@
     .pill.journal { background:#e8f1fa; color:#1f5a8f; }
     .pill.status { background:#fff4dc; color:#835c13; }
     .more { margin-top:auto; font-weight:700; }
+    .del { align-self:flex-start; margin-top:6px; border:1px solid #e7c2c7; background:#fff; color:#8c2929; border-radius:999px; padding:6px 12px; font:inherit; font-weight:700; cursor:pointer; }
     .cover { width:100%; aspect-ratio:16/9; border-radius:12px; overflow:hidden; background:#e8eef5; }
     .cover img { width:100%; height:100%; object-fit:cover; display:block; }
     .feature { background:#fff; border:1px solid var(--line); border-left:5px solid var(--gold); border-radius:18px; padding:24px; }
@@ -243,6 +244,7 @@
           <p>${esc(excerpt(kindOf(item) === "news" ? item.body : item.abstract))}</p>
           ${src ? '<div class="meta">Source: <a href="' + esc(src) + '" target="_blank" rel="noopener noreferrer">' + esc(item.source_name || "original report") + "</a></div>" : ""}
           <a class="more" href="/publication.html?id=${esc(item.id)}">Read more →</a>
+          ${isStaff ? '<button type="button" class="del" data-del="' + esc(item.id) + '" data-thumb="' + esc(item.thumb_path || "") + '">Delete</button>' : ""}
         </article>`;
     }
 
@@ -274,7 +276,7 @@
 
     async function loadApproved() {
       const { data, error } = await db.from("publications")
-        .select("id, title, abstract, body, publication_type, section, status, author_id, created_at, decided_at, source_name, source_url")
+        .select("id, title, abstract, body, publication_type, section, status, author_id, created_at, decided_at, source_name, source_url, thumb_path")
         .eq("status", "approved").neq("section", "research")
         .order("decided_at", { ascending: false, nullsFirst: false }).limit(200);
       if (error) throw error;
@@ -533,6 +535,21 @@
     $("nf_draft").addEventListener("click", () => save(false));
     $("nf_submit").addEventListener("click", () => save(true));
     $("nf_cancel").addEventListener("click", () => { $("formPanel").hidden = true; editingId = null; });
+    async function deleteApproved(id, thumb) {
+      if (!isStaff) return;
+      if (!confirm("Delete this published item? It will be removed from News & Journal. This cannot be undone.")) return;
+      const { data, error } = await db.from("publications").delete().eq("id", id).select("id");
+      if (error || !data || !data.length) { say("Could not delete: " + (error ? error.message : "permission denied"), true); return; }
+      if (thumb) await db.storage.from("publications").remove([thumb]);
+      say("Item deleted.");
+      await refresh();
+    }
+    ["news", "journal"].forEach(id => {
+      $(id).addEventListener("click", e => {
+        const b = e.target.closest("button.del");
+        if (b) deleteApproved(b.dataset.del, b.dataset.thumb);
+      });
+    });
     $("search").addEventListener("input", render);
     $("section").addEventListener("change", render);
     $("mine").addEventListener("click", e => { const b = e.target.closest("button[data-mine]"); if (b) mineAction(b.dataset.id, b.dataset.mine); });
