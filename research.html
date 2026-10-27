@@ -288,7 +288,7 @@
             <div class="meta"><a href="/public-profile.html?id=${esc(d.author_id)}" style="color:var(--blue);font-weight:700;">${esc(name)}</a> · ${esc(d.publication_type)} · ${esc(d.research_field || "")} · ${esc(d.language)} · Published on PSIR Forum ${fmt(d.decided_at)}</div>
             <div class="abstract-wrap"><p class="abstract">${esc((d.abstract || "").slice(0, 400))}${(d.abstract || "").length > 400 ? "…" : ""}</p>${(d.abstract || "").length > 400 ? '<details><summary>Read full abstract</summary><p class="abstract">' + esc(d.abstract) + "</p></details>" : ""}</div>
             ${kws.length ? '<div style="margin-top:8px;">' + kws.map(k => '<span class="tag">' + esc(k) + "</span>").join("") + "</div>" : ""}
-            <div class="row-btns">${d.pdf_path ? '<button class="btn btn-line btn-small" data-pdf="' + esc(d.pdf_path) + '">Open PDF</button>' : ""}${isStaff ? '<button class="btn btn-line btn-small" data-del="' + esc(d.id) + '" data-pdf="' + esc(d.pdf_path || "") + '">Delete</button>' : ""}</div>
+            <div class="row-btns"><a class="btn btn-small" href="/publication.html?id=${esc(d.id)}" style="text-decoration:none;">Read, save and comment</a>${d.pdf_path ? '<button class="btn btn-line btn-small" data-pdf="' + esc(d.pdf_path) + '">Open PDF</button>' : ""}${isStaff ? '<button class="btn btn-line btn-small" data-del="' + esc(d.id) + '" data-pdf="' + esc(d.pdf_path || "") + '">Delete</button>' : ""}</div>
           </article>`;
       }).join("");
     }

@@ -121,7 +121,7 @@
           ${pub.references_text ? '<h2 style="margin-top:18px;">References</h2><p class="refs">' + esc(pub.references_text) + "</p>" : ""}
           <div class="actions">
             ${pub.pdf_path ? '<button class="btn" id="openPdf">Read full paper (PDF)</button>' : ""}
-            ${me ? '<button class="btn btn-line" id="saveBtn" aria-pressed="false">Save</button>' : ""}
+            ${me ? '<button class="btn btn-line" id="saveBtn" aria-pressed="false">Save</button>' : '<span class="meta">Log in on the home page to save this paper.</span>'}
             <button class="btn btn-line" id="shareBtn">Share</button>
           </div>
           <p id="flash" role="status" class="meta" style="margin:10px 0 0;"></p>
