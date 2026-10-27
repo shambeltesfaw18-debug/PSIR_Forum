@@ -108,6 +108,7 @@
       const name = author && author.full_name ? author.full_name : "Member";
       const kws = (pub.keywords || "").split(",").map(k => k.trim()).filter(Boolean);
       const approved = pub.status === "approved";
+      const isNews = pub.section === "news";
 
       box.innerHTML = `
         ${approved ? "" : '<div class="notice" style="margin-bottom:14px;">Status: ' + esc(STATUS[pub.status] || pub.status) + ". Only you and moderators can see this until it is approved.</div>"}
@@ -118,9 +119,8 @@
 
         <div class="card">
           <div id="coverBox"></div>
-          <h2>Abstract</h2>
-          <p class="abstract">${esc(pub.abstract || "No abstract was given.")}</p>
-          ${pub.body ? '<h2 style="margin-top:18px;">Full text</h2><div class="full-text">' + PSIRRich.display(pub.body) + "</div>" : ""}
+          ${isNews ? "" : '<h2>Abstract</h2><p class="abstract">' + esc(pub.abstract || "No abstract was given.") + "</p>"}
+          ${pub.body ? '<h2 style="margin-top:18px;">' + (isNews ? "News" : "Full text") + '</h2><div class="full-text">' + PSIRRich.display(pub.body) + "</div>" : ""}
           ${/^https?:\/\//i.test(pub.source_url || "") ? '<p class="meta">Source: <a href="' + esc(pub.source_url) + '" target="_blank" rel="noopener noreferrer">' + esc(pub.source_name || "original report") + "</a></p>" : ""}
           ${pub.references_text ? '<h2 style="margin-top:18px;">References</h2><p class="refs">' + esc(pub.references_text) + "</p>" : ""}
           <div class="actions">

@@ -112,9 +112,9 @@
         <input id="nf_title" maxlength="200" placeholder="At least 5 characters"></div>
       <div class="field"><label for="nf_topic">Topic</label>
         <input id="nf_topic" maxlength="120" placeholder="e.g. Horn of Africa, African Union, diplomacy"></div>
-      <div class="field"><label for="nf_summary">Summary</label>
+      <div class="field" id="summaryField"><label for="nf_summary">Summary</label>
         <textarea id="nf_summary" maxlength="3000" placeholder="At least 50 characters. This is shown on the card."></textarea></div>
-      <div class="field"><label for="nf_body_label">Full text <span id="bodyNeed" class="help"></span></label>
+      <div class="field"><label id="bodyLabel" for="nf_body">Full text <span id="bodyNeed" class="help"></span></label>
         <div id="nf_body" data-rt-mount data-placeholder="Write the full piece. Use bold, lists, quotes, and links where helpful."></div>
       </div>
       <div class="field"><label for="nf_image">Cover image (optional: JPG, PNG or WebP, 5 MB or smaller)</label>
@@ -240,7 +240,7 @@
           <span class="pill ${kindOf(item)}">${kindOf(item) === "news" ? "News" : "Journal"} · ${esc(item.publication_type)}</span>
           <h3><a href="/publication.html?id=${esc(item.id)}">${esc(item.title)}</a></h3>
           <div class="meta">${esc(names.get(item.author_id) || "Member")} · ${esc(fmt(item.decided_at || item.created_at))}</div>
-          <p>${esc(excerpt(item.abstract))}</p>
+          <p>${esc(excerpt(kindOf(item) === "news" ? item.body : item.abstract))}</p>
           ${src ? '<div class="meta">Source: <a href="' + esc(src) + '" target="_blank" rel="noopener noreferrer">' + esc(item.source_name || "original report") + "</a></div>" : ""}
           <a class="more" href="/publication.html?id=${esc(item.id)}">Read more →</a>
         </article>`;
@@ -274,7 +274,7 @@
 
     async function loadApproved() {
       const { data, error } = await db.from("publications")
-        .select("id, title, abstract, publication_type, section, status, author_id, created_at, decided_at, source_name, source_url")
+        .select("id, title, abstract, body, publication_type, section, status, author_id, created_at, decided_at, source_name, source_url")
         .eq("status", "approved").neq("section", "research")
         .order("decided_at", { ascending: false, nullsFirst: false }).limit(200);
       if (error) throw error;
@@ -318,7 +318,9 @@
       const list = kind === "news" ? NEWS_TYPES : JOURNAL_TYPES;
       $("nf_type").innerHTML = list.map(t => "<option>" + esc(t) + "</option>").join("");
       $("newsOnly").hidden = kind !== "news";
-      $("bodyNeed").textContent = kind === "journal" ? "(required, at least 300 characters)" : "(optional)";
+      $("summaryField").hidden = kind === "news";
+      $("bodyLabel").firstChild.textContent = kind === "news" ? "News text " : "Full text ";
+      $("bodyNeed").textContent = kind === "journal" ? "(required, at least 300 characters)" : (kind === "news" ? "(required, at least 50 characters)" : "");
     }
 
     function openForm(pub, kind) {
@@ -351,7 +353,7 @@
         publication_type: $("nf_type").value,
         title: $("nf_title").value.trim(),
         research_field: $("nf_topic").value.trim() || null,
-        abstract: $("nf_summary").value.trim(),
+        abstract: section === "news" ? null : $("nf_summary").value.trim(),
         body: PSIRRich.encode($("nf_body")) || null,
         bodyLength: plain(($("nf_body").querySelector(".rt-area") || {}).innerHTML || "").length,
         source_name: section === "news" ? ($("nf_source_name").value.trim() || null) : null,
@@ -364,7 +366,8 @@
       if (d.title.length < 5 || d.title.length > 200) return "The title must be 5 to 200 characters.";
       if (!forSubmit) return null;
       if (!d.research_field) return "Please enter a topic.";
-      if (d.abstract.length < 50) return "The summary needs at least 50 characters.";
+      if (d.section === "journal" && (d.abstract || "").length < 50) return "The summary needs at least 50 characters.";
+      if (d.section === "news" && d.bodyLength < 50) return "The news text needs at least 50 characters.";
       if (d.section === "journal" && d.bodyLength < 300) return "The full text needs at least 300 characters.";
       if (d.section === "news") {
         if (!d.source_url) return "Please give the source web address for the news item.";
