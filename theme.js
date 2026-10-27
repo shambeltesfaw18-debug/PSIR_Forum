@@ -212,6 +212,19 @@
       #psirThemeChoice { bottom: 16px !important; right: 16px !important; }
     }
 
+    /* Option 3 buttons: rounded rectangles inside forms, lists and comments; pills for main calls to action */
+    html body form button, html body .post-actions button, html body .actions button, html body .reply-form button,
+    html body .modal button:not(.close-modal), html body .row button, html body .card-actions button {
+      border-radius:10px !important;
+    }
+    html body .hero-actions button, html body .hero-actions .btn, html body .hero button { border-radius:999px !important; }
+    html body button.danger, html body .btn-danger {
+      background:#fff !important; color:#8c2929 !important; border:1px solid #e7c2c7 !important; border-radius:10px !important;
+    }
+    html body button.secondary, html body .btn-secondary {
+      background:#fff !important; color:#102b46 !important; border:1px solid #cfd9e4 !important; border-radius:10px !important;
+    }
+
   `;
 
   const style = document.createElement("style");

@@ -67,6 +67,33 @@
     #psirAppearance button:focus-visible { outline:3px solid #e7b451; outline-offset:2px; }
     html[data-theme="dark"] #psirAppearance button { background:#1a2230; color:#e8edf5; border-color:#34445c; }
     html[data-theme="dark"] #psirAppearance button[aria-pressed="true"] { background:#e8edf5; color:#11161f; }
+    /* Button style: pills for main actions, rounded rectangles inside forms and lists */
+    .hero .btn, .top .btn { border-radius:999px !important; }
+    .panel .btn, .card .btn, .pub .btn, .item .btn, .feature .btn, .comment button, form .btn, .row-btns .btn,
+    .actions .btn, #mine .btn, #queue .btn, .reply-form button, .del, .thumb-empty button, .text-action {
+      border-radius:10px !important; padding:8px 14px; font-weight:650; box-shadow:0 1px 2px rgba(16,43,70,.12);
+      transition:background .15s ease, color .15s ease, border-color .15s ease;
+    }
+    .panel .btn-small, .card .btn-small, .pub .btn-small, .item .btn-small, .row-btns .btn-small, .actions .btn-small { padding:6px 12px; font-size:.85rem; }
+    .panel .btn:not(.btn-line):not(.btn-danger):not(.btn-gold):not(.del):hover:not(:disabled),
+    .card .btn:not(.btn-line):not(.btn-danger):not(.btn-gold):hover:not(:disabled),
+    .pub .btn:not(.btn-line):not(.btn-danger):not(.btn-gold):hover:not(:disabled),
+    .item .btn:not(.btn-line):not(.btn-danger):not(.btn-gold):hover:not(:disabled),
+    .row-btns .btn:not(.btn-line):not(.btn-danger):not(.btn-gold):hover:not(:disabled),
+    .actions .btn:not(.btn-line):not(.btn-danger):not(.btn-gold):hover:not(:disabled),
+    form .btn:not(.btn-line):not(.btn-danger):not(.btn-gold):hover:not(:disabled) { background:#0b2137 !important; }
+    .panel .btn-line, .card .btn-line, .pub .btn-line, .item .btn-line, .row-btns .btn-line, .actions .btn-line, form .btn-line,
+    .comment button:not(.danger), .text-action {
+      background:#fff !important; color:#102b46 !important; border:1px solid #cfd9e4 !important;
+    }
+    .panel .btn-line:hover:not(:disabled), .card .btn-line:hover:not(:disabled), .actions .btn-line:hover:not(:disabled),
+    .item .btn-line:hover:not(:disabled), .row-btns .btn-line:hover:not(:disabled), form .btn-line:hover:not(:disabled) { background:#f0f5fa !important; }
+    .btn-danger, .del, .danger, [data-remove], [data-del], [data-review="delete"], [data-mine="delete"], [data-mine="withdraw"] {
+      background:#fff !important; color:#8c2929 !important; border:1px solid #e7c2c7 !important;
+    }
+    .btn-danger:hover:not(:disabled), .del:hover:not(:disabled), [data-remove]:hover:not(:disabled), [data-del]:hover:not(:disabled) { background:#fdecea !important; }
+    .hero .btn, .top .btn { border-radius:999px !important; }
+
   `;
   const style = document.createElement("style");
   style.textContent = CSS;
