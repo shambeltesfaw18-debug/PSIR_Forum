@@ -51,6 +51,8 @@
     .pill.journal { background:#e8f1fa; color:#1f5a8f; }
     .pill.status { background:#fff4dc; color:#835c13; }
     .more { margin-top:auto; font-weight:700; }
+    .cover { width:100%; aspect-ratio:16/9; border-radius:12px; overflow:hidden; background:#e8eef5; }
+    .cover img { width:100%; height:100%; object-fit:cover; display:block; }
     .feature { background:#fff; border:1px solid var(--line); border-left:5px solid var(--gold); border-radius:18px; padding:24px; }
     .feature h3 { font-size:1.4rem; color:var(--navy); margin:6px 0 8px; line-height:1.3; }
     .empty { background:#fff; border:1px dashed #c8d4e0; border-radius:14px; padding:20px; color:var(--muted); }
@@ -115,6 +117,8 @@
       <div class="field"><label for="nf_body_label">Full text <span id="bodyNeed" class="help"></span></label>
         <div id="nf_body" data-rt-mount data-placeholder="Write the full piece. Use bold, lists, quotes, and links where helpful."></div>
       </div>
+      <div class="field"><label for="nf_image">Cover image (optional: JPG, PNG or WebP, 5 MB or smaller)</label>
+        <input type="file" id="nf_image" accept="image/jpeg,image/png,image/webp"></div>
       <div id="newsOnly">
         <div class="field"><label for="nf_source_name">Source name</label>
           <input id="nf_source_name" maxlength="150" placeholder="e.g. the outlet or agency that reported it"></div>
@@ -192,7 +196,7 @@
     const JOURNAL_TYPES = ["Opinion", "Analysis", "Essay"];
     const NEWS_TYPES = ["News Update"];
     const STATUS = { draft:"Draft", submitted:"Submitted", under_review:"Under review", revision_requested:"Revision requested", approved:"Approved", rejected:"Rejected", withdrawn:"Withdrawn" };
-    let me = null, isStaff = false, items = [], names = new Map(), editingId = null, existingPdfNone = true, saving = false;
+    let me = null, isStaff = false, items = [], names = new Map(), editingId = null, editingThumb = null, saving = false;
 
     function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]); }
     function fmt(iso) { return iso ? new Date(iso).toLocaleDateString() : ""; }
@@ -232,6 +236,7 @@
       const src = safeHttp(item.source_url);
       return `
         <article class="card">
+          ${item.thumb_path ? '<div class="cover" data-thumb="' + esc(item.thumb_path) + '"></div>' : ""}
           <span class="pill ${kindOf(item)}">${kindOf(item) === "news" ? "News" : "Journal"} · ${esc(item.publication_type)}</span>
           <h3><a href="/publication.html?id=${esc(item.id)}">${esc(item.title)}</a></h3>
           <div class="meta">${esc(names.get(item.author_id) || "Member")} · ${esc(fmt(item.decided_at || item.created_at))}</div>
@@ -264,6 +269,7 @@
       const journalList = matches.filter(i => kindOf(i) === "journal" && (!journalFeatured || i.id !== journalFeatured.id));
       $("news").innerHTML = pick === "journal" ? "" : (newsList.length ? newsList.map(card).join("") : '<p class="empty">No news items yet.</p>');
       $("journal").innerHTML = pick === "news" ? "" : (journalList.length ? journalList.map(card).join("") : '<p class="empty">No journal articles match your search yet.</p>');
+      hydrateCovers();
     }
 
     async function loadApproved() {
@@ -290,6 +296,23 @@
       }
     }
 
+    async function hydrateCovers() {
+      const nodes = Array.from(document.querySelectorAll(".cover[data-thumb]:not([data-loaded])"));
+      if (!nodes.length) return;
+      nodes.forEach(node => { node.dataset.loaded = "1"; });
+      const { data, error } = await db.storage.from("publications").createSignedUrls(nodes.map(node => node.dataset.thumb), 3600);
+      if (error || !data) { nodes.forEach(node => node.remove()); return; }
+      data.forEach((item, i) => {
+        if (item.error || !item.signedUrl) { nodes[i].remove(); return; }
+        const img = document.createElement("img");
+        img.alt = "Cover image";
+        img.loading = "lazy";
+        img.src = item.signedUrl;
+        img.onerror = () => nodes[i].remove();
+        nodes[i].appendChild(img);
+      });
+    }
+
     // ---------- submission form ----------
     function setTypes(kind) {
       const list = kind === "news" ? NEWS_TYPES : JOURNAL_TYPES;
@@ -312,6 +335,8 @@
       $("nf_source_name").value = pub ? (pub.source_name || "") : "";
       $("nf_source_url").value = pub ? (pub.source_url || "") : "";
       $("nf_declare").checked = pub ? !!pub.declaration_accepted : false;
+      $("nf_image").value = "";
+      editingThumb = pub ? (pub.thumb_path || null) : null;
       PSIRRich.clear($("nf_body"));
       if (pub && pub.body) $("nf_body").querySelector(".rt-area").innerHTML = PSIRRich.sanitize(String(pub.body).replace("<!--rt1-->", ""));
       $("nf_msg").textContent = "";
@@ -357,19 +382,34 @@
       saving = true;
       $("nf_submit").disabled = true; $("nf_draft").disabled = true;
       const { bodyLength, ...row } = d;
-      const payload = { ...row, language: "English", status: asSubmitted ? "submitted" : "draft", pdf_path: null };
-      if (asSubmitted) payload.submitted_at = new Date().toISOString();
+      let newImage = null;
+      const oldImage = editingThumb;
       try {
+        const file = $("nf_image").files[0] || null;
+        let thumbPath = oldImage;
+        if (file) {
+          if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) throw new Error("The image must be JPG, PNG or WebP.");
+          if (file.size > 5 * 1024 * 1024) throw new Error("The image must be 5 MB or smaller.");
+          const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+          thumbPath = me.id + "/images/" + crypto.randomUUID() + "." + ext;
+          const up = await db.storage.from("publications").upload(thumbPath, file, { contentType: file.type, upsert: false });
+          if (up.error) throw new Error("Image upload failed: " + up.error.message);
+          newImage = thumbPath;
+        }
+        const payload = { ...row, language: "English", status: asSubmitted ? "submitted" : "draft", pdf_path: null, thumb_path: thumbPath };
+        if (asSubmitted) payload.submitted_at = new Date().toISOString();
         let result;
         if (editingId) result = await db.from("publications").update(payload).eq("id", editingId).eq("author_id", me.id).select("id");
         else result = await db.from("publications").insert({ ...payload, author_id: me.id }).select("id");
         if (result.error) throw result.error;
         if (!result.data || !result.data.length) throw new Error("The change was not saved. Please log in again and retry.");
+        if (oldImage && newImage && oldImage !== newImage) await db.storage.from("publications").remove([oldImage]);
         $("formPanel").hidden = true;
         editingId = null;
         say(asSubmitted ? "Submitted. A moderator will review it before it appears here." : "Draft saved. Only you can see it until you submit it.");
         await refresh();
       } catch (e) {
+        if (newImage) await db.storage.from("publications").remove([newImage]);
         $("nf_msg").textContent = "Could not save: " + e.message;
         $("nf_msg").style.color = "#8c2929";
       } finally {
@@ -438,8 +478,10 @@
       const note = (document.getElementById("n_" + id) || { value: "" }).value.trim();
       if (act === "delete") {
         if (!confirm("Delete this item? This cannot be undone.")) return;
+        const { data: gone } = await db.from("publications").select("thumb_path").eq("id", id).maybeSingle();
         const { data, error } = await db.from("publications").delete().eq("id", id).select("id");
         if (error || !data || !data.length) { say("Could not delete: " + (error ? error.message : "permission denied"), true); return; }
+        if (gone && gone.thumb_path) await db.storage.from("publications").remove([gone.thumb_path]);
         say("Item deleted.");
         await refresh();
         return;
@@ -472,8 +514,10 @@
       }
       if (act === "delete") {
         if (!confirm("Delete this draft? This cannot be undone.")) return;
+        const { data: gone } = await db.from("publications").select("thumb_path").eq("id", id).eq("author_id", me.id).maybeSingle();
         const { data, error } = await db.from("publications").delete().eq("id", id).eq("author_id", me.id).select("id");
         if (error || !data || !data.length) { say("Could not delete: " + (error ? error.message : "permission denied"), true); return; }
+        if (gone && gone.thumb_path) await db.storage.from("publications").remove([gone.thumb_path]);
         say("Draft deleted.");
       }
       await refresh();

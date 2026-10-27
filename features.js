@@ -137,17 +137,17 @@
 
       const { data: signed, error } = await db.storage.from(BUCKET).createSignedUrl(att.storage_path, 3600);
       if (error || !signed) {
-        wrap.appendChild(el("p", "muted small", "Could not open " + att.file_name));
+        wrap.appendChild(el("p", "muted small", "Could not open this file"));
       } else {
         if (att.mime_type !== "application/pdf") {
           const img = el("img");
           img.src = signed.signedUrl;
-          img.alt = att.file_name;
+          img.alt = "Attached photo";
           img.loading = "lazy";
           img.style.cssText = "max-width:100%;border-radius:8px;display:block;margin-bottom:6px;";
           wrap.appendChild(img);
         }
-        const link = el("a", "", (att.mime_type === "application/pdf" ? "Open PDF: " : "Open photo: ") + att.file_name);
+        const link = el("a", "", (att.mime_type === "application/pdf" ? "Open PDF" : "Open photo"));
         link.href = signed.signedUrl;
         link.target = "_blank";
         link.rel = "noopener noreferrer";
