@@ -17,20 +17,29 @@
     .nav { display:flex; gap:16px; flex-wrap:wrap; font-weight:650; }
     .nav a { color:#45596d; text-decoration:none; }
     .nav a[aria-current="page"] { color:var(--blue); }
-    .hero { background:linear-gradient(125deg,#0b2137,#173e61 75%,#24517a); color:#fff; padding:52px 0; }
+    .hero { background:linear-gradient(125deg,#0b2137,#173e61 75%,#24517a); color:#fff; padding:50px 0; }
     .wrap { width:min(1100px, calc(100% - 36px)); margin:0 auto; }
     .eyebrow { color:var(--gold); text-transform:uppercase; letter-spacing:1.5px; font-size:.75rem; font-weight:850; margin:0 0 10px; }
-    .hero h1 { margin:0 0 10px; font-size:clamp(2rem,4.5vw,3.2rem); line-height:1.12; letter-spacing:-1px; }
-    .hero p { color:#d6e2ee; max-width:700px; margin:0; font-size:1.02rem; }
-    .defs { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-top:22px; }
-    .def { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16); border-radius:14px; padding:14px; font-size:.9rem; color:#dfe8f2; }
-    .def strong { display:block; color:#fff; margin-bottom:4px; }
-    .section { padding:34px 0 10px; }
-    h2 { color:var(--navy); margin:0 0 6px; font-size:1.5rem; letter-spacing:-.3px; }
-    .lead { color:var(--muted); margin:0 0 16px; }
-    .toolbar { display:flex; gap:10px; flex-wrap:wrap; margin:18px 0 6px; }
-    .toolbar input, .toolbar select { border:1px solid #cfd9e4; border-radius:10px; padding:11px 12px; font:inherit; background:#fff; color:var(--text); }
+    .hero h1 { margin:0 0 10px; font-size:clamp(2rem,4.5vw,3.1rem); line-height:1.12; letter-spacing:-1px; }
+    .hero p { color:#d6e2ee; max-width:700px; margin:0; }
+    .btn { display:inline-block; border:none; cursor:pointer; background:#102b46; color:#fff; border-radius:999px; padding:11px 18px; font:inherit; font-weight:700; text-decoration:none; }
+    .btn-line { background:#fff; color:var(--navy); border:1px solid var(--line); }
+    .btn-gold { background:var(--gold); color:#182b3c; }
+    .btn:disabled { opacity:.55; cursor:default; }
+    .btn-small { padding:7px 12px; font-size:.85rem; }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+    .section { padding:30px 0 6px; }
+    h2 { color:var(--navy); margin:0 0 6px; font-size:1.45rem; letter-spacing:-.3px; }
+    .lead { color:var(--muted); margin:0 0 14px; }
+    .toolbar { display:flex; gap:10px; flex-wrap:wrap; margin:16px 0 6px; }
+    .toolbar input, .toolbar select, .field input, .field select, .field textarea { border:1px solid #cfd9e4; border-radius:10px; padding:11px 12px; font:inherit; background:#fff; color:var(--text); }
     .toolbar input { flex:1; min-width:220px; }
+    .field { margin-bottom:14px; }
+    .field label { display:block; font-weight:700; color:var(--navy); font-size:.9rem; margin-bottom:6px; }
+    .field input, .field select, .field textarea { width:100%; }
+    .field textarea { min-height:110px; resize:vertical; }
+    .help { color:var(--muted); font-size:.8rem; margin-top:4px; }
+    .panel { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px; margin-top:14px; }
     .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:14px; }
     .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px; display:flex; flex-direction:column; gap:6px; }
     .card h3 { margin:4px 0 2px; color:var(--navy); font-size:1.08rem; line-height:1.35; overflow-wrap:anywhere; }
@@ -40,16 +49,21 @@
     .pill { display:inline-block; font-size:.72rem; font-weight:800; padding:3px 9px; border-radius:6px; background:#edf3f9; color:#315b83; width:fit-content; }
     .pill.news { background:#fdecea; color:#a3172b; }
     .pill.journal { background:#e8f1fa; color:#1f5a8f; }
+    .pill.status { background:#fff4dc; color:#835c13; }
     .more { margin-top:auto; font-weight:700; }
-    .feature { background:#fff; border:1px solid var(--line); border-left:5px solid var(--gold); border-radius:18px; padding:24px; margin-top:8px; }
+    .feature { background:#fff; border:1px solid var(--line); border-left:5px solid var(--gold); border-radius:18px; padding:24px; }
     .feature h3 { font-size:1.4rem; color:var(--navy); margin:6px 0 8px; line-height:1.3; }
     .empty { background:#fff; border:1px dashed #c8d4e0; border-radius:14px; padding:20px; color:var(--muted); }
-    .note { background:#fff8e1; border:1px solid #f0e2a6; color:#6b5300; border-radius:12px; padding:12px 14px; font-size:.9rem; margin:18px 0 0; }
+    .note { background:#fff8e1; border:1px solid #f0e2a6; color:#6b5300; border-radius:12px; padding:12px 14px; font-size:.9rem; margin:14px 0 0; }
     .error { background:#fdecea; border-color:#f4c7c3; color:#8c2929; }
+    .msg { font-weight:600; margin-top:10px; min-height:20px; }
+    .item { border-top:1px solid #edf1f5; padding:14px 0; }
+    .item:first-child { border-top:none; padding-top:0; }
+    .item .body { white-space:pre-wrap; overflow-wrap:anywhere; color:#3c4f61; }
     footer { background:#0a2035; color:#b8c7d4; padding:24px 0; font-size:.85rem; margin-top:34px; }
     footer a { color:#b8c7d4; }
     :focus-visible { outline:3px solid var(--gold); outline-offset:2px; }
-    @media (max-width:640px) { .nav { gap:12px; font-size:.86rem; } .hero { padding:38px 0; } }
+    @media (max-width:640px) { .nav { gap:12px; font-size:.86rem; } .hero { padding:36px 0; } }
   </style>
 </head>
 <body>
@@ -71,34 +85,70 @@
       <p class="eyebrow">News &amp; Journal</p>
       <h1>Current events, analysis, and essays</h1>
       <p>Timely updates and commentary on politics, international relations, diplomacy, governance, and Ethiopian and African affairs.</p>
-      <div class="defs">
-        <div class="def"><strong>News</strong>Short, timely updates. Each item links to its original source.</div>
-        <div class="def"><strong>Journal</strong>Opinion pieces, analysis, and essays written by members.</div>
-        <div class="def"><strong>Research Hub</strong>Academic papers and theses. Found in the <a href="/research.html" style="color:#fff;">Research Hub</a>.</div>
+      <div class="actions">
+        <button class="btn btn-gold" type="button" id="writeJournal">Write for the Journal</button>
+        <button class="btn btn-line" type="button" id="submitNews">Submit a news item</button>
       </div>
+      <p class="meta" style="color:#c8d8e7;margin-top:12px;">News and Journal are separate from the <a href="/research.html" style="color:#fff;">Research Hub</a>, which is for research papers and theses.</p>
     </div>
   </section>
 
   <main class="wrap">
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;">
-      <a href="/research.html?submit=journal" style="background:#102b46;color:#fff;border-radius:999px;padding:11px 18px;font-weight:700;text-decoration:none;">Write for the Journal</a>
-      <a href="/research.html?submit=news" style="background:#fff;color:#102b46;border:1px solid #dfe7ef;border-radius:999px;padding:11px 18px;font-weight:700;text-decoration:none;">Submit a news item</a>
-    </div>
-    <p class="note" style="margin-top:10px;">You need to be logged in to submit. Submissions are reviewed by moderators before they appear here.</p>
-    <div class="toolbar" role="search">
-      <input id="search" type="search" placeholder="Search news and journal items" aria-label="Search news and journal items">
-      <select id="section" aria-label="Show">
-        <option value="all">All items</option>
-        <option value="news">News only</option>
-        <option value="journal">Journal only</option>
-      </select>
-    </div>
-    <p class="note">Items are submitted by members and checked by moderators before they appear. They are not verified news reports, so check the original source for news.</p>
+    <div id="globalMsg" class="note" hidden></div>
 
-    <section class="section" id="featuredSection">
+    <div id="formPanel" class="panel" hidden>
+      <h2 id="formTitle">Write for the Journal</h2>
+      <p class="lead">Drafts stay private. Submitted items are reviewed by a moderator before they appear here.</p>
+      <div class="field"><label for="nf_section">What are you submitting?</label>
+        <select id="nf_section">
+          <option value="journal">Journal: an opinion piece, analysis, or essay</option>
+          <option value="news">News: a timely update with its source</option>
+        </select></div>
+      <div class="field"><label for="nf_type">Type</label>
+        <select id="nf_type"></select></div>
+      <div class="field"><label for="nf_title">Title</label>
+        <input id="nf_title" maxlength="200" placeholder="At least 5 characters"></div>
+      <div class="field"><label for="nf_topic">Topic</label>
+        <input id="nf_topic" maxlength="120" placeholder="e.g. Horn of Africa, African Union, diplomacy"></div>
+      <div class="field"><label for="nf_summary">Summary</label>
+        <textarea id="nf_summary" maxlength="3000" placeholder="At least 50 characters. This is shown on the card."></textarea></div>
+      <div class="field"><label for="nf_body_label">Full text <span id="bodyNeed" class="help"></span></label>
+        <div id="nf_body" data-rt-mount data-placeholder="Write the full piece. Use bold, lists, quotes, and links where helpful."></div>
+      </div>
+      <div id="newsOnly">
+        <div class="field"><label for="nf_source_name">Source name</label>
+          <input id="nf_source_name" maxlength="150" placeholder="e.g. the outlet or agency that reported it"></div>
+        <div class="field"><label for="nf_source_url">Source web address</label>
+          <input id="nf_source_url" maxlength="500" placeholder="https://..."></div>
+      </div>
+      <label style="display:flex;gap:10px;align-items:flex-start;font-weight:600;">
+        <input type="checkbox" id="nf_declare" style="margin-top:4px;">
+        <span>I confirm this is my own work or I have permission to publish it, I have credited my sources, and I understand it is moderated and is not formal peer review.</span>
+      </label>
+      <div class="actions">
+        <button class="btn btn-line btn-small" type="button" id="nf_draft">Save draft</button>
+        <button class="btn btn-small" type="button" id="nf_submit">Submit for review</button>
+        <button class="btn btn-line btn-small" type="button" id="nf_cancel">Cancel</button>
+      </div>
+      <p id="nf_msg" class="msg" role="status"></p>
+    </div>
+
+    <section class="section">
       <h2>Featured article</h2>
       <p class="lead">The most recent approved journal article.</p>
       <div id="featured"><p class="empty">Loading…</p></div>
+    </section>
+
+    <section class="section">
+      <div class="toolbar" role="search">
+        <input id="search" type="search" placeholder="Search news and journal items" aria-label="Search news and journal items">
+        <select id="section" aria-label="Show">
+          <option value="all">All items</option>
+          <option value="news">News only</option>
+          <option value="journal">Journal only</option>
+        </select>
+      </div>
+      <p class="note">Items are submitted by members and checked by moderators before they appear. They are not verified news reports, so check the original source for news.</p>
     </section>
 
     <section class="section">
@@ -112,12 +162,25 @@
       <p class="lead">Opinion, analysis, and essays from the community.</p>
       <div id="journal" class="grid"><p class="empty">Loading…</p></div>
     </section>
+
+    <section class="section" id="mineSection" hidden>
+      <h2>My news and journal submissions</h2>
+      <p class="lead">Your drafts and submissions, with status and any feedback from moderators.</p>
+      <div id="mine" class="panel"></div>
+    </section>
+
+    <section class="section" id="queueSection" hidden>
+      <h2>Moderator review queue: news and journal</h2>
+      <p class="lead">Visible to moderators only. Each decision is recorded with your name and the time.</p>
+      <div id="queue" class="panel"></div>
+    </section>
   </main>
 
   <footer>
     <div class="wrap"><a href="/">PSIR Forum</a> · <a href="/info.html?page=guidelines">Community Guidelines</a> · <a href="/info.html?page=contact">Contact</a></div>
   </footer>
 
+  <script src="richtext.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
   (() => {
@@ -126,22 +189,50 @@
     const SUPABASE_KEY = "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5";
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const $ = id => document.getElementById(id);
-    let items = [], names = new Map();
+    const JOURNAL_TYPES = ["Opinion", "Analysis", "Essay"];
+    const NEWS_TYPES = ["News Update"];
+    const STATUS = { draft:"Draft", submitted:"Submitted", under_review:"Under review", revision_requested:"Revision requested", approved:"Approved", rejected:"Rejected", withdrawn:"Withdrawn" };
+    let me = null, isStaff = false, items = [], names = new Map(), editingId = null, existingPdfNone = true, saving = false;
 
     function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]); }
     function fmt(iso) { return iso ? new Date(iso).toLocaleDateString() : ""; }
-    function excerpt(text) {
-      const plain = String(text || "").replace(/\s+/g, " ").trim();
-      return plain.length > 220 ? plain.slice(0, 220) + "…" : plain;
-    }
+    function plain(text) { return String(text || "").replace(/<!--[\s\S]*?-->/g, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(); }
+    function excerpt(text) { const p = plain(text); return p.length > 220 ? p.slice(0, 220) + "…" : p; }
     function safeHttp(url) { return /^https?:\/\//i.test(url || "") ? url : null; }
+    function say(text, bad) {
+      const b = $("globalMsg");
+      b.textContent = text;
+      b.className = "note" + (bad ? " error" : "");
+      b.hidden = false;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    async function loadUser() {
+      const { data } = await db.auth.getSession();
+      me = data.session ? data.session.user : null;
+      isStaff = false;
+      if (me) {
+        const { data: p } = await db.from("profiles").select("role").eq("id", me.id).maybeSingle();
+        isStaff = !!p && ["admin", "moderator"].includes(p.role);
+      }
+      $("queueSection").hidden = !isStaff;
+      $("mineSection").hidden = !me;
+    }
+
+    async function namesFor(ids) {
+      const unique = [...new Set(ids.filter(Boolean))];
+      if (!unique.length) return new Map();
+      const { data } = await db.from("profiles").select("id, full_name").in("id", unique);
+      return new Map((data || []).map(p => [p.id, p.full_name]));
+    }
+
+    function kindOf(item) { return item.section === "news" ? "news" : "journal"; }
 
     function card(item) {
-      const kind = item.section === "news" ? "news" : "journal";
       const src = safeHttp(item.source_url);
       return `
         <article class="card">
-          <span class="pill ${kind}">${kind === "news" ? "News" : "Journal"} · ${esc(item.publication_type)}</span>
+          <span class="pill ${kindOf(item)}">${kindOf(item) === "news" ? "News" : "Journal"} · ${esc(item.publication_type)}</span>
           <h3><a href="/publication.html?id=${esc(item.id)}">${esc(item.title)}</a></h3>
           <div class="meta">${esc(names.get(item.author_id) || "Member")} · ${esc(fmt(item.decided_at || item.created_at))}</div>
           <p>${esc(excerpt(item.abstract))}</p>
@@ -150,67 +241,259 @@
         </article>`;
     }
 
-    function visible(list) {
+    function render() {
       const q = $("search").value.trim().toLowerCase();
       const pick = $("section").value;
-      return list.filter(i => {
-        if (pick !== "all" && i.section !== pick) return false;
+      const approved = items.filter(i => i.status === "approved");
+      const matches = approved.filter(i => {
+        if (pick !== "all" && kindOf(i) !== pick) return false;
         if (!q) return true;
         return [i.title, i.abstract, i.publication_type, names.get(i.author_id) || "", i.source_name || ""].join(" ").toLowerCase().includes(q);
       });
+      const journalFeatured = approved.find(i => kindOf(i) === "journal");
+
+      $("featured").innerHTML = journalFeatured
+        ? `<div class="feature"><span class="pill journal">Journal · ${esc(journalFeatured.publication_type)}</span>
+             <h3><a href="/publication.html?id=${esc(journalFeatured.id)}" style="color:inherit;text-decoration:none;">${esc(journalFeatured.title)}</a></h3>
+             <div class="meta">${esc(names.get(journalFeatured.author_id) || "Member")} · ${esc(fmt(journalFeatured.decided_at || journalFeatured.created_at))}</div>
+             <p style="margin-top:10px;color:#3c4f61;">${esc(excerpt(journalFeatured.abstract))}</p>
+             <a class="more" href="/publication.html?id=${esc(journalFeatured.id)}">Read the article →</a></div>`
+        : '<p class="empty">No approved journal article yet.</p>';
+
+      const newsList = matches.filter(i => kindOf(i) === "news");
+      const journalList = matches.filter(i => kindOf(i) === "journal" && (!journalFeatured || i.id !== journalFeatured.id));
+      $("news").innerHTML = pick === "journal" ? "" : (newsList.length ? newsList.map(card).join("") : '<p class="empty">No news items yet.</p>');
+      $("journal").innerHTML = pick === "news" ? "" : (journalList.length ? journalList.map(card).join("") : '<p class="empty">No journal articles match your search yet.</p>');
     }
 
-    function render() {
-      const list = visible(items);
-      const journalFeatured = items.find(i => i.section === "journal");
-      const newsList = list.filter(i => i.section === "news");
-      const journalList = list.filter(i => i.section === "journal" && (!journalFeatured || i.id !== journalFeatured.id));
-
-      $("featuredSection").hidden = !journalFeatured || $("section").value === "news";
-      if (journalFeatured && $("section").value !== "news") {
-        $("featured").innerHTML = `
-          <div class="feature">
-            <span class="pill journal">Journal · ${esc(journalFeatured.publication_type)}</span>
-            <h3><a href="/publication.html?id=${esc(journalFeatured.id)}" style="color:inherit;text-decoration:none;">${esc(journalFeatured.title)}</a></h3>
-            <div class="meta">${esc(names.get(journalFeatured.author_id) || "Member")} · ${esc(fmt(journalFeatured.decided_at || journalFeatured.created_at))}</div>
-            <p style="margin-top:10px;color:#3c4f61;">${esc(excerpt(journalFeatured.abstract))}</p>
-            <a class="more" href="/publication.html?id=${esc(journalFeatured.id)}">Read the article →</a>
-          </div>`;
-      }
-
-      $("news").innerHTML = $("section").value === "journal" ? ""
-        : (newsList.length ? newsList.map(card).join("")
-          : '<p class="empty">No news items yet. Approved news will appear here.</p>');
-      $("journal").innerHTML = $("section").value === "news" ? ""
-        : (journalList.length ? journalList.map(card).join("")
-          : '<p class="empty">No journal articles match your search yet.</p>');
+    async function loadApproved() {
+      const { data, error } = await db.from("publications")
+        .select("id, title, abstract, publication_type, section, status, author_id, created_at, decided_at, source_name, source_url")
+        .eq("status", "approved").neq("section", "research")
+        .order("decided_at", { ascending: false, nullsFirst: false }).limit(200);
+      if (error) throw error;
+      return data || [];
     }
 
-    async function load() {
+    async function refresh() {
       try {
-        const { data, error } = await db.from("publications")
-          .select("id, title, abstract, publication_type, section, author_id, created_at, decided_at, source_name, source_url")
-          .eq("status", "approved").neq("section", "research")
-          .order("decided_at", { ascending: false, nullsFirst: false }).limit(200);
-        if (error) throw error;
-        items = data || [];
-        const ids = [...new Set(items.map(i => i.author_id))];
-        if (ids.length) {
-          const { data: people } = await db.from("profiles").select("id, full_name").in("id", ids);
-          names = new Map((people || []).map(p => [p.id, p.full_name]));
-        }
+        await loadUser();
+        const approved = await loadApproved();
+        items = approved;
+        names = await namesFor(approved.map(i => i.author_id));
         render();
+        if (me) await Promise.all([loadMine(), loadQueue()]);
       } catch (err) {
         console.error("News & Journal:", err);
-        const msg = '<div class="empty error">Could not load News &amp; Journal. Please refresh the page.</div>';
-        $("news").innerHTML = msg;
+        $("news").innerHTML = '<div class="empty error">Could not load News &amp; Journal. Please refresh the page.</div>';
         $("journal").innerHTML = "";
       }
     }
 
+    // ---------- submission form ----------
+    function setTypes(kind) {
+      const list = kind === "news" ? NEWS_TYPES : JOURNAL_TYPES;
+      $("nf_type").innerHTML = list.map(t => "<option>" + esc(t) + "</option>").join("");
+      $("newsOnly").hidden = kind !== "news";
+      $("bodyNeed").textContent = kind === "journal" ? "(required, at least 300 characters)" : "(optional)";
+    }
+
+    function openForm(pub, kind) {
+      if (!me) { say("Please log in on the home page before submitting.", true); return; }
+      editingId = pub ? pub.id : null;
+      const section = pub ? (pub.section === "news" ? "news" : "journal") : (kind || "journal");
+      $("formTitle").textContent = pub ? "Edit your submission" : (section === "news" ? "Submit a news item" : "Write for the Journal");
+      $("nf_section").value = section;
+      setTypes(section);
+      if (pub) $("nf_type").value = pub.publication_type;
+      $("nf_title").value = pub ? pub.title : "";
+      $("nf_topic").value = pub ? (pub.research_field || "") : "";
+      $("nf_summary").value = pub ? (pub.abstract || "") : "";
+      $("nf_source_name").value = pub ? (pub.source_name || "") : "";
+      $("nf_source_url").value = pub ? (pub.source_url || "") : "";
+      $("nf_declare").checked = pub ? !!pub.declaration_accepted : false;
+      PSIRRich.clear($("nf_body"));
+      if (pub && pub.body) $("nf_body").querySelector(".rt-area").innerHTML = PSIRRich.sanitize(String(pub.body).replace("<!--rt1-->", ""));
+      $("nf_msg").textContent = "";
+      $("formPanel").hidden = false;
+      $("formPanel").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function readForm() {
+      const section = $("nf_section").value;
+      return {
+        section,
+        publication_type: $("nf_type").value,
+        title: $("nf_title").value.trim(),
+        research_field: $("nf_topic").value.trim() || null,
+        abstract: $("nf_summary").value.trim(),
+        body: PSIRRich.encode($("nf_body")) || null,
+        bodyLength: plain(($("nf_body").querySelector(".rt-area") || {}).innerHTML || "").length,
+        source_name: section === "news" ? ($("nf_source_name").value.trim() || null) : null,
+        source_url: section === "news" ? ($("nf_source_url").value.trim() || null) : null,
+        declaration_accepted: $("nf_declare").checked
+      };
+    }
+
+    function validate(d, forSubmit) {
+      if (d.title.length < 5 || d.title.length > 200) return "The title must be 5 to 200 characters.";
+      if (!forSubmit) return null;
+      if (!d.research_field) return "Please enter a topic.";
+      if (d.abstract.length < 50) return "The summary needs at least 50 characters.";
+      if (d.section === "journal" && d.bodyLength < 300) return "The full text needs at least 300 characters.";
+      if (d.section === "news") {
+        if (!d.source_url) return "Please give the source web address for the news item.";
+        if (!safeHttp(d.source_url)) return "The source address must start with http:// or https://";
+      }
+      if (!d.declaration_accepted) return "Please tick the declaration before submitting.";
+      return null;
+    }
+
+    async function save(asSubmitted) {
+      if (saving) return;
+      const d = readForm();
+      const err = validate(d, asSubmitted);
+      if (err) { $("nf_msg").textContent = err; $("nf_msg").style.color = "#8c2929"; return; }
+      saving = true;
+      $("nf_submit").disabled = true; $("nf_draft").disabled = true;
+      const { bodyLength, ...row } = d;
+      const payload = { ...row, language: "English", status: asSubmitted ? "submitted" : "draft", pdf_path: null };
+      if (asSubmitted) payload.submitted_at = new Date().toISOString();
+      try {
+        let result;
+        if (editingId) result = await db.from("publications").update(payload).eq("id", editingId).eq("author_id", me.id).select("id");
+        else result = await db.from("publications").insert({ ...payload, author_id: me.id }).select("id");
+        if (result.error) throw result.error;
+        if (!result.data || !result.data.length) throw new Error("The change was not saved. Please log in again and retry.");
+        $("formPanel").hidden = true;
+        editingId = null;
+        say(asSubmitted ? "Submitted. A moderator will review it before it appears here." : "Draft saved. Only you can see it until you submit it.");
+        await refresh();
+      } catch (e) {
+        $("nf_msg").textContent = "Could not save: " + e.message;
+        $("nf_msg").style.color = "#8c2929";
+      } finally {
+        saving = false;
+        $("nf_submit").disabled = false; $("nf_draft").disabled = false;
+      }
+    }
+
+    // ---------- my submissions ----------
+    async function loadMine() {
+      const box = $("mine");
+      const { data, error } = await db.from("publications").select("*")
+        .eq("author_id", me.id).neq("section", "research").order("updated_at", { ascending: false });
+      if (error) { box.innerHTML = '<div class="empty error">Could not load your submissions: ' + esc(error.message) + "</div>"; return; }
+      if (!data.length) { box.innerHTML = '<p class="empty" style="border:none;padding:0;">You have no news or journal submissions yet.</p>'; return; }
+      box.innerHTML = data.map(p => {
+        const canEdit = p.status === "draft" || p.status === "revision_requested";
+        const canWithdraw = p.status === "submitted" || p.status === "under_review";
+        return `
+          <div class="item">
+            <strong>${esc(p.title)}</strong>
+            <div class="meta"><span class="pill status">${esc(STATUS[p.status] || p.status)}</span> · ${esc(kindOf(p) === "news" ? "News" : "Journal")} · Updated ${esc(fmt(p.updated_at))}</div>
+            ${p.reviewer_notes ? '<div class="body"><strong>Moderator feedback:</strong> ' + esc(p.reviewer_notes) + "</div>" : ""}
+            <div class="actions">
+              ${canEdit ? '<button class="btn btn-line btn-small" data-mine="edit" data-id="' + esc(p.id) + '">Edit</button>' : ""}
+              ${canWithdraw ? '<button class="btn btn-line btn-small" data-mine="withdraw" data-id="' + esc(p.id) + '">Withdraw</button>' : ""}
+              ${p.status === "draft" ? '<button class="btn btn-line btn-small" data-mine="delete" data-id="' + esc(p.id) + '">Delete draft</button>' : ""}
+            </div>
+          </div>`;
+      }).join("");
+      box.dataset.rows = JSON.stringify(data.map(p => p.id));
+      window._mine = new Map(data.map(p => [p.id, p]));
+    }
+
+    // ---------- moderator queue ----------
+    async function loadQueue() {
+      if (!isStaff) return;
+      const box = $("queue");
+      const { data, error } = await db.from("publications").select("*")
+        .neq("section", "research").in("status", ["submitted", "under_review"]).order("submitted_at", { ascending: true });
+      if (error) { box.innerHTML = '<div class="empty error">Could not load the queue: ' + esc(error.message) + "</div>"; return; }
+      if (!data.length) { box.innerHTML = '<p class="empty" style="border:none;padding:0;">Nothing is waiting for review.</p>'; return; }
+      const who = await namesFor(data.map(p => p.author_id));
+      box.innerHTML = data.map(p => `
+        <div class="item">
+          <span class="pill ${kindOf(p)}">${kindOf(p) === "news" ? "News" : "Journal"} · ${esc(p.publication_type)}</span>
+          <strong style="display:block;margin-top:6px;">${esc(p.title)}</strong>
+          <div class="meta">${esc(who.get(p.author_id) || "Member")} · Submitted ${esc(fmt(p.submitted_at))} · <span class="pill status">${esc(STATUS[p.status] || p.status)}</span></div>
+          <p style="margin:8px 0;color:#3c4f61;">${esc(p.abstract || "")}</p>
+          ${p.source_url ? '<div class="meta">Source: <a href="' + esc(safeHttp(p.source_url) || "#") + '" target="_blank" rel="noopener noreferrer">' + esc(p.source_name || "original report") + "</a></div>" : ""}
+          <details style="margin-top:8px;"><summary>Read the full text</summary>
+            <div style="margin-top:8px;">${p.body ? PSIRRich.display(p.body) : "<p>(no full text)</p>"}</div></details>
+          <div class="field" style="margin-top:10px;"><label for="n_${esc(p.id)}">Feedback for the author (required for revision or rejection)</label>
+            <textarea id="n_${esc(p.id)}" maxlength="2000"></textarea></div>
+          <div class="actions">
+            ${p.status === "submitted" ? '<button class="btn btn-line btn-small" data-review="start" data-id="' + esc(p.id) + '">Start review</button>' : ""}
+            <button class="btn btn-small" data-review="approve" data-id="${esc(p.id)}">Approve</button>
+            <button class="btn btn-line btn-small" data-review="revision" data-id="${esc(p.id)}">Request revision</button>
+            <button class="btn btn-line btn-small" data-review="reject" data-id="${esc(p.id)}">Reject</button>
+            <button class="btn btn-line btn-small" data-review="delete" data-id="${esc(p.id)}">Delete</button>
+          </div>
+        </div>`).join("");
+    }
+
+    async function reviewAction(id, act) {
+      const note = (document.getElementById("n_" + id) || { value: "" }).value.trim();
+      if (act === "delete") {
+        if (!confirm("Delete this item? This cannot be undone.")) return;
+        const { data, error } = await db.from("publications").delete().eq("id", id).select("id");
+        if (error || !data || !data.length) { say("Could not delete: " + (error ? error.message : "permission denied"), true); return; }
+        say("Item deleted.");
+        await refresh();
+        return;
+      }
+      const changes = { reviewer_id: me.id };
+      if (act === "start") changes.status = "under_review";
+      if (act === "approve") { changes.status = "approved"; changes.decided_at = new Date().toISOString(); if (note) changes.reviewer_notes = note; }
+      if (act === "revision") {
+        if (note.length < 5) { say("Please write feedback before requesting a revision.", true); return; }
+        changes.status = "revision_requested"; changes.reviewer_notes = note;
+      }
+      if (act === "reject") {
+        if (note.length < 5) { say("Please give a reason before rejecting.", true); return; }
+        changes.status = "rejected"; changes.reviewer_notes = note; changes.decided_at = new Date().toISOString();
+      }
+      const { data, error } = await db.from("publications").update(changes).eq("id", id).select("id");
+      if (error || !data || !data.length) { say("Could not update: " + (error ? error.message : "permission denied"), true); return; }
+      say("Decision saved.");
+      await refresh();
+    }
+
+    async function mineAction(id, act) {
+      const pub = window._mine && window._mine.get(id);
+      if (act === "edit") { if (pub) openForm(pub); return; }
+      if (act === "withdraw") {
+        if (!confirm("Withdraw this item? It will leave the review queue.")) return;
+        const { data, error } = await db.from("publications").update({ status: "withdrawn" }).eq("id", id).eq("author_id", me.id).select("id");
+        if (error || !data || !data.length) { say("Could not withdraw: " + (error ? error.message : "permission denied"), true); return; }
+        say("Withdrawn.");
+      }
+      if (act === "delete") {
+        if (!confirm("Delete this draft? This cannot be undone.")) return;
+        const { data, error } = await db.from("publications").delete().eq("id", id).eq("author_id", me.id).select("id");
+        if (error || !data || !data.length) { say("Could not delete: " + (error ? error.message : "permission denied"), true); return; }
+        say("Draft deleted.");
+      }
+      await refresh();
+    }
+
+    // ---------- wiring ----------
+    $("writeJournal").addEventListener("click", () => openForm(null, "journal"));
+    $("submitNews").addEventListener("click", () => openForm(null, "news"));
+    $("nf_section").addEventListener("change", () => setTypes($("nf_section").value));
+    $("nf_draft").addEventListener("click", () => save(false));
+    $("nf_submit").addEventListener("click", () => save(true));
+    $("nf_cancel").addEventListener("click", () => { $("formPanel").hidden = true; editingId = null; });
     $("search").addEventListener("input", render);
     $("section").addEventListener("change", render);
-    load();
+    $("mine").addEventListener("click", e => { const b = e.target.closest("button[data-mine]"); if (b) mineAction(b.dataset.id, b.dataset.mine); });
+    $("queue").addEventListener("click", e => { const b = e.target.closest("button[data-review]"); if (b) reviewAction(b.dataset.id, b.dataset.review); });
+
+    setTypes("journal");
+    db.auth.onAuthStateChange(() => setTimeout(refresh, 0));
+    refresh();
   })();
   </script>
 </body>
