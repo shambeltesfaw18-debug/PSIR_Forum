@@ -5,9 +5,9 @@
   const SUPABASE_KEY = "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5";
   const KMEET = "https://kmeet.infomaniak.com/PSIR-";
 
-  const SECTIONS = ["home", "categories", "discussions", "about", "cta"];
+  const SECTIONS = ["home", "categories", "discussions", "about", "cta", "ideas"];
   const VIEWS = {
-    home: ["home", "about", "cta"],
+    home: ["home", "ideas", "about", "cta"],
     categories: ["categories"],
     forum: ["discussions"],
     category: ["discussions"]
