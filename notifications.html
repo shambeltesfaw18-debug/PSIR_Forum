@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#102b46">
+  <title>Notifications | PSIR Forum</title>
+  <style>
+    :root { --navy:#102b46; --blue:#2864a0; --gold:#e7b451; --bg:#f3f6fa; --line:#dfe7ef; --muted:#5b6b7b; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; color:#172b3d; background:var(--bg); line-height:1.6; }
+    a { color:var(--blue); }
+    .top { background:#fff; border-bottom:1px solid var(--line); }
+    .top-inner { width:min(900px, calc(100% - 36px)); margin:0 auto; min-height:64px; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+    .brand { font-weight:850; color:var(--navy); text-decoration:none; letter-spacing:.4px; }
+    .wrap { width:min(900px, calc(100% - 36px)); margin:0 auto; padding:24px 0 40px; }
+    h1 { color:var(--navy); margin:0 0 6px; font-size:1.7rem; }
+    h2 { color:var(--navy); margin:26px 0 10px; font-size:1.15rem; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px; margin-bottom:12px; }
+    .item { border-top:1px solid #edf1f5; padding:12px 0; }
+    .item:first-child { border-top:none; padding-top:0; }
+    .item.unread { background:#f8fbff; border-radius:10px; padding:12px; }
+    .item strong { color:var(--navy); }
+    .meta { color:#8a97a6; font-size:.82rem; }
+    .body { white-space:pre-wrap; overflow-wrap:anywhere; color:#4a5b6c; font-size:.92rem; margin:4px 0; }
+    .actions { display:flex; gap:12px; flex-wrap:wrap; font-size:.9rem; margin-top:6px; }
+    .actions button { border:none; background:none; color:#315b83; cursor:pointer; font:inherit; padding:0; }
+    .actions .danger { color:#8c2929; }
+    .btn { border:none; background:var(--navy); color:#fff; border-radius:999px; padding:9px 16px; font:inherit; font-weight:700; cursor:pointer; }
+    .btn-line { background:#fff; color:var(--navy); border:1px solid var(--line); }
+    .pref { display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-top:1px solid #edf1f5; }
+    .pref:first-of-type { border-top:none; }
+    .pref small { display:block; color:var(--muted); }
+    .notice { background:#fff8e1; border:1px solid #f0e2a6; color:#6b5300; border-radius:12px; padding:12px 14px; font-size:.9rem; }
+    .error { background:#fdecea; border-color:#f4c7c3; color:#8c2929; }
+    .empty { color:var(--muted); }
+    :focus-visible { outline:3px solid var(--gold); outline-offset:2px; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <a class="brand" href="/">PSIR FORUM</a>
+      <nav aria-label="Main navigation" style="display:flex;gap:16px;flex-wrap:wrap;font-weight:650;">
+        <a href="/" style="color:#45596d;text-decoration:none;">Home</a>
+        <a href="/categories" style="color:#45596d;text-decoration:none;">Categories</a>
+        <a href="/research.html" style="color:#45596d;text-decoration:none;">Research Hub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div id="status" role="status"></div>
+
+    <div id="loggedOut" class="card" hidden>
+      <p>Log in on the <a href="/">home page</a> to see your notifications.</p>
+    </div>
+
+    <div id="loggedIn" hidden>
+      <h1>Notifications</h1>
+      <p class="meta">In-app notifications only. Email and push notifications are not sent.</p>
+      <div class="actions" style="margin:10px 0 4px;">
+        <button type="button" class="btn btn-line" id="markAll">Mark all as read</button>
+      </div>
+
+      <div class="card" id="list"><p class="empty">Loading…</p></div>
+
+      <h2>Notification preferences</h2>
+      <div class="card">
+        <p class="meta" style="margin-top:0;">Moderation decisions about your own submissions are always sent, so they can't be turned off.</p>
+        <form id="prefForm">
+          <div class="pref"><input type="checkbox" id="p_profile_reminders"><label for="p_profile_reminders">Academic profile reminders<small>Shown until your academic profile is complete.</small></label></div>
+          <div class="pref"><input type="checkbox" id="p_replies"><label for="p_replies">Replies to my discussions and comments<small>When someone replies to something you wrote.</small></label></div>
+          <div class="pref"><input type="checkbox" id="p_new_research"><label for="p_new_research">New research published<small>When a moderator approves a research paper.</small></label></div>
+          <div class="pref"><input type="checkbox" id="p_new_discussions"><label for="p_new_discussions">New discussions<small>When a new discussion is published in any category.</small></label></div>
+          <div class="pref"><input type="checkbox" id="p_news_updates"><label for="p_news_updates">News and journal updates<small>When new news or journal articles are published.</small></label></div>
+          <button class="btn" type="submit" id="prefSave" style="margin-top:12px;">Save preferences</button>
+          <span id="prefMsg" role="status" class="meta" style="margin-left:10px;"></span>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (() => {
+    "use strict";
+    const SUPABASE_URL = "https://updxillknwufqekfzkur.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5";
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const $ = id => document.getElementById(id);
+    let me = null;
+
+    const PREFS = ["profile_reminders", "replies", "new_research", "new_discussions", "news_updates"];
+    const DEFAULTS = { profile_reminders: true, replies: true, new_research: false, new_discussions: false, news_updates: false };
+
+    function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]); }
+    function when(iso) { return new Date(iso).toLocaleString(); }
+    function setStatus(text, bad) {
+      const s = $("status");
+      s.textContent = text || "";
+      s.className = text ? "notice" + (bad ? " error" : "") : "";
+      s.style.marginBottom = text ? "12px" : "0";
+    }
+
+    async function loadList() {
+      const box = $("list");
+      const { data, error } = await db.from("notifications")
+        .select("id, kind, title, body, link, read_at, created_at")
+        .eq("recipient_id", me.id).is("dismissed_at", null)
+        .order("created_at", { ascending: false }).limit(100);
+      if (error) { box.innerHTML = '<p class="notice error">Could not load notifications: ' + esc(error.message) + "</p>"; return; }
+      if (!data.length) { box.innerHTML = '<p class="empty">You have no notifications.</p>'; return; }
+      box.innerHTML = data.map(n => `
+        <div class="item ${n.read_at ? "" : "unread"}">
+          <strong>${esc(n.title)}</strong>
+          ${n.body ? '<div class="body">' + esc(n.body) + "</div>" : ""}
+          <div class="meta">${esc(when(n.created_at))}</div>
+          <div class="actions">
+            ${n.link ? '<a href="' + esc(n.link) + '">Open</a>' : ""}
+            ${n.read_at ? "" : '<button type="button" data-act="read" data-id="' + esc(n.id) + '">Mark as read</button>'}
+            <button type="button" class="danger" data-act="dismiss" data-id="' + esc(n.id) + '">Dismiss</button>
+          </div>
+        </div>`).join("");
+    }
+
+    async function loadPrefs() {
+      const { data, error } = await db.from("notification_preferences").select("*").eq("user_id", me.id).maybeSingle();
+      const values = Object.assign({}, DEFAULTS, error || !data ? {} : data);
+      PREFS.forEach(key => { $("p_" + key).checked = !!values[key]; });
+    }
+
+    $("list").addEventListener("click", async event => {
+      const b = event.target.closest("button[data-act]");
+      if (!b) return;
+      const change = b.dataset.act === "read" ? { read_at: new Date().toISOString() } : { dismissed_at: new Date().toISOString() };
+      const { error } = await db.from("notifications").update(change).eq("id", b.dataset.id);
+      if (error) { setStatus("Could not update: " + error.message, true); return; }
+      loadList();
+    });
+
+    $("markAll").addEventListener("click", async () => {
+      const { error } = await db.from("notifications").update({ read_at: new Date().toISOString() })
+        .eq("recipient_id", me.id).is("read_at", null);
+      if (error) setStatus("Could not update: " + error.message, true);
+      loadList();
+    });
+
+    $("prefForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const save = $("prefSave");
+      save.disabled = true;
+      $("prefMsg").textContent = "Saving…";
+      const row = { user_id: me.id, updated_at: new Date().toISOString() };
+      PREFS.forEach(key => { row[key] = $("p_" + key).checked; });
+      const { error } = await db.from("notification_preferences").upsert(row, { onConflict: "user_id" });
+      save.disabled = false;
+      $("prefMsg").textContent = error ? "Could not save: " + error.message : "Saved.";
+    });
+
+    async function show() {
+      const { data } = await db.auth.getSession();
+      me = data.session ? data.session.user : null;
+      $("loggedOut").hidden = !!me;
+      $("loggedIn").hidden = !me;
+      if (me) { await Promise.all([loadList(), loadPrefs()]); }
+    }
+
+    db.auth.onAuthStateChange(() => setTimeout(show, 0));
+    show();
+  })();
+  </script>
+</body>
+</html>
