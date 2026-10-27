@@ -634,6 +634,17 @@
       await Promise.all([loadLibrary(), loadMine(), loadQueue()]);
     }
     db.auth.onAuthStateChange(() => setTimeout(refreshAll, 0));
+    const preset = new URLSearchParams(location.search).get("submit");
+    if (preset) {
+      let tries = 0;
+      const openPreset = () => {
+        if (!me && tries++ < 15) { setTimeout(openPreset, 300); return; }
+        if (!me) { say("Please log in on the home page before submitting.", "error"); return; }
+        openForm(null);
+        if (["news", "journal", "research"].includes(preset)) $("f_section").value = preset;
+      };
+      setTimeout(openPreset, 300);
+    }
     refreshAll();
   })();
   </script>
