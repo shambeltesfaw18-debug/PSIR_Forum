@@ -66,6 +66,31 @@
 
       <div class="card" id="list"><p class="empty">Loading…</p></div>
 
+      <h2>Upcoming sessions</h2>
+      <div class="card" id="sessions"><p class="empty">Loading…</p></div>
+
+      <div class="card" id="scheduleCard" hidden>
+        <h2 style="margin-top:0;">Schedule a session</h2>
+        <p class="meta" style="margin-top:0;">Members who turned on session notices will be told about it. Times are shown in Addis Ababa time.</p>
+        <form id="sessionForm">
+          <label for="s_category" style="display:block;font-weight:700;margin-top:8px;">Category</label>
+          <select id="s_category" required style="width:100%;padding:10px;border:1px solid #cfd9e4;border-radius:10px;font:inherit;"></select>
+          <label for="s_title" style="display:block;font-weight:700;margin-top:10px;">Session title</label>
+          <input id="s_title" required minlength="5" maxlength="150" style="width:100%;padding:10px;border:1px solid #cfd9e4;border-radius:10px;font:inherit;box-sizing:border-box;">
+          <label for="s_start" style="display:block;font-weight:700;margin-top:10px;">Date and time (your local time)</label>
+          <input id="s_start" type="datetime-local" required style="width:100%;padding:10px;border:1px solid #cfd9e4;border-radius:10px;font:inherit;box-sizing:border-box;">
+          <label for="s_duration" style="display:block;font-weight:700;margin-top:10px;">Length</label>
+          <select id="s_duration" style="width:100%;padding:10px;border:1px solid #cfd9e4;border-radius:10px;font:inherit;">
+            <option value="30">30 minutes</option><option value="60" selected>1 hour</option>
+            <option value="90">1 hour 30 minutes</option><option value="120">2 hours</option>
+          </select>
+          <label for="s_desc" style="display:block;font-weight:700;margin-top:10px;">Notes (optional)</label>
+          <textarea id="s_desc" maxlength="1000" style="width:100%;min-height:70px;padding:10px;border:1px solid #cfd9e4;border-radius:10px;font:inherit;box-sizing:border-box;"></textarea>
+          <button class="btn" type="submit" id="s_save" style="margin-top:12px;">Schedule session</button>
+          <span id="s_msg" role="status" class="meta" style="margin-left:10px;"></span>
+        </form>
+      </div>
+
       <h2>Notification preferences</h2>
       <div class="card">
         <p class="meta" style="margin-top:0;">Moderation decisions about your own submissions are always sent, so they can't be turned off.</p>
@@ -75,6 +100,7 @@
           <div class="pref"><input type="checkbox" id="p_new_research"><label for="p_new_research">New research published<small>When a moderator approves a research paper.</small></label></div>
           <div class="pref"><input type="checkbox" id="p_new_discussions"><label for="p_new_discussions">New discussions<small>When a new discussion is published in any category.</small></label></div>
           <div class="pref"><input type="checkbox" id="p_news_updates"><label for="p_news_updates">News and journal updates<small>When new news or journal articles are published.</small></label></div>
+          <div class="pref"><input type="checkbox" id="p_session_schedules"><label for="p_session_schedules">Scheduled sessions<small>When a live session or meeting is scheduled in a category.</small></label></div>
           <button class="btn" type="submit" id="prefSave" style="margin-top:12px;">Save preferences</button>
           <span id="prefMsg" role="status" class="meta" style="margin-left:10px;"></span>
         </form>
@@ -92,8 +118,8 @@
     const $ = id => document.getElementById(id);
     let me = null;
 
-    const PREFS = ["profile_reminders", "replies", "new_research", "new_discussions", "news_updates"];
-    const DEFAULTS = { profile_reminders: true, replies: true, new_research: false, new_discussions: false, news_updates: false };
+    const PREFS = ["profile_reminders", "replies", "new_research", "new_discussions", "news_updates", "session_schedules"];
+    const DEFAULTS = { profile_reminders: true, replies: true, new_research: false, new_discussions: false, news_updates: false, session_schedules: true };
 
     function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]); }
     function when(iso) { return new Date(iso).toLocaleString(); }
@@ -159,12 +185,75 @@
       $("prefMsg").textContent = error ? "Could not save: " + error.message : "Saved.";
     });
 
+    let categories = [];
+
+    async function loadCategories() {
+      const { data } = await db.from("categories").select("id, name, slug").order("id");
+      categories = data || [];
+      const select = $("s_category");
+      select.innerHTML = categories.map(c => '<option value="' + c.id + '">' + esc(c.name) + "</option>").join("");
+    }
+
+    async function loadSessions() {
+      const box = $("sessions");
+      const since = new Date(Date.now() - 2 * 3600 * 1000).toISOString();
+      const { data, error } = await db.from("sessions")
+        .select("id, category_id, title, description, starts_at, duration_minutes")
+        .is("cancelled_at", null).gte("starts_at", since).order("starts_at").limit(20);
+      if (error) { box.innerHTML = '<p class="notice error">Could not load sessions: ' + esc(error.message) + "</p>"; return; }
+      if (!data.length) { box.innerHTML = '<p class="empty">No sessions are scheduled right now.</p>'; return; }
+      const names = new Map(categories.map(c => [c.id, c]));
+      box.innerHTML = data.map(s => {
+        const cat = names.get(s.category_id);
+        const when = new Date(s.starts_at).toLocaleString("en-GB", { timeZone: "Africa/Addis_Ababa", dateStyle: "medium", timeStyle: "short" });
+        return `<div class="item">
+          <strong>${esc(s.title)}</strong>
+          <div class="meta">${esc(cat ? cat.name : "Category")} · ${esc(when)} (Addis Ababa time) · ${esc(s.duration_minutes)} minutes</div>
+          ${s.description ? '<div class="body">' + esc(s.description) + "</div>" : ""}
+          ${cat ? '<div class="actions"><a href="/categories/' + esc(cat.slug) + '">Open the category and its live room</a></div>' : ""}
+        </div>`;
+      }).join("");
+    }
+
+    async function setupScheduling() {
+      const { data: profile } = await db.from("profiles").select("role").eq("id", me.id).maybeSingle();
+      const canSchedule = !!profile && ["admin", "moderator", "scholar"].includes(profile.role);
+      $("scheduleCard").hidden = !canSchedule;
+      if (canSchedule) await loadCategories();
+    }
+
+    $("sessionForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const save = $("s_save");
+      const startLocal = $("s_start").value;
+      const start = new Date(startLocal);
+      if (isNaN(start) || start < new Date(Date.now() - 60000)) {
+        $("s_msg").textContent = "Please choose a date and time in the future.";
+        return;
+      }
+      save.disabled = true;
+      $("s_msg").textContent = "Scheduling…";
+      const { error } = await db.from("sessions").insert({
+        category_id: Number($("s_category").value),
+        title: $("s_title").value.trim(),
+        description: $("s_desc").value.trim() || null,
+        starts_at: start.toISOString(),
+        duration_minutes: Number($("s_duration").value),
+        created_by: me.id
+      });
+      save.disabled = false;
+      if (error) { $("s_msg").textContent = "Could not schedule: " + error.message; return; }
+      $("sessionForm").reset();
+      $("s_msg").textContent = "Scheduled. Members who turned on session notices have been told.";
+      loadSessions();
+    });
+
     async function show() {
       const { data } = await db.auth.getSession();
       me = data.session ? data.session.user : null;
       $("loggedOut").hidden = !!me;
       $("loggedIn").hidden = !me;
-      if (me) { await Promise.all([loadList(), loadPrefs()]); }
+      if (me) { await Promise.all([loadList(), loadPrefs(), setupScheduling()]); await loadSessions(); }
     }
 
     db.auth.onAuthStateChange(() => setTimeout(show, 0));
