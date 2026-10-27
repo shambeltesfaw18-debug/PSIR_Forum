@@ -284,7 +284,7 @@
         return `
           <article class="pub">
             ${thumbHtml(d.thumb_path, d.pdf_path)}
-            <h3>${esc(d.title)}</h3>
+            <h3><a href="/publication.html?id=${esc(d.id)}" style="color:inherit;text-decoration:none;">${esc(d.title)}</a></h3>
             <div class="meta"><a href="/public-profile.html?id=${esc(d.author_id)}" style="color:var(--blue);font-weight:700;">${esc(name)}</a> · ${esc(d.publication_type)} · ${esc(d.research_field || "")} · ${esc(d.language)} · Published on PSIR Forum ${fmt(d.decided_at)}</div>
             <div class="abstract-wrap"><p class="abstract">${esc((d.abstract || "").slice(0, 400))}${(d.abstract || "").length > 400 ? "…" : ""}</p>${(d.abstract || "").length > 400 ? '<details><summary>Read full abstract</summary><p class="abstract">' + esc(d.abstract) + "</p></details>" : ""}</div>
             ${kws.length ? '<div style="margin-top:8px;">' + kws.map(k => '<span class="tag">' + esc(k) + "</span>").join("") + "</div>" : ""}

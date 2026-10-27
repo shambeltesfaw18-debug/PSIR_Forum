@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#102b46">
+  <title>Research publication | PSIR Forum</title>
+  <style>
+    :root { --navy:#102b46; --blue:#2864a0; --gold:#e7b451; --bg:#f3f6fa; --line:#dfe7ef; --muted:#5b6b7b; --text:#172b3d; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; color:var(--text); background:var(--bg); line-height:1.6; }
+    a { color:var(--blue); }
+    .top { background:#fff; border-bottom:1px solid var(--line); }
+    .top-inner { width:min(900px, calc(100% - 36px)); margin:0 auto; min-height:64px; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+    .brand { font-weight:850; color:var(--navy); text-decoration:none; letter-spacing:.4px; }
+    .nav { display:flex; gap:16px; flex-wrap:wrap; font-weight:650; }
+    .nav a { color:#45596d; text-decoration:none; }
+    .wrap { width:min(900px, calc(100% - 36px)); margin:0 auto; padding:26px 0 44px; }
+    h1 { color:var(--navy); font-size:1.8rem; line-height:1.25; margin:8px 0 10px; overflow-wrap:anywhere; }
+    h2 { color:var(--navy); font-size:1.15rem; margin:0 0 10px; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:20px; margin-top:16px; }
+    .meta { color:var(--muted); font-size:.9rem; }
+    .tag { display:inline-block; background:#edf3f9; color:#315b83; font-size:.75rem; font-weight:800; padding:3px 9px; border-radius:6px; margin:0 6px 6px 0; }
+    .abstract { font-style:italic; text-align:justify; white-space:pre-wrap; overflow-wrap:anywhere; hyphens:auto; line-height:1.75; color:#3c4f61; margin:0; }
+    .refs { white-space:pre-wrap; overflow-wrap:anywhere; color:#3c4f61; margin:0; font-size:.93rem; }
+    .cover { width:min(220px, 100%); aspect-ratio:3/4; object-fit:cover; border:1px solid var(--line); border-radius:10px; display:block; margin-bottom:14px; }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    .btn { border:none; cursor:pointer; background:var(--navy); color:#fff; border-radius:999px; padding:10px 16px; font:inherit; font-weight:700; }
+    .btn-line { background:#fff; color:var(--navy); border:1px solid var(--line); }
+    .btn:disabled { opacity:.55; cursor:default; }
+    .notice { background:#fff8e1; border:1px solid #f0e2a6; color:#6b5300; border-radius:12px; padding:12px 14px; font-size:.92rem; }
+    .error { background:#fdecea; border-color:#f4c7c3; color:#8c2929; }
+    .comment { border-top:1px solid #edf1f5; padding:12px 0; }
+    .comment:first-child { border-top:none; padding-top:0; }
+    .comment .body { white-space:pre-wrap; overflow-wrap:anywhere; margin:4px 0; }
+    .comment .small-actions { display:flex; gap:12px; font-size:.85rem; margin-top:4px; }
+    .comment button { border:none; background:none; color:#315b83; cursor:pointer; padding:0; font:inherit; }
+    .comment .danger { color:#8c2929; }
+    textarea { width:100%; min-height:90px; border:1px solid #cfd9e4; border-radius:10px; padding:10px; font:inherit; box-sizing:border-box; }
+    :focus-visible { outline:3px solid var(--gold); outline-offset:2px; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <a class="brand" href="/">PSIR FORUM</a>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="/">Home</a>
+        <a href="/categories">Categories</a>
+        <a href="/discussions">Discussions</a>
+        <a href="/research.html">Research Hub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div id="content"><p class="meta">Loading publication…</p></div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (() => {
+    "use strict";
+    const SUPABASE_URL = "https://updxillknwufqekfzkur.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5";
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const box = document.getElementById("content");
+    const id = new URLSearchParams(location.search).get("id") || "";
+    const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const STATUS = { draft:"Draft", submitted:"Submitted", under_review:"Under review", revision_requested:"Revision requested", approved:"Approved", rejected:"Rejected", withdrawn:"Withdrawn" };
+    let me = null, isStaff = false, pub = null, owner = false, busy = false;
+
+    function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]); }
+    function fmt(iso) { return iso ? new Date(iso).toLocaleDateString() : ""; }
+    function notice(text, bad) { box.innerHTML = '<div class="notice' + (bad ? " error" : "") + '">' + esc(text) + "</div>"; }
+    function flash(text, bad) {
+      const n = document.getElementById("flash");
+      if (!n) return;
+      n.textContent = text;
+      n.style.color = bad ? "#8c2929" : "#1b5e20";
+    }
+
+    async function init() {
+      const { data } = await db.auth.getSession();
+      me = data.session ? data.session.user : null;
+      isStaff = false;
+      if (me) {
+        const { data: p } = await db.from("profiles").select("role").eq("id", me.id).maybeSingle();
+        isStaff = !!p && ["admin", "moderator"].includes(p.role);
+      }
+    }
+
+    async function load() {
+      if (!UUID.test(id)) { notice("This publication link is not valid.", true); return; }
+      const { data, error } = await db.from("publications").select("*").eq("id", id).maybeSingle();
+      if (error) { notice("Could not load this publication: " + error.message, true); return; }
+      if (!data) { notice("This publication is not available."); return; }
+      owner = !!me && data.author_id === me.id;
+      if (data.status !== "approved" && !owner && !isStaff) { notice("This publication is not publicly available."); return; }
+      pub = data;
+      render();
+    }
+
+    async function render() {
+      const { data: author } = await db.from("profiles").select("full_name").eq("id", pub.author_id).maybeSingle();
+      const name = author && author.full_name ? author.full_name : "Member";
+      const kws = (pub.keywords || "").split(",").map(k => k.trim()).filter(Boolean);
+      const approved = pub.status === "approved";
+
+      box.innerHTML = `
+        ${approved ? "" : '<div class="notice" style="margin-bottom:14px;">Status: ' + esc(STATUS[pub.status] || pub.status) + ". Only you and moderators can see this until it is approved.</div>"}
+        <div class="meta">${esc(pub.publication_type)} · ${esc(pub.research_field || "")} · ${esc(pub.language)}</div>
+        <h1>${esc(pub.title)}</h1>
+        <div class="meta">By <a href="/public-profile.html?id=${esc(pub.author_id)}">${esc(name)}</a>${pub.institution ? " · " + esc(pub.institution) : ""} · Published ${esc(fmt(pub.decided_at || pub.created_at))}</div>
+        ${kws.length ? '<div style="margin-top:10px;">' + kws.map(k => '<span class="tag">' + esc(k) + "</span>").join("") + "</div>" : ""}
+
+        <div class="card">
+          <div id="coverBox"></div>
+          <h2>Abstract</h2>
+          <p class="abstract">${esc(pub.abstract || "No abstract was given.")}</p>
+          ${pub.references_text ? '<h2 style="margin-top:18px;">References</h2><p class="refs">' + esc(pub.references_text) + "</p>" : ""}
+          <div class="actions">
+            ${pub.pdf_path ? '<button class="btn" id="openPdf">Read full paper (PDF)</button>' : ""}
+            ${me ? '<button class="btn btn-line" id="saveBtn" aria-pressed="false">Save</button>' : ""}
+            <button class="btn btn-line" id="shareBtn">Share</button>
+          </div>
+          <p id="flash" role="status" class="meta" style="margin:10px 0 0;"></p>
+          ${approved ? '<p class="meta" style="margin-top:14px;">Published on PSIR Forum. This is moderated publication, not formal peer review or journal acceptance.</p>' : ""}
+        </div>
+
+        <div class="card" id="commentsCard">
+          <h2>Comments (<span id="commentCount">0</span>)</h2>
+          <div id="comments"><p class="meta">Loading comments…</p></div>
+          ${me && approved ? `
+            <form id="commentForm" style="margin-top:14px;">
+              <label for="commentBody" style="font-weight:700;">Add a respectful comment</label>
+              <textarea id="commentBody" maxlength="2000" required placeholder="Share feedback or raise a question about the research."></textarea>
+              <button class="btn" type="submit" id="commentSend" style="margin-top:8px;">Post comment</button>
+              <span id="commentMsg" role="status" class="meta" style="margin-left:10px;"></span>
+            </form>` : (approved ? '<p class="meta" style="margin-top:12px;">Log in on the home page to comment.</p>' : "")}
+        </div>`;
+
+      wire();
+      loadCover();
+      loadBookmark();
+      loadComments();
+    }
+
+    function wire() {
+      const pdf = document.getElementById("openPdf");
+      if (pdf) pdf.addEventListener("click", async () => {
+        const { data, error } = await db.storage.from("publications").createSignedUrl(pub.pdf_path, 600);
+        if (error || !data) { flash("This PDF is not available right now.", true); return; }
+        window.open(data.signedUrl, "_blank", "noopener");
+      });
+
+      document.getElementById("shareBtn").addEventListener("click", async () => {
+        const url = location.href;
+        try {
+          if (navigator.share) { await navigator.share({ title: pub.title, url }); return; }
+          await navigator.clipboard.writeText(url);
+          flash("Link copied to the clipboard.");
+        } catch (e) {
+          if (e && e.name === "AbortError") return;
+          flash("Could not share. Copy the address from the browser bar.", true);
+        }
+      });
+
+      const save = document.getElementById("saveBtn");
+      if (save) save.addEventListener("click", toggleBookmark);
+
+      const form = document.getElementById("commentForm");
+      if (form) form.addEventListener("submit", postComment);
+    }
+
+    async function loadCover() {
+      if (!pub.thumb_path) return;
+      const { data, error } = await db.storage.from("publications").createSignedUrl(pub.thumb_path, 3600);
+      if (error || !data) return;
+      const img = document.createElement("img");
+      img.className = "cover";
+      img.alt = "First page of the paper";
+      img.loading = "lazy";
+      img.src = data.signedUrl;
+      img.onerror = () => img.remove();
+      document.getElementById("coverBox").appendChild(img);
+    }
+
+    async function loadBookmark() {
+      const btn = document.getElementById("saveBtn");
+      if (!btn) return;
+      const { data } = await db.from("publication_bookmarks").select("publication_id")
+        .eq("user_id", me.id).eq("publication_id", pub.id).maybeSingle();
+      paintSave(!!data);
+    }
+
+    function paintSave(saved) {
+      const btn = document.getElementById("saveBtn");
+      if (!btn) return;
+      btn.textContent = saved ? "Saved" : "Save";
+      btn.setAttribute("aria-pressed", String(saved));
+    }
+
+    async function toggleBookmark() {
+      const btn = document.getElementById("saveBtn");
+      const saved = btn.getAttribute("aria-pressed") === "true";
+      btn.disabled = true;
+      const res = saved
+        ? await db.from("publication_bookmarks").delete().eq("user_id", me.id).eq("publication_id", pub.id)
+        : await db.from("publication_bookmarks").insert({ user_id: me.id, publication_id: pub.id });
+      btn.disabled = false;
+      if (res.error) { flash("Could not update your saved list: " + res.error.message, true); return; }
+      paintSave(!saved);
+      flash(saved ? "Removed from your saved papers." : "Saved to your papers.");
+    }
+
+    async function loadComments() {
+      const box2 = document.getElementById("comments");
+      const { data, error } = await db.from("publication_comments")
+        .select("id, author_id, body, created_at, edited_at, is_hidden")
+        .eq("publication_id", pub.id).order("created_at", { ascending: true }).limit(300);
+      if (error) { box2.innerHTML = '<p class="notice error">Could not load comments: ' + esc(error.message) + "</p>"; return; }
+      document.getElementById("commentCount").textContent = String(data.length);
+      if (!data.length) { box2.innerHTML = '<p class="meta">No comments yet. Be the first to respond.</p>'; return; }
+
+      const ids = [...new Set(data.map(c => c.author_id))];
+      const { data: people } = await db.from("profiles").select("id, full_name").in("id", ids);
+      const names = new Map((people || []).map(p => [p.id, p.full_name]));
+
+      box2.innerHTML = data.map(c => {
+        const mine = me && c.author_id === me.id;
+        const hidden = c.is_hidden;
+        if (hidden && !isStaff && !mine) return "";
+        return `
+          <div class="comment" data-id="${esc(c.id)}">
+            <div class="meta"><strong>${esc(names.get(c.author_id) || "Member")}</strong> · ${esc(new Date(c.created_at).toLocaleString())}${c.edited_at ? " · edited" : ""}${hidden ? " · hidden by a moderator" : ""}</div>
+            <div class="body">${esc(c.body)}</div>
+            <div class="small-actions">
+              ${mine ? '<button type="button" data-act="edit" data-id="' + esc(c.id) + '">Edit</button><button type="button" class="danger" data-act="delete" data-id="' + esc(c.id) + '">Delete</button>' : ""}
+              ${isStaff && !mine ? '<button type="button" data-act="' + (hidden ? "show" : "hide") + '" data-id="' + esc(c.id) + '">' + (hidden ? "Show" : "Hide") + "</button>" : ""}
+              ${isStaff && mine ? '<button type="button" class="danger" data-act="delete" data-id="' + esc(c.id) + '">Delete</button>' : ""}
+            </div>
+          </div>`;
+      }).join("") || '<p class="meta">No comments to show.</p>';
+    }
+
+    async function postComment(event) {
+      event.preventDefault();
+      if (busy) return;
+      const body = document.getElementById("commentBody").value.trim();
+      const msg = document.getElementById("commentMsg");
+      if (body.length < 2) { msg.textContent = "Please write at least two characters."; return; }
+      busy = true;
+      const send = document.getElementById("commentSend");
+      send.disabled = true;
+      msg.textContent = "Posting…";
+      const { error } = await db.from("publication_comments").insert({ publication_id: pub.id, author_id: me.id, body });
+      busy = false;
+      send.disabled = false;
+      if (error) { msg.textContent = "Could not post: " + error.message; return; }
+      document.getElementById("commentBody").value = "";
+      msg.textContent = "Posted.";
+      loadComments();
+    }
+
+    document.getElementById("comments") && null;
+    box.addEventListener("click", async event => {
+      const b = event.target.closest("button[data-act]");
+      if (!b) return;
+      const cid = b.dataset.id;
+      if (b.dataset.act === "edit") {
+        const current = b.closest(".comment").querySelector(".body").textContent;
+        const next = prompt("Edit your comment (2 to 2000 characters):", current);
+        if (next === null) return;
+        const clean = next.trim();
+        if (clean.length < 2 || clean.length > 2000) { flash("Comments must be 2 to 2000 characters.", true); return; }
+        const { error } = await db.from("publication_comments").update({ body: clean }).eq("id", cid).eq("author_id", me.id).select("id");
+        if (error) { flash("Could not edit: " + error.message, true); return; }
+      } else if (b.dataset.act === "delete") {
+        if (!confirm("Delete this comment? This cannot be undone.")) return;
+        const { error } = await db.from("publication_comments").delete().eq("id", cid);
+        if (error) { flash("Could not delete: " + error.message, true); return; }
+      } else if (b.dataset.act === "hide" || b.dataset.act === "show") {
+        const { error } = await db.from("publication_comments").update({ is_hidden: b.dataset.act === "hide" }).eq("id", cid);
+        if (error) { flash("Could not update: " + error.message, true); return; }
+      }
+      loadComments();
+    });
+
+    db.auth.onAuthStateChange(() => setTimeout(async () => { await init(); await load(); }, 0));
+    init().then(load);
+  })();
+  </script>
+</body>
+</html>
