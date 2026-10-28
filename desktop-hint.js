@@ -1,26 +1,31 @@
 (function () {
   "use strict";
   // 1) "Welcome back" for logged-in members, once per browsing session.
-  // 2) On each category page, a desktop-site suggestion for phone users who are not in desktop view.
-  const WELCOME_KEY = "psirWelcome_v2";
-  const CATEGORY_KEY = "psirCatHint_v2";
+  // 2) On each category page, a desktop-site suggestion for phone users who are in mobile view.
+  // Flags are kept in a session cookie, which works in more browsers (including in-app browsers)
+  // than sessionStorage.
   const SHOW_MS = 15000;
-  const DESKTOP_WIDTH = 760;
-  let lastPath = null;
+  const COOKIE = "psirHints";
 
   function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]); }
 
-  function readSet(key) {
-    try { return new Set(JSON.parse(sessionStorage.getItem(key) || "[]")); } catch (e) { return new Set(); }
+  function readHints() {
+    try {
+      const m = document.cookie.match(/(?:^|;\s*)psirHints=([^;]*)/);
+      return m ? JSON.parse(decodeURIComponent(m[1])) : {};
+    } catch (e) { return {}; }
   }
-  function addToSet(key, value) {
-    const s = readSet(key);
-    s.add(value);
-    try { sessionStorage.setItem(key, JSON.stringify([...s])); } catch (e) {}
+  function writeHints(hints) {
+    try { document.cookie = COOKIE + "=" + encodeURIComponent(JSON.stringify(hints)) + "; path=/; SameSite=Lax"; } catch (e) {}
   }
 
-  // Read the signed-in member straight from the saved session, so the message does not
-  // depend on the network or on the library having finished loading
+  // Phone browsers say "Mobile" in their user agent. In desktop-site mode they don't.
+  function inMobileView() {
+    if (/Mobile|iPhone|iPod/i.test(navigator.userAgent)) return true;
+    return window.innerWidth < 600 && navigator.maxTouchPoints > 0;
+  }
+
+  // Read the signed-in member straight from the saved session
   function savedUser() {
     try {
       for (let i = 0; i < localStorage.length; i++) {
@@ -68,17 +73,23 @@
   function welcome() {
     const user = savedUser();
     if (!user) return;
-    if (readSet(WELCOME_KEY).has("1")) return;
-    addToSet(WELCOME_KEY, "1");
+    const hints = readHints();
+    if (hints.welcome) return;
+    hints.welcome = true;
+    writeHints(hints);
     const name = (user.user_metadata && user.user_metadata.full_name) || (user.email || "").split("@")[0] || "member";
     toast("psirWelcome", '<strong style="font-size:15px;color:#e7b451;">Welcome back, ' + esc(name) + "!</strong>");
   }
 
+  let lastPath = null;
   function categoryHint(path) {
     if (!/^\/categories\/[^\/]+$/.test(path)) return;
-    if (window.innerWidth >= DESKTOP_WIDTH) return;          // already in desktop view
-    if (readSet(CATEGORY_KEY).has(path)) return;             // once per category per session
-    addToSet(CATEGORY_KEY, path);
+    if (!inMobileView()) return;                 // desktop site is already on
+    const hints = readHints();
+    const seen = Array.isArray(hints.categories) ? hints.categories : [];
+    if (seen.indexOf(path) !== -1) return;       // once per category per session
+    hints.categories = seen.concat([path]).slice(-50);
+    writeHints(hints);
     toast("psirDesktopHint",
       '<strong style="color:#e7b451;">Tip for this category</strong><br>' +
       "For the full discussion list and the live room, switch to the desktop site: tap ⋮ in your browser, then tick <em>Desktop site</em>.");
