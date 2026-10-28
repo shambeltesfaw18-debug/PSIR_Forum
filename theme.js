@@ -248,6 +248,18 @@
 
     html body .category-card strong, html body .category-card p, html body .category-card .explore-link { color:#ffffff !important; text-shadow:0 1px 8px rgba(2, 6, 23, .7) !important; }
 
+    /* Category cards: lift and gold accent on hover (the bottom overlay keeps the text readable) */
+    html body .category-card { transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease; }
+    html body .category-card:hover, html body .category-card:focus-visible {
+      transform: translateY(-4px) scale(1.01);
+      border-color: rgba(231, 180, 81, .75) !important;
+      box-shadow: 0 0 0 1px rgba(231, 180, 81, .45), 0 14px 30px rgba(16, 43, 70, .28);
+    }
+    html body .category-card:focus-visible { outline: 3px solid #e7b451; outline-offset: 3px; }
+    @media (prefers-reduced-motion: reduce) {
+      html body .category-card, html body .category-card:hover { transition: none !important; transform: none !important; }
+    }
+
   `;
 
   const style = document.createElement("style");

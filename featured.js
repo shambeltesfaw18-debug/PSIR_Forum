@@ -25,6 +25,9 @@
     .featured-pill[data-cat="african-affairs"] { background:rgba(234,88,12,.13); color:#c2410c; border-color:rgba(234,88,12,.27); }
     .featured-pill[data-cat="general-discussion"] { background:rgba(71,85,105,.12); color:#334155; border-color:rgba(71,85,105,.25); }
     .featured-pill[data-cat="hub-of-idea-discussion-club"] { background:rgba(231,180,81,.22); color:#7a5410; border-color:rgba(231,180,81,.5); }
+    .featured-card { transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease; }
+    .featured-card:hover, .featured-card:focus-visible { transform: translateY(-3px); box-shadow:0 12px 26px rgba(16,43,70,.14); border-color:#e7b451; }
+    @media (prefers-reduced-motion: reduce) { .featured-card, .featured-card:hover { transition:none; transform:none; } }
     .featured-note { color:#5b6b7b; background:#fff; border:1px dashed #c8d4e0; border-radius:14px; padding:18px; }
   `;
   document.head.appendChild(style);
