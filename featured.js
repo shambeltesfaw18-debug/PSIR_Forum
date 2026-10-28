@@ -15,7 +15,16 @@
     .featured-card h3 { margin:6px 0 8px; color:#102b46; font-size:1.05rem; line-height:1.35; overflow-wrap:anywhere; }
     .featured-card p { margin:0 0 10px; color:#4a5b6c; font-size:.92rem; line-height:1.55; overflow-wrap:anywhere; }
     .featured-meta { color:#6b7b8b; font-size:.8rem; }
-    .featured-pill { display:inline-block; background:#edf3f9; color:#315b83; font-size:.72rem; font-weight:800; padding:3px 9px; border-radius:6px; }
+    .featured-pill { display:inline-block; font-size:.72rem; font-weight:800; padding:3px 10px; border-radius:999px; border:1px solid transparent; background:#edf3f9; color:#315b83; }
+    .featured-pill[data-cat="international-relations"] { background:rgba(37,99,235,.12); color:#1d4ed8; border-color:rgba(37,99,235,.25); }
+    .featured-pill[data-cat="political-science"] { background:rgba(124,58,237,.12); color:#6d28d9; border-color:rgba(124,58,237,.25); }
+    .featured-pill[data-cat="diplomacy-and-foreign-policy"] { background:rgba(5,150,105,.12); color:#047857; border-color:rgba(5,150,105,.25); }
+    .featured-pill[data-cat="research-and-academia"] { background:rgba(217,119,6,.14); color:#b45309; border-color:rgba(217,119,6,.28); }
+    .featured-pill[data-cat="peace-security"] { background:rgba(225,29,72,.12); color:#be123c; border-color:rgba(225,29,72,.25); }
+    .featured-pill[data-cat="governance-and-public-policy"] { background:rgba(13,148,136,.13); color:#0f766e; border-color:rgba(13,148,136,.28); }
+    .featured-pill[data-cat="african-affairs"] { background:rgba(234,88,12,.13); color:#c2410c; border-color:rgba(234,88,12,.27); }
+    .featured-pill[data-cat="general-discussion"] { background:rgba(71,85,105,.12); color:#334155; border-color:rgba(71,85,105,.25); }
+    .featured-pill[data-cat="hub-of-idea-discussion-club"] { background:rgba(231,180,81,.22); color:#7a5410; border-color:rgba(231,180,81,.5); }
     .featured-note { color:#5b6b7b; background:#fff; border:1px dashed #c8d4e0; border-radius:14px; padding:18px; }
   `;
   document.head.appendChild(style);
@@ -66,7 +75,7 @@
         const link = cat ? "/categories/" + slugify(cat.name) : "/discussions";
         return `
           <a class="featured-card" href="${esc(link)}">
-            <span class="featured-pill">${esc(cat ? cat.name : "Discussion")}</span>
+            <span class="featured-pill" data-cat="${esc(cat ? slugify(cat.name) : "")}">${esc(cat ? cat.name : "Discussion")}</span>
             <h3>${esc(t.title)}</h3>
             <p>${esc(excerpt(t.body))}</p>
             <div class="featured-meta">${esc(names.get(t.author_id) || "Member")} · ${esc(new Date(t.created_at).toLocaleDateString())} · ${count} ${count === 1 ? "reply" : "replies"}</div>
