@@ -203,4 +203,23 @@
 
   applyTheme();
   applyLanguage();
+
+  // ---------- Desktop-view tip for phone users (shown once, dismissible) ----------
+  (function desktopTip() {
+    const KEY = "psirDesktopTipDismissed";
+    try { if (localStorage.getItem(KEY)) return; } catch (e) {}
+    if (window.innerWidth >= 760) return;
+    const bar = document.createElement("div");
+    bar.id = "psirDesktopTip";
+    bar.setAttribute("role", "status");
+    bar.style.cssText = "position:fixed;left:10px;right:10px;bottom:10px;z-index:400;background:#102b46;color:#fff;border-radius:14px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:14px;display:flex;gap:10px;align-items:flex-start;";
+    bar.innerHTML = '<div style="flex:1;"><strong>Tip: for a wider view, use the desktop site.</strong>' +
+      '<div style="opacity:.92;margin-top:3px;">In Chrome, tap the ⋮ menu (top right), then tick <em>Desktop site</em>. Papers, review queues and comments are easier to read on a larger screen.</div></div>' +
+      '<button type="button" style="border:1px solid rgba(255,255,255,.5);background:transparent;color:#fff;border-radius:999px;padding:5px 11px;font:inherit;font-weight:700;cursor:pointer;white-space:nowrap;">Got it</button>';
+    document.body.appendChild(bar);
+    bar.querySelector("button").addEventListener("click", () => {
+      try { localStorage.setItem(KEY, "1"); } catch (e) {}
+      bar.remove();
+    });
+  })();
 })();
