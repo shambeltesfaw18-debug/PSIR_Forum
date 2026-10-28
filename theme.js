@@ -225,6 +225,12 @@
       background:#fff !important; color:#102b46 !important; border:1px solid #cfd9e4 !important; border-radius:10px !important;
     }
 
+    /* Keep the header, login buttons and bell inside the screen width (desktop-site and small screens) */
+    html body { max-width:100% !important; overflow-x:hidden !important; }
+    html body #navActions, html body .nav-actions { flex-wrap:wrap !important; justify-content:flex-end !important; max-width:100% !important; row-gap:6px; }
+    html body #psirBell { flex:0 0 auto !important; }
+    html body header, html body .topbar, html body .site-header { max-width:100% !important; }
+
   `;
 
   const style = document.createElement("style");
