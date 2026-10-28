@@ -1,14 +1,11 @@
 (function () {
   "use strict";
   // 1) "Welcome back" for logged-in members, once per browsing session.
-  // 2) On category pages, a desktop-site suggestion for phone users who are not in desktop view.
-  // Desktop view is detected from the page width: a browser in desktop mode shows a wide page.
-  const WELCOME_KEY = "psirWelcomeShown";
-  const CATEGORY_KEY = "psirCategoryHintShown";
+  // 2) On each category page, a desktop-site suggestion for phone users who are not in desktop view.
+  const WELCOME_KEY = "psirWelcome_v2";
+  const CATEGORY_KEY = "psirCatHint_v2";
   const SHOW_MS = 15000;
   const DESKTOP_WIDTH = 760;
-  let name = null;
-  let loggedIn = false;
   let lastPath = null;
 
   function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]); }
@@ -20,6 +17,21 @@
     const s = readSet(key);
     s.add(value);
     try { sessionStorage.setItem(key, JSON.stringify([...s])); } catch (e) {}
+  }
+
+  // Read the signed-in member straight from the saved session, so the message does not
+  // depend on the network or on the library having finished loading
+  function savedUser() {
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!/^sb-.*-auth-token$/.test(key)) continue;
+        const session = JSON.parse(localStorage.getItem(key) || "null");
+        const user = session && (session.user || (session.currentSession && session.currentSession.user));
+        if (user && user.id) return user;
+      }
+    } catch (e) {}
+    return null;
   }
 
   const style = document.createElement("style");
@@ -35,7 +47,7 @@
     box.className = "psir-hint";
     box.setAttribute("role", "status");
     box.setAttribute("aria-live", "polite");
-    box.style.cssText = "position:fixed;left:12px;right:12px;top:12px;z-index:500;background:#102b46;color:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 12px 32px rgba(0,0,0,.28);font-size:14px;line-height:1.5;display:flex;gap:12px;align-items:flex-start;animation:psirHintIn .25s ease-out;";
+    box.style.cssText = "position:fixed;left:12px;right:12px;top:12px;z-index:9000;background:#102b46;color:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 12px 32px rgba(0,0,0,.28);font-size:14px;line-height:1.5;display:flex;gap:12px;align-items:flex-start;animation:psirHintIn .25s ease-out;";
 
     const text = document.createElement("div");
     text.style.flex = "1";
@@ -54,9 +66,11 @@
   }
 
   function welcome() {
-    if (!loggedIn) return;
+    const user = savedUser();
+    if (!user) return;
     if (readSet(WELCOME_KEY).has("1")) return;
     addToSet(WELCOME_KEY, "1");
+    const name = (user.user_metadata && user.user_metadata.full_name) || (user.email || "").split("@")[0] || "member";
     toast("psirWelcome", '<strong style="font-size:15px;color:#e7b451;">Welcome back, ' + esc(name) + "!</strong>");
   }
 
@@ -77,17 +91,14 @@
     categoryHint(path);
   }
 
-  function start() {
-    if (!window.supabase) { setInterval(check, 800); return; }
-    const db = window.supabase.createClient("https://updxillknwufqekfzkur.supabase.co", "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5");
-    db.auth.getSession().then(({ data }) => {
-      const user = data.session ? data.session.user : null;
-      loggedIn = !!user;
-      if (user) name = (user.user_metadata && user.user_metadata.full_name) || (user.email || "").split("@")[0];
-      welcome();
-      check();
-      setInterval(check, 800);
-    }).catch(() => { check(); setInterval(check, 800); });
+  function run() {
+    welcome();
+    check();
+    setInterval(check, 500);
+    window.addEventListener("popstate", () => setTimeout(check, 50));
+    document.addEventListener("click", () => setTimeout(check, 300), true);
   }
-  start();
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run);
+  else run();
 })();
