@@ -1,0 +1,182 @@
+/* PSIR Forum button system: one set of brand colours, shapes, styles and states.
+   Used by the new psir-* classes and by the existing class names already on the pages. */
+:root {
+  --psir-navy: #102B46;
+  --psir-blue: #205D89;
+  --psir-gold: #E6B75A;
+  --psir-light: #F3F6FA;
+  --psir-green: #237A57;
+  --psir-red: #B42318;
+  --psir-white: #FFFFFF;
+  --psir-focus: #E6B75A;
+  --psir-h: 42px;
+  --psir-h-lg: 50px;
+  --psir-radius: 10px;
+  --psir-pill: 999px;
+  --psir-square: 2px;
+}
+
+/* Base: every button and button-like link */
+html body :is(button, a).psir-btn,
+html body :is(button, a).btn,
+html body :is(button, a).btn-primary,
+html body :is(button, a).btn-gold,
+html body :is(button, a).btn-outline,
+html body :is(button, a).btn-line,
+html body :is(button, a).btn-danger,
+html body :is(button, a).btn-secondary,
+html body :is(button, a).secondary,
+html body :is(button, a).danger,
+html body :is(button, a).del {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: var(--psir-h); padding: 0 18px; font: inherit; font-size: 0.95rem; font-weight: 700;
+  line-height: 1.15; border: 1px solid transparent; border-radius: var(--psir-radius);
+  cursor: pointer; text-decoration: none; text-align: center;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease, transform .05s ease, filter .15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Shapes */
+html body :is(button, a).psir-pill,
+html body :is(button, a).btn-pill { border-radius: var(--psir-pill); }
+html body :is(button, a).psir-square { border-radius: var(--psir-square); }
+
+/* Solid styles (important actions) */
+html body :is(button, a).psir-navy,
+html body :is(button, a).btn { background: var(--psir-navy); color: var(--psir-white); border-color: var(--psir-navy); }
+html body :is(button, a).psir-gold,
+html body :is(button, a).btn-gold,
+html body :is(button, a).btn-primary { background: var(--psir-gold); color: var(--psir-navy); border-color: var(--psir-gold); }
+html body :is(button, a).psir-green { background: var(--psir-green); color: var(--psir-white); border-color: var(--psir-green); }
+html body :is(button, a).psir-red { background: var(--psir-red); color: var(--psir-white); border-color: var(--psir-red); }
+
+/* Outline styles (secondary actions) */
+html body :is(button, a).psir-outline,
+html body :is(button, a).btn-line,
+html body :is(button, a).btn-outline,
+html body :is(button, a).btn-secondary,
+html body :is(button, a).secondary { background: var(--psir-white); color: var(--psir-navy); border-color: #CBD5E1; }
+html body :is(button, a).psir-outline-blue { background: var(--psir-white); color: var(--psir-blue); border-color: var(--psir-blue); }
+html body :is(button, a).psir-outline-red,
+html body :is(button, a).btn-danger,
+html body :is(button, a).danger,
+html body :is(button, a).del,
+html body :is(button, a)[data-action="delete"],
+html body :is(button, a)[data-del],
+html body :is(button, a)[data-remove],
+html body :is(button, a)[data-review="delete"],
+html body :is(button, a)[data-mine="delete"],
+html body :is(button, a)[data-mine="withdraw"] { background: var(--psir-white); color: var(--psir-red); border-color: #E7B4AF; }
+
+/* Soft styles (less prominent actions) */
+html body :is(button, a).psir-soft,
+html body :is(button, a)[data-action="bookmark"],
+html body :is(button, a)[data-action="replies"],
+html body :is(button, a).text-action { background: #E8F0F7; color: var(--psir-blue); border-color: transparent; }
+html body :is(button, a).psir-soft-green,
+html body :is(button, a)[data-action="helpful"] { background: #E6F2EC; color: var(--psir-green); border-color: transparent; }
+html body :is(button, a).psir-soft-red { background: #FCEBEA; color: var(--psir-red); border-color: transparent; }
+
+/* Sizes */
+html body :is(button, a).psir-lg { min-height: var(--psir-h-lg); padding: 0 24px; font-size: 1rem; }
+html body :is(button, a).psir-sm,
+html body :is(button, a).btn-small { min-height: 34px; padding: 0 12px; font-size: 0.85rem; }
+
+/* Pills for header and hero actions */
+html body .nav-actions :is(button, a).btn,
+html body .nav-actions :is(button, a).btn-primary,
+html body .nav-actions :is(button, a).btn-outline,
+html body .hero :is(button, a).btn,
+html body .hero :is(button, a).btn-primary,
+html body .hero :is(button, a).btn-outline,
+html body .hero :is(button, a).btn-gold,
+html body .hero :is(button, a).btn-line { border-radius: var(--psir-pill); }
+
+/* States */
+html body :is(button, a).psir-btn:hover:not(:disabled),
+html body :is(button, a).btn:hover:not(:disabled),
+html body :is(button, a).btn-primary:hover:not(:disabled),
+html body :is(button, a).btn-gold:hover:not(:disabled),
+html body :is(button, a).btn-danger:hover:not(:disabled),
+html body :is(button, a).btn-outline:hover:not(:disabled),
+html body :is(button, a).btn-line:hover:not(:disabled),
+html body :is(button, a).btn-secondary:hover:not(:disabled),
+html body :is(button, a).secondary:hover:not(:disabled),
+html body :is(button, a).danger:hover:not(:disabled),
+html body :is(button, a).del:hover:not(:disabled) { filter: brightness(0.94); }
+html body :is(button, a).psir-outline:hover:not(:disabled),
+html body :is(button, a).psir-outline-blue:hover:not(:disabled),
+html body :is(button, a).psir-outline-red:hover:not(:disabled),
+html body :is(button, a).btn-line:hover:not(:disabled),
+html body :is(button, a).btn-outline:hover:not(:disabled),
+html body :is(button, a).btn-secondary:hover:not(:disabled),
+html body :is(button, a).secondary:hover:not(:disabled),
+html body :is(button, a).btn-danger:hover:not(:disabled),
+html body :is(button, a).danger:hover:not(:disabled),
+html body :is(button, a).del:hover:not(:disabled) { background: var(--psir-light); }
+html body :is(button, a).psir-soft:hover:not(:disabled),
+html body :is(button, a).text-action:hover:not(:disabled) { background: #D7E5F1; }
+html body :is(button, a).psir-soft-green:hover:not(:disabled) { background: #D3EBDE; }
+
+html body :is(button, a).psir-btn:active:not(:disabled),
+html body :is(button, a).btn:active:not(:disabled) { transform: translateY(1px); }
+
+html body :is(button, a).psir-btn:focus-visible,
+html body :is(button, a).btn:focus-visible,
+html body :is(button, a).btn-primary:focus-visible,
+html body :is(button, a).btn-gold:focus-visible,
+html body :is(button, a).btn-outline:focus-visible,
+html body :is(button, a).btn-line:focus-visible,
+html body :is(button, a).btn-danger:focus-visible,
+html body :is(button, a).btn-secondary:focus-visible,
+html body :is(button, a).secondary:focus-visible,
+html body :is(button, a).danger:focus-visible,
+html body :is(button, a).del:focus-visible,
+html body :is(button, a).text-action:focus-visible {
+  outline: 3px solid var(--psir-focus); outline-offset: 2px;
+}
+
+html body :is(button, a).psir-btn:disabled,
+html body :is(button, a).btn:disabled,
+html body :is(button, a).btn-primary:disabled,
+html body :is(button, a).btn-gold:disabled,
+html body :is(button, a).btn-outline:disabled,
+html body :is(button, a).btn-line:disabled,
+html body :is(button, a).btn-danger:disabled,
+html body :is(button, a).danger:disabled,
+html body :is(button, a).del:disabled,
+html body :is(button, a).psir-btn[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; filter: none; }
+
+/* Loading: keeps the button in place and blocks a second click */
+html body :is(button, a).is-loading { pointer-events: none; position: relative; color: transparent !important; }
+html body :is(button, a).is-loading::after {
+  content: ""; position: absolute; width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid currentColor; border-right-color: transparent;
+  color: var(--psir-white); animation: psir-spin .7s linear infinite;
+}
+html body :is(button, a).btn-outline.is-loading::after,
+html body :is(button, a).btn-line.is-loading::after,
+html body :is(button, a).psir-outline.is-loading::after,
+html body :is(button, a).btn-gold.is-loading::after,
+html body :is(button, a).btn-primary.is-loading::after,
+html body :is(button, a).psir-gold.is-loading::after { color: var(--psir-navy); }
+@keyframes psir-spin { to { transform: rotate(360deg); } }
+
+/* Mobile: comfortable touch targets */
+@media (max-width: 640px) {
+  html body :is(button, a).psir-btn,
+  html body :is(button, a).btn,
+  html body :is(button, a).btn-primary,
+  html body :is(button, a).btn-gold,
+  html body :is(button, a).btn-outline,
+  html body :is(button, a).btn-line { min-height: 44px; }
+}
+
+/* Dark mode: keep outline and soft buttons readable */
+html[data-theme="dark"] :is(button, a).psir-outline,
+html[data-theme="dark"] :is(button, a).btn-line,
+html[data-theme="dark"] :is(button, a).btn-outline,
+html[data-theme="dark"] :is(button, a).btn-secondary,
+html[data-theme="dark"] :is(button, a).secondary { background: transparent; color: #E8EDF5; border-color: #6B7F96; }
+html[data-theme="dark"] :is(button, a).psir-soft,
+html[data-theme="dark"] :is(button, a).text-action { background: #1E3A56; color: #BFE0FF; }
