@@ -95,60 +95,9 @@
       border-radius: 6px !important;
     }
 
-    /* Primary buttons: pill, navy gradient */
-    html body button:not(.secondary):not(.ghost):not(.danger):not(.category-card):not(.hub-category-card):not(.psir-mode-btn):not(.btn-gold),
-    html body .btn-primary {
-      border-radius: 999px !important;
-      background: linear-gradient(180deg, var(--navy-light) 0%, var(--navy) 60%) !important;
-      color: #ffffff !important;
-      border: 1px solid rgba(255, 255, 255, 0.45) !important;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18) !important;
-      font-weight: 600;
-    }
-
-    /* Gold call-to-action */
-    html body .btn-gold {
-      border-radius: 999px !important;
-      background: linear-gradient(180deg, #e2bc4f 0%, var(--gold) 60%) !important;
-      color: #1b2a41 !important;
-      border: 1px solid rgba(255, 255, 255, 0.6) !important;
-      font-weight: 600;
-    }
-
-    /* Outline and secondary buttons: squarer, light */
-    html body .btn-outline,
-    html body button.secondary,
-    html body button.ghost {
-      border-radius: 6px !important;
-      background: var(--surface) !important;
-      color: var(--text) !important;
-      border: 1px solid var(--line) !important;
-      box-shadow: none !important;
-    }
-
-    /* Danger: squarer, red */
-    html body button.danger,
-    html body .btn-danger {
-      border-radius: 6px !important;
-      background: #a3172b !important;
-      color: #ffffff !important;
-      border: none !important;
-    }
-
     /* Success messages */
     html body .ok,
     html body .msg.ok { color: var(--success) !important; }
-
-    /* Keyboard focus */
-    html body button:focus-visible,
-    html body .btn:focus-visible,
-    html body a:focus-visible,
-    html body input:focus-visible,
-    html body textarea:focus-visible,
-    html body select:focus-visible {
-      outline: 3px solid var(--gold);
-      outline-offset: 2px;
-    }
 
     /* Appearance choice: always visible at the bottom-right */
     #psirThemeChoice {
@@ -181,7 +130,6 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      html body button, html body .btn { transition: none !important; }
     }
     /* Hero text stays readable on the navy background in every mode */
     html body .hero h1 { color: #ffffff !important; }
@@ -203,27 +151,7 @@
       text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
     }
 
-    /* Keep the Light / Dark / System selector from covering content */
-    @media (max-width: 800px) {
-      html body { padding-bottom: 76px !important; }
-      #psirThemeChoice { right: 8px !important; bottom: 8px !important; transform: scale(0.92); transform-origin: right bottom; }
-    }
-    @media (min-width: 801px) {
-      #psirThemeChoice { bottom: 16px !important; right: 16px !important; }
-    }
-
-    /* Option 3 buttons: rounded rectangles inside forms, lists and comments; pills for main calls to action */
-    html body form button, html body .post-actions button, html body .actions button, html body .reply-form button,
-    html body .modal button:not(.close-modal), html body .row button, html body .card-actions button {
-      border-radius:10px !important;
-    }
-    html body .hero-actions button, html body .hero-actions .btn, html body .hero button { border-radius:999px !important; }
-    html body button.danger, html body .btn-danger {
-      background:#fff !important; color:#8c2929 !important; border:1px solid #e7c2c7 !important; border-radius:10px !important;
-    }
-    html body button.secondary, html body .btn-secondary {
-      background:#fff !important; color:#102b46 !important; border:1px solid #cfd9e4 !important; border-radius:10px !important;
-    }
+    
 
     /* Keep the header, login buttons and bell inside the screen width (desktop-site and small screens) */
     html body { max-width:100% !important; overflow-x:hidden !important; }
