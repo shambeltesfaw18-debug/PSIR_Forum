@@ -59,6 +59,7 @@
   </main>
 
   <script src="richtext.js"></script>
+  <script src="imagekit.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
   (() => {
@@ -178,6 +179,16 @@
     }
 
     async function loadCover() {
+      if (pub.image_url) {
+        const img = document.createElement("img");
+        img.className = "cover";
+        img.alt = "Cover image";
+        img.loading = "lazy";
+        img.src = pub.image_url;
+        img.onerror = () => img.remove();
+        document.getElementById("coverBox").appendChild(img);
+        return;
+      }
       if (!pub.thumb_path) return;
       const { data, error } = await db.storage.from("publications").createSignedUrl(pub.thumb_path, 3600);
       if (error || !data) return;
