@@ -134,6 +134,16 @@
         const threadIds = reports.filter(r => r.target_type === 'thread').map(r => r.target_id);
         const replyIds = reports.filter(r => r.target_type === 'reply').map(r => r.target_id);
         const content = new Map();
+        const pubIds = reports.filter(r => r.target_type === 'publication').map(r => r.target_id);
+        const commentIds = reports.filter(r => r.target_type === 'publication_comment').map(r => r.target_id);
+        if (pubIds.length) {
+          const { data } = await db.from('publications').select('id, title, abstract, status').in('id', pubIds);
+          (data || []).forEach(x => content.set('publication:' + x.id, { title: x.title, body: x.abstract, is_hidden: x.status !== 'approved' }));
+        }
+        if (commentIds.length) {
+          const { data } = await db.from('publication_comments').select('id, body, is_hidden').in('id', commentIds);
+          (data || []).forEach(x => content.set('publication_comment:' + x.id, x));
+        }
 
         if (threadIds.length) {
           const { data } = await db.from('threads').select('id, title, body, is_hidden').in('id', threadIds);
@@ -156,7 +166,7 @@
 
     function reportCard(r, reporterName, item) {
       const card = el('div', 'card');
-      card.appendChild(el('div', 'meta', r.target_type === 'thread' ? 'Discussion' : 'Reply'));
+      card.appendChild(el('div', 'meta', LABELS[r.target_type] || r.target_type));
 
       if (!item) {
         card.appendChild(el('p', 'meta', 'This content no longer exists. You can dismiss the report.'));
@@ -177,12 +187,44 @@
           actions.appendChild(btn('Hide content', 'danger', () => moderate(r, true, actions)));
         }
       }
-      actions.appendChild(btn('Dismiss report', 'secondary', () => dismiss(r, actions)));
+      actions.appendChild(btn('Dismiss report', 'secondary', () => dismissAny(r, actions)));
       card.appendChild(actions);
       return card;
     }
 
+    const LABELS = {
+      thread: 'Discussion', reply: 'Reply',
+      publication: 'Research or news item', publication_comment: 'Comment on a research or news item'
+    };
+    const NEW_TYPES = ['publication', 'publication_comment'];
+
+    async function moderateNew(r, hide, actions) {
+      if (!hide) { showMsg('Restoring this item is not available yet. It stays hidden.', false); return; }
+      const reason = prompt('Reason for hiding this item (at least 5 characters). It will be recorded in the audit log:');
+      if (!reason || reason.trim().length < 5) { showMsg('Cancelled. A reason of at least 5 characters is required.', false); return; }
+      if (!confirm('Hide this item from members? Only moderators will be able to see it.')) return;
+      const buttons = actions.querySelectorAll('button');
+      buttons.forEach(b => b.disabled = true);
+      const { error } = await db.rpc('resolve_report', { p_report: r.id, p_decision: 'hide', p_note: reason.trim() });
+      if (error) { buttons.forEach(b => b.disabled = false); showMsg('Could not hide the item: ' + error.message, false); return; }
+      showMsg('Item hidden and recorded in the audit log.', true);
+      loadReports();
+    }
+
+    async function dismissAny(r, actions) {
+      if (!NEW_TYPES.includes(r.target_type)) return dismiss(r, actions);
+      const reason = prompt('Reason for dismissing this report (at least 5 characters):');
+      if (!reason || reason.trim().length < 5) { showMsg('Cancelled. A reason of at least 5 characters is required.', false); return; }
+      const buttons = actions.querySelectorAll('button');
+      buttons.forEach(b => b.disabled = true);
+      const { error } = await db.rpc('resolve_report', { p_report: r.id, p_decision: 'dismiss', p_note: reason.trim() });
+      if (error) { buttons.forEach(b => b.disabled = false); showMsg('Could not dismiss the report: ' + error.message, false); return; }
+      showMsg('Report dismissed and recorded in the audit log.', true);
+      loadReports();
+    }
+
     async function moderate(r, hide, actions) {
+      if (NEW_TYPES.includes(r.target_type)) return moderateNew(r, hide, actions);
       const verb = hide ? 'hide' : 'restore';
       const reason = prompt('Reason for you to ' + verb + ' this content (at least 5 characters). It will be recorded in the audit log:');
       if (!reason || reason.trim().length < 5) {

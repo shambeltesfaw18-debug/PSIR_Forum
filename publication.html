@@ -128,6 +128,7 @@
             ${pub.pdf_path ? '<button class="btn" id="openPdf">Read full paper (PDF)</button>' : ""}
             ${me ? '<button class="btn btn-line" id="saveBtn" aria-pressed="false">Save</button>' : '<span class="meta">Log in on the home page to save this paper.</span>'}
             <button class="btn btn-line" id="shareBtn">Share</button>
+            ${me ? '<button class="btn btn-line" id="reportBtn">Report</button>' : ""}
           </div>
           <p id="flash" role="status" class="meta" style="margin:10px 0 0;"></p>
           ${approved ? '<p class="meta" style="margin-top:14px;">Published on PSIR Forum. This is moderated publication, not formal peer review or journal acceptance.</p>' : ""}
@@ -174,6 +175,8 @@
       const save = document.getElementById("saveBtn");
       if (save) save.addEventListener("click", toggleBookmark);
 
+      const rp = document.getElementById("reportBtn");
+      if (rp) rp.addEventListener("click", () => reportItem("publication", pub.id));
       const form = document.getElementById("commentForm");
       if (form) form.addEventListener("submit", postComment);
     }
@@ -254,9 +257,24 @@
               ${mine ? '<button type="button" data-act="edit" data-id="' + esc(c.id) + '">Edit</button><button type="button" class="danger" data-act="delete" data-id="' + esc(c.id) + '">Delete</button>' : ""}
               ${isStaff && !mine ? '<button type="button" data-act="' + (hidden ? "show" : "hide") + '" data-id="' + esc(c.id) + '">' + (hidden ? "Show" : "Hide") + "</button>" : ""}
               ${isStaff && mine ? '<button type="button" class="danger" data-act="delete" data-id="' + esc(c.id) + '">Delete</button>' : ""}
+              ${me && !mine ? '<button type="button" data-act="report" data-id="' + esc(c.id) + '">Report</button>' : ""}
             </div>
           </div>`;
       }).join("") || '<p class="meta">No comments to show.</p>';
+    }
+
+    async function reportItem(type, id) {
+      if (!me) { flash("Log in to report content.", true); return; }
+      const reason = prompt("Why are you reporting this? Describe the problem (5 to 500 characters):");
+      if (reason === null) return;
+      const clean = reason.trim();
+      if (clean.length < 5 || clean.length > 500) { flash("Please give a reason of 5 to 500 characters.", true); return; }
+      const { error } = await db.from("reports").insert({ reporter_id: me.id, target_type: type, target_id: id, reason: clean });
+      if (error) {
+        flash(error.code === "23505" ? "You have already reported this." : "Could not send the report: " + error.message, true);
+        return;
+      }
+      flash("Thank you. A moderator will review your report.");
     }
 
     async function postComment(event) {
@@ -283,6 +301,7 @@
       const b = event.target.closest("button[data-act]");
       if (!b) return;
       const cid = b.dataset.id;
+      if (b.dataset.act === "report") { reportItem("publication_comment", cid); return; }
       if (b.dataset.act === "edit") {
         const current = b.closest(".comment").querySelector(".body").textContent;
         const next = prompt("Edit your comment (2 to 2000 characters):", current);
