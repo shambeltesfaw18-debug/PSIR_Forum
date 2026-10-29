@@ -260,6 +260,19 @@
       html body .category-card, html body .category-card:hover { transition: none !important; transform: none !important; }
     }
 
+    /* Collapse the menu into the ☰ button on wide phones, tablets and desktop-site mode (screens up to 1180px) */
+    @media (max-width: 1180px) {
+      html body .nav-inner { flex-wrap: wrap; padding: 12px 0; }
+      html body .mobile-menu { display: inline-flex !important; }
+      html body .nav-links {
+        display: none !important; order: 4; width: 100%; flex-direction: column; align-items: stretch;
+        gap: 0; background: #fff; border-top: 1px solid var(--border); padding: 4px 0;
+      }
+      html body .nav-links.open { display: flex !important; }
+      html body .nav-links a { padding: 12px 4px; border-bottom: 1px solid #edf0f4; font-size: 0.95rem; }
+      html body .nav-actions { margin-left: auto; }
+    }
+
   `;
 
   const style = document.createElement("style");
