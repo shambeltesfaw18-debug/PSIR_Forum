@@ -156,3 +156,25 @@ html[data-theme="dark"] :is(button, a).btn-secondary,
 html[data-theme="dark"] :is(button, a).secondary { background: transparent; color: #E8EDF5; border-color: #6B7F96; }
 html[data-theme="dark"] :is(button, a).psir-soft,
 html[data-theme="dark"] :is(button, a).text-action { background: #1E3A56; color: #BFE0FF; }
+
+/* Discussion action row: wins over the theme's older navy rule.
+   Bookmark and reply count are soft blue, Save is soft blue, Edit is a blue outline. */
+html body .post-actions :is(button, a).text-action[data-action="bookmark"],
+html body .post-actions :is(button, a).text-action[data-action="replies"],
+html body .post-actions :is(button, a).text-action[data-action="bookmark"].saved {
+  background: #EAF0FC !important; color: #2855A6 !important; border: 1px solid transparent !important;
+}
+html body .post-actions :is(button, a).text-action[data-action="bookmark"]:hover:not(:disabled),
+html body .post-actions :is(button, a).text-action[data-action="replies"]:hover:not(:disabled) {
+  background: #D8E4FA !important;
+}
+html body .post-actions :is(button, a).text-action:not([data-action]):not(.psir-report) {
+  background: #FFFFFF !important; color: #2855A6 !important; border: 1px solid #2855A6 !important;
+}
+html body .post-actions :is(button, a).text-action:not([data-action]):not(.psir-report):hover:not(:disabled) {
+  background: #EAF0FC !important;
+}
+html body .post-actions :is(button, a).psir-report,
+html body .post-actions :is(button, a)[data-action="delete"] {
+  background: #FFFFFF !important; color: #B42318 !important; border: 1px solid #B42318 !important;
+}
