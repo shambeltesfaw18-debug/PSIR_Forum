@@ -429,7 +429,9 @@
           imageFileId = up.fileId;
           thumbPath = null;
         }
-        const payload = { ...row, language: "English", status: asSubmitted ? "submitted" : "draft", pdf_path: null, thumb_path: thumbPath, image_url: imageUrl, image_file_id: imageFileId };
+        const payload = { ...row, language: "English", status: asSubmitted ? "submitted" : "draft", pdf_path: null, thumb_path: thumbPath };
+        // Only send the image fields when there is an image, so saving still works before the database update
+        if (imageUrl) { payload.image_url = imageUrl; payload.image_file_id = imageFileId; }
         if (asSubmitted) payload.submitted_at = new Date().toISOString();
         let result;
         if (editingId) result = await db.from("publications").update(payload).eq("id", editingId).eq("author_id", me.id).select("id");
