@@ -1,170 +1,147 @@
-/* PSIR Forum button system: one set of brand colours, shapes, styles and states.
-   Used by the new psir-* classes and by the existing class names already on the pages. */
+/* PSIR Forum button system (royal blue and gold).
+   Shapes: 6px for buttons and inputs. Pills are opt-in only (.psir-pill).
+   Order matters: class variants first, then attribute-based overrides last. */
 :root {
-  --psir-navy: #102B46;
-  --psir-blue: #205D89;
+  --psir-primary: #2855A6;
+  --psir-primary-dark: #1E3F82;
+  --psir-secondary: #5B8DEF;
   --psir-gold: #E6B75A;
-  --psir-light: #F3F6FA;
-  --psir-green: #237A57;
-  --psir-red: #B42318;
-  --psir-white: #FFFFFF;
-  --psir-focus: #E6B75A;
-  --psir-h: 42px;
-  --psir-h-lg: 50px;
-  --psir-radius: 10px;
+  --psir-gold-dark: #D4A24A;
+  --psir-soft-bg: #EAF0FC;
+  --psir-soft-hover: #D8E4FA;
+  --psir-page: #F7F9FC;
+  --psir-card: #FFFFFF;
+  --psir-text: #263238;
+  --psir-muted: #64748B;
+  --psir-success: #237A57;
+  --psir-success-dark: #1D6447;
+  --psir-success-soft: #E6F2EC;
+  --psir-danger: #B42318;
+  --psir-danger-soft: #FCEBEA;
+  --psir-radius: 6px;
+  --psir-radius-card: 10px;
+  --psir-radius-badge: 4px;
   --psir-pill: 999px;
-  --psir-square: 2px;
+  --psir-h: 42px;
+  --psir-h-lg: 48px;
+  --psir-focus: #2855A6;
 }
 
-/* Base: every button and button-like link */
+/* Base for every button and button-like link */
 html body :is(button, a).psir-btn,
 html body :is(button, a).btn,
 html body :is(button, a).btn-primary,
 html body :is(button, a).btn-gold,
 html body :is(button, a).btn-outline,
 html body :is(button, a).btn-line,
-html body :is(button, a).btn-danger,
 html body :is(button, a).btn-secondary,
 html body :is(button, a).secondary,
-html body :is(button, a).danger,
-html body :is(button, a).del {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  min-height: var(--psir-h); padding: 0 18px; font: inherit; font-size: 0.95rem; font-weight: 700;
-  line-height: 1.15; border: 1px solid transparent; border-radius: var(--psir-radius);
-  cursor: pointer; text-decoration: none; text-align: center;
-  transition: background-color .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease, transform .05s ease, filter .15s ease;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Shapes */
-html body :is(button, a).psir-pill,
-html body :is(button, a).btn-pill { border-radius: var(--psir-pill); }
-html body :is(button, a).psir-square { border-radius: var(--psir-square); }
-
-/* Solid styles (important actions) */
-html body :is(button, a).psir-navy,
-html body :is(button, a).btn { background: var(--psir-navy); color: var(--psir-white); border-color: var(--psir-navy); }
-html body :is(button, a).psir-gold,
-html body :is(button, a).btn-gold,
-html body :is(button, a).btn-primary { background: var(--psir-gold); color: var(--psir-navy); border-color: var(--psir-gold); }
-html body :is(button, a).psir-green { background: var(--psir-green); color: var(--psir-white); border-color: var(--psir-green); }
-html body :is(button, a).psir-red { background: var(--psir-red); color: var(--psir-white); border-color: var(--psir-red); }
-
-/* Outline styles (secondary actions) */
-html body :is(button, a).psir-outline,
-html body :is(button, a).btn-line,
-html body :is(button, a).btn-outline,
-html body :is(button, a).btn-secondary,
-html body :is(button, a).secondary { background: var(--psir-white); color: var(--psir-navy); border-color: #CBD5E1; }
-html body :is(button, a).psir-outline-blue { background: var(--psir-white); color: var(--psir-blue); border-color: var(--psir-blue); }
-html body :is(button, a).psir-outline-red,
+html body :is(button, a).psir-secondary,
+html body :is(button, a).psir-soft,
+html body :is(button, a).psir-success,
+html body :is(button, a).psir-danger,
 html body :is(button, a).btn-danger,
 html body :is(button, a).danger,
 html body :is(button, a).del,
+html body :is(button, a).text-action,
+html body :is(button, a).psir-report {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: var(--psir-h); padding: 0 16px; font: inherit; font-size: 0.95rem; font-weight: 700;
+  line-height: 1.15; border: 1px solid transparent; border-radius: var(--psir-radius);
+  cursor: pointer; text-decoration: none; text-align: center; box-shadow: none;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Primary: royal blue, for Log In, Reply, Submit, Save Changes */
+html body :is(button, a).psir-btn,
+html body :is(button, a).btn { background: var(--psir-primary); color: #FFFFFF; border-color: var(--psir-primary); }
+html body :is(button, a).btn:hover:not(:disabled),
+html body :is(button, a).psir-btn:hover:not(:disabled) { background: var(--psir-primary-dark); border-color: var(--psir-primary-dark); }
+
+/* Important call to action: gold with dark charcoal text */
+html body :is(button, a).btn-primary,
+html body :is(button, a).btn-gold { background: var(--psir-gold); color: var(--psir-text); border-color: var(--psir-gold); }
+html body :is(button, a).btn-primary:hover:not(:disabled),
+html body :is(button, a).btn-gold:hover:not(:disabled) { background: var(--psir-gold-dark); border-color: var(--psir-gold-dark); }
+
+/* Secondary: white background, royal blue text and border (Share, Cancel, View Details) */
+html body :is(button, a).btn-outline,
+html body :is(button, a).btn-line,
+html body :is(button, a).btn-secondary,
+html body :is(button, a).secondary,
+html body :is(button, a).psir-secondary { background: #FFFFFF; color: var(--psir-primary); border-color: var(--psir-primary); }
+html body :is(button, a).btn-outline:hover:not(:disabled),
+html body :is(button, a).btn-line:hover:not(:disabled),
+html body :is(button, a).btn-secondary:hover:not(:disabled),
+html body :is(button, a).secondary:hover:not(:disabled),
+html body :is(button, a).psir-secondary:hover:not(:disabled) { background: var(--psir-soft-bg); }
+
+/* Soft: light blue background, royal blue text (Bookmark, filters, less prominent actions) */
+html body :is(button, a).psir-soft,
+html body :is(button, a).text-action { background: var(--psir-soft-bg); color: var(--psir-primary); border-color: transparent; }
+html body :is(button, a).psir-soft:hover:not(:disabled),
+html body :is(button, a).text-action:hover:not(:disabled) { background: var(--psir-soft-hover); }
+
+/* Success: green for Approve and positive actions */
+html body :is(button, a).psir-success { background: var(--psir-success); color: #FFFFFF; border-color: var(--psir-success); }
+html body :is(button, a).psir-success:hover:not(:disabled) { background: var(--psir-success-dark); border-color: var(--psir-success-dark); }
+
+/* Destructive: red outline for Report, red for Delete and Remove */
+html body :is(button, a).btn-danger,
+html body :is(button, a).danger,
+html body :is(button, a).del,
+html body :is(button, a).psir-report { background: #FFFFFF; color: var(--psir-danger); border-color: var(--psir-danger); }
+html body :is(button, a).btn-danger:hover:not(:disabled),
+html body :is(button, a).danger:hover:not(:disabled),
+html body :is(button, a).del:hover:not(:disabled),
+html body :is(button, a).psir-report:hover:not(:disabled) { background: var(--psir-danger-soft); }
+html body :is(button, a).psir-danger { background: var(--psir-danger); color: #FFFFFF; border-color: var(--psir-danger); }
+
+/* Attribute-based actions, applied last so they win over the soft text-action style */
+html body :is(button, a)[data-action="bookmark"],
+html body :is(button, a)[data-action="replies"] { background: var(--psir-soft-bg); color: var(--psir-primary); border-color: transparent; }
+html body :is(button, a)[data-action="helpful"] { background: var(--psir-success-soft); color: var(--psir-success); border-color: transparent; }
+html body :is(button, a)[data-action="helpful"]:hover:not(:disabled) { background: #D3EBDE; }
 html body :is(button, a)[data-action="delete"],
 html body :is(button, a)[data-del],
 html body :is(button, a)[data-remove],
 html body :is(button, a)[data-review="delete"],
 html body :is(button, a)[data-mine="delete"],
-html body :is(button, a)[data-mine="withdraw"] { background: var(--psir-white); color: var(--psir-red); border-color: #E7B4AF; }
-
-/* Soft styles (less prominent actions) */
-html body :is(button, a).psir-soft,
-html body :is(button, a)[data-action="bookmark"],
-html body :is(button, a)[data-action="replies"],
-html body :is(button, a).text-action { background: #E8F0F7; color: var(--psir-blue); border-color: transparent; }
-html body :is(button, a).psir-soft-green,
-html body :is(button, a)[data-action="helpful"] { background: #E6F2EC; color: var(--psir-green); border-color: transparent; }
-html body :is(button, a).psir-soft-red { background: #FCEBEA; color: var(--psir-red); border-color: transparent; }
+html body :is(button, a)[data-mine="withdraw"] { background: #FFFFFF; color: var(--psir-danger); border-color: var(--psir-danger); }
+html body :is(button, a)[data-action="delete"]:hover:not(:disabled) { background: var(--psir-danger-soft); }
 
 /* Sizes */
-html body :is(button, a).psir-lg { min-height: var(--psir-h-lg); padding: 0 24px; font-size: 1rem; }
+html body :is(button, a).psir-lg { min-height: var(--psir-h-lg); padding: 0 22px; font-size: 1rem; }
 html body :is(button, a).psir-sm,
 html body :is(button, a).btn-small { min-height: 34px; padding: 0 12px; font-size: 0.85rem; }
 
-/* Pills for header and hero actions */
-html body .nav-actions :is(button, a).btn,
-html body .nav-actions :is(button, a).btn-primary,
-html body .nav-actions :is(button, a).btn-outline,
-html body .hero :is(button, a).btn,
-html body .hero :is(button, a).btn-primary,
-html body .hero :is(button, a).btn-outline,
-html body .hero :is(button, a).btn-gold,
-html body .hero :is(button, a).btn-line { border-radius: var(--psir-pill); }
+/* Opt-in pill shape (not the default) */
+html body :is(button, a).psir-pill { border-radius: var(--psir-pill); }
+html body :is(button, a).psir-square { border-radius: 2px; }
 
-/* States */
-html body :is(button, a).psir-btn:hover:not(:disabled),
-html body :is(button, a).btn:hover:not(:disabled),
-html body :is(button, a).btn-primary:hover:not(:disabled),
-html body :is(button, a).btn-gold:hover:not(:disabled),
-html body :is(button, a).btn-danger:hover:not(:disabled),
-html body :is(button, a).btn-outline:hover:not(:disabled),
-html body :is(button, a).btn-line:hover:not(:disabled),
-html body :is(button, a).btn-secondary:hover:not(:disabled),
-html body :is(button, a).secondary:hover:not(:disabled),
-html body :is(button, a).danger:hover:not(:disabled),
-html body :is(button, a).del:hover:not(:disabled) { filter: brightness(0.94); }
-html body :is(button, a).psir-outline:hover:not(:disabled),
-html body :is(button, a).psir-outline-blue:hover:not(:disabled),
-html body :is(button, a).psir-outline-red:hover:not(:disabled),
-html body :is(button, a).btn-line:hover:not(:disabled),
-html body :is(button, a).btn-outline:hover:not(:disabled),
-html body :is(button, a).btn-secondary:hover:not(:disabled),
-html body :is(button, a).secondary:hover:not(:disabled),
-html body :is(button, a).btn-danger:hover:not(:disabled),
-html body :is(button, a).danger:hover:not(:disabled),
-html body :is(button, a).del:hover:not(:disabled) { background: var(--psir-light); }
-html body :is(button, a).psir-soft:hover:not(:disabled),
-html body :is(button, a).text-action:hover:not(:disabled) { background: #D7E5F1; }
-html body :is(button, a).psir-soft-green:hover:not(:disabled) { background: #D3EBDE; }
+/* Focus, active, disabled */
+html body :is(button, a):focus-visible { outline: 3px solid var(--psir-focus); outline-offset: 2px; }
+html body :is(button, a):active:not(:disabled) { transform: translateY(1px); }
+html body :is(button, a):disabled,
+html body :is(button, a)[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; }
 
-html body :is(button, a).psir-btn:active:not(:disabled),
-html body :is(button, a).btn:active:not(:disabled) { transform: translateY(1px); }
-
-html body :is(button, a).psir-btn:focus-visible,
-html body :is(button, a).btn:focus-visible,
-html body :is(button, a).btn-primary:focus-visible,
-html body :is(button, a).btn-gold:focus-visible,
-html body :is(button, a).btn-outline:focus-visible,
-html body :is(button, a).btn-line:focus-visible,
-html body :is(button, a).btn-danger:focus-visible,
-html body :is(button, a).btn-secondary:focus-visible,
-html body :is(button, a).secondary:focus-visible,
-html body :is(button, a).danger:focus-visible,
-html body :is(button, a).del:focus-visible,
-html body :is(button, a).text-action:focus-visible {
-  outline: 3px solid var(--psir-focus); outline-offset: 2px;
-}
-
-html body :is(button, a).psir-btn:disabled,
-html body :is(button, a).btn:disabled,
-html body :is(button, a).btn-primary:disabled,
-html body :is(button, a).btn-gold:disabled,
-html body :is(button, a).btn-outline:disabled,
-html body :is(button, a).btn-line:disabled,
-html body :is(button, a).btn-danger:disabled,
-html body :is(button, a).danger:disabled,
-html body :is(button, a).del:disabled,
-html body :is(button, a).psir-btn[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; filter: none; }
-
-/* Loading: keeps the button in place and blocks a second click */
+/* Loading: keeps size, blocks a second click */
 html body :is(button, a).is-loading { pointer-events: none; position: relative; color: transparent !important; }
 html body :is(button, a).is-loading::after {
   content: ""; position: absolute; width: 16px; height: 16px; border-radius: 50%;
   border: 2px solid currentColor; border-right-color: transparent;
-  color: var(--psir-white); animation: psir-spin .7s linear infinite;
+  color: #FFFFFF; animation: psir-spin .7s linear infinite;
 }
+html body :is(button, a).btn-primary.is-loading::after,
+html body :is(button, a).btn-gold.is-loading::after,
 html body :is(button, a).btn-outline.is-loading::after,
 html body :is(button, a).btn-line.is-loading::after,
-html body :is(button, a).psir-outline.is-loading::after,
-html body :is(button, a).btn-gold.is-loading::after,
-html body :is(button, a).btn-primary.is-loading::after,
-html body :is(button, a).psir-gold.is-loading::after { color: var(--psir-navy); }
+html body :is(button, a).secondary.is-loading::after { color: var(--psir-text); }
 @keyframes psir-spin { to { transform: rotate(360deg); } }
 
-/* Mobile: comfortable touch targets */
+/* Mobile touch targets */
 @media (max-width: 640px) {
-  html body :is(button, a).psir-btn,
   html body :is(button, a).btn,
   html body :is(button, a).btn-primary,
   html body :is(button, a).btn-gold,
@@ -172,10 +149,9 @@ html body :is(button, a).psir-gold.is-loading::after { color: var(--psir-navy); 
   html body :is(button, a).btn-line { min-height: 44px; }
 }
 
-/* Dark mode: keep outline and soft buttons readable */
-html[data-theme="dark"] :is(button, a).psir-outline,
-html[data-theme="dark"] :is(button, a).btn-line,
+/* Dark mode: secondary and soft stay readable */
 html[data-theme="dark"] :is(button, a).btn-outline,
+html[data-theme="dark"] :is(button, a).btn-line,
 html[data-theme="dark"] :is(button, a).btn-secondary,
 html[data-theme="dark"] :is(button, a).secondary { background: transparent; color: #E8EDF5; border-color: #6B7F96; }
 html[data-theme="dark"] :is(button, a).psir-soft,

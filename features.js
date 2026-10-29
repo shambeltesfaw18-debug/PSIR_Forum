@@ -266,7 +266,11 @@
       const actions = card.querySelector(".post-actions");
 
       if (isOwner) actions.appendChild(btn("Edit", () => editPost(t)));
-      if (me && !isOwner) actions.appendChild(btn("Report", () => reportPost(id)));
+      if (me && !isOwner) {
+        const rb = btn("Report", () => reportPost(id));
+        rb.classList.add("psir-report");
+        actions.appendChild(rb);
+      }
       if (isOwner && LEADER.includes(role)) actions.appendChild(btn("Attach file", () => pickFile(id)));
 
       const files = filesByThread.get(id) || [];
