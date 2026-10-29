@@ -40,7 +40,7 @@
     .field textarea { min-height:110px; resize:vertical; }
     .help { color:var(--muted); font-size:.8rem; margin-top:4px; }
     .panel { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px; margin-top:14px; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr)); gap:16px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr)); gap:16px; }
     .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px; display:flex; flex-direction:column; gap:6px; }
     .card h3 { margin:4px 0 2px; color:var(--navy); font-size:1.08rem; line-height:1.35; overflow-wrap:anywhere; }
     .card h3 a { color:inherit; text-decoration:none; }
@@ -68,7 +68,7 @@
     /* Wider screens (including Chrome's desktop-site mode): wider cards and larger, easier text */
     @media (min-width:600px) {
       .wrap { width:min(1200px, calc(100% - 48px)); }
-      .grid { grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr)); gap:20px; }
+      .grid { grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr)); gap:20px; }
       .card { padding:22px; gap:8px; }
       .card h3 { font-size:1.22rem; }
       .card p { font-size:1rem; line-height:1.65; }
