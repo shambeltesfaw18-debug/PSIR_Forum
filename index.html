@@ -695,6 +695,9 @@
       color: var(--navy);
     }
 
+    .helpful-reply { border-left: 4px solid #2e7d4f; background: #eef8f1; }
+    .helpful-badge { display: inline-block; font-size: 0.74rem; font-weight: 800; color: #1f6a42; background: #d8f0e1; border-radius: 999px; padding: 3px 10px; margin-bottom: 6px; }
+    .helpful-toggle { font-size: 0.78rem; padding: 4px 8px; }
     .reply-form {
       display: flex;
       gap: 8px;
@@ -2407,7 +2410,7 @@
       const { data: threads, error: threadError } = await db
         .from("threads")
         .select(
-          "id, category_id, author_id, title, body, content_type, is_hidden, created_at"
+          "id, category_id, author_id, title, body, content_type, is_hidden, created_at, accepted_reply_id"
         )
         .eq("is_hidden", false)
         .order("created_at", { ascending: false });
@@ -2463,9 +2466,12 @@
             ? displayName(currentUser)
             : "Community Member"),
         authorId: thread.author_id,
+        acceptedReplyId: thread.accepted_reply_id || null,
         createdAt: thread.created_at,
         replies: repliesByThread[thread.id] || []
       }));
+
+      currentIsStaff = await isStaffUser();
 
       await loadBookmarks();
       renderDiscussions();
@@ -2577,8 +2583,9 @@
 
     list.innerHTML = filtered.map(post => {
       const saved = bookmarks.includes(post.id);
-      const replies = post.replies || [];
+      const replies = [...(post.replies || [])].sort((a, b) => (b.id === post.acceptedReplyId) - (a.id === post.acceptedReplyId));
       const isOwner = currentUser && post.authorId === currentUser.id;
+      const canMark = currentUser && (post.authorId === currentUser.id || currentIsStaff);
 
       return `
         <article class="discussion-card" id="post-${escapeHTML(post.id)}">
@@ -2630,9 +2637,11 @@
             <div class="reply-list">
               ${replies.length
                 ? replies.map(reply => `
-                  <div class="reply-item">
+                  <div class="reply-item ${reply.id === post.acceptedReplyId ? "helpful-reply" : ""}">
+                    ${reply.id === post.acceptedReplyId ? '<span class="helpful-badge">✓ Helpful answer</span>' : ""}
                     <strong>${escapeHTML(reply.author)}</strong>
                     ${PSIRRich.display(reply.body)}
+                    ${canMark ? `<button class="text-action helpful-toggle" type="button" data-action="helpful" data-id="${escapeHTML(post.id)}" data-reply="${escapeHTML(reply.id)}">${reply.id === post.acceptedReplyId ? "Remove helpful mark" : "Mark as helpful answer"}</button>` : ""}
                   </div>
                 `).join("")
                 : `<p class="muted small">No replies yet. Start the conversation.</p>`
@@ -2649,6 +2658,31 @@
         </article>
       `;
     }).join("");
+  }
+
+  let currentIsStaff = false;
+
+  async function isStaffUser() {
+    if (!currentUser) return false;
+    const { data } = await db.from("profiles").select("role").eq("id", currentUser.id).maybeSingle();
+    return !!data && ["admin", "moderator"].includes(data.role);
+  }
+
+  async function markHelpful(threadId, replyId) {
+    if (!currentUser) {
+      showToast("Please log in first.", true);
+      openAuthModal("login");
+      return;
+    }
+    const { error } = await db.from("threads").update({ accepted_reply_id: replyId }).eq("id", threadId);
+    if (error) {
+      showToast(explainError(error), true);
+      return;
+    }
+    const post = posts.find(p => p.id === threadId);
+    if (post) post.acceptedReplyId = replyId;
+    showToast(replyId ? "Marked as the helpful answer." : "Helpful mark removed.");
+    renderDiscussions();
   }
 
   async function toggleBookmark(id) {
@@ -3087,6 +3121,10 @@
 
     if (button.dataset.action === "delete") {
       deleteDiscussion(id);
+    }
+
+    if (button.dataset.action === "helpful") {
+      markHelpful(id, button.dataset.reply || null);
     }
   });
 
