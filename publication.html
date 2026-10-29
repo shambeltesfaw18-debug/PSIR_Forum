@@ -128,7 +128,7 @@
             ${pub.pdf_path ? '<button class="btn" id="openPdf">Read full paper (PDF)</button>' : ""}
             ${me ? '<button class="btn btn-line" id="saveBtn" aria-pressed="false">Save</button>' : '<span class="meta">Log in on the home page to save this paper.</span>'}
             <button class="btn btn-line" id="shareBtn">Share</button>
-            ${me ? '<button class="btn btn-line" id="reportBtn">Report</button>' : ""}
+            ${me && pub.author_id !== me.id ? '<button class="btn btn-line" id="reportBtn">Report</button>' : ""}
           </div>
           <p id="flash" role="status" class="meta" style="margin:10px 0 0;"></p>
           ${approved ? '<p class="meta" style="margin-top:14px;">Published on PSIR Forum. This is moderated publication, not formal peer review or journal acceptance.</p>' : ""}
@@ -271,7 +271,7 @@
       if (clean.length < 5 || clean.length > 500) { flash("Please give a reason of 5 to 500 characters.", true); return; }
       const { error } = await db.from("reports").insert({ reporter_id: me.id, target_type: type, target_id: id, reason: clean });
       if (error) {
-        flash(error.code === "23505" ? "You have already reported this." : "Could not send the report: " + error.message, true);
+        flash(error.code === "23505" ? "You have already reported this." : (/row-level security/i.test(error.message) ? "You cannot report this item (your own content cannot be reported)." : "Could not send the report: " + error.message), true);
         return;
       }
       flash("Thank you. A moderator will review your report.");
