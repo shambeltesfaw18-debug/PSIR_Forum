@@ -201,6 +201,15 @@
       html body .nav-actions { margin-left: auto; }
     }
 
+    /* Keep the Light / Dark / System selector from covering content */
+    @media (max-width: 800px) {
+      html body { padding-bottom: 76px !important; }
+      #psirThemeChoice { right: 8px !important; bottom: 8px !important; transform: scale(0.92); transform-origin: right bottom; }
+    }
+    @media (min-width: 801px) {
+      #psirThemeChoice { bottom: 16px !important; right: 16px !important; }
+    }
+
   `;
 
   const style = document.createElement("style");
