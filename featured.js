@@ -89,5 +89,11 @@
       message('<p class="featured-note" style="color:#8c2929;">Could not load recent discussions. Please refresh the page.</p>');
     }
   }
+  // If the discussions do not arrive in time, say so instead of staying on "Loading"
+  setTimeout(() => {
+    if (box.innerHTML.indexOf("Loading recent discussions") !== -1) {
+      message('<p class="featured-note">Recent discussions are taking a while to load. Please refresh the page.</p>');
+    }
+  }, 10000);
   load();
 })();
