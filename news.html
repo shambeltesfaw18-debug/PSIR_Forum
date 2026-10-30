@@ -260,7 +260,7 @@
       const src = safeHttp(item.source_url);
       return `
         <article class="card">
-          ${item.image_url ? '<div class="cover"><img src="' + esc(item.image_url) + '" alt="Cover image" loading="lazy"></div>' : (item.thumb_path ? '<div class="cover" data-thumb="' + esc(item.thumb_path) + '"></div>' : "")}
+          ${item.image_url ? '<div class="cover"><img src="' + esc(item.image_url) + '?tr=w-640,q-80" width="640" height="360" alt="Cover image" loading="lazy" decoding="async"></div>' : (item.thumb_path ? '<div class="cover" data-thumb="' + esc(item.thumb_path) + '"></div>' : "")}
           <span class="pill ${kindOf(item)}">${kindOf(item) === "news" ? "News" : "Journal"} · ${esc(item.publication_type)}</span>
           <h3><a href="/publication.html?id=${esc(item.id)}">${esc(item.title)}</a></h3>
           <div class="meta">${esc(names.get(item.author_id) || "Member")} · ${esc(fmt(item.decided_at || item.created_at))}</div>

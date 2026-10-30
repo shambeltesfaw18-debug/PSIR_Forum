@@ -198,7 +198,8 @@
         img.className = "cover";
         img.alt = "Cover image";
         img.loading = "lazy";
-        img.src = pub.image_url;
+        img.src = pub.image_url + (pub.image_url.indexOf("?") === -1 ? "?tr=w-900,q-85" : "");
+        img.decoding = "async";
         img.onerror = () => img.remove();
         document.getElementById("coverBox").appendChild(img);
         return;
