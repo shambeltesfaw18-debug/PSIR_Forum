@@ -21,14 +21,8 @@
   canvas.style.cssText = "position:fixed;inset:0;width:100vw;height:100vh;z-index:-2;pointer-events:none;display:block;";
   document.body.prepend(canvas);
 
-  const veil = document.createElement("div");
-  veil.id = "psir-veil";
-  veil.setAttribute("aria-hidden", "true");
-  veil.style.cssText = "position:fixed;inset:0;z-index:-1;pointer-events:none;background:rgba(247,249,252,0.55);";
-  document.body.prepend(veil);
-
   const style = document.createElement("style");
-  style.textContent = 'html[data-theme="dark"] #psir-veil{background:rgba(17,22,31,0.66) !important;}' +
+  style.textContent = ''  +
     // Let the animation show through page sections (cards, header and footer keep their own colour)
     'html body section:not(.hero){background:transparent !important;}' +
     'html body main, html body .section, html body .section-white, html body .section-cream{background:transparent !important;}';
