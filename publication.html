@@ -148,10 +148,19 @@
             </form>` : (approved ? '<p class="meta" style="margin-top:12px;">Log in on the home page to comment.</p>' : "")}
         </div>`;
 
+      document.title = pub.title + " | PSIR Forum";
+      setMeta("og:title", pub.title + " | PSIR Forum");
+      setMeta("og:description", String(pub.abstract || "").replace(/\s+/g, " ").slice(0, 200));
       wire();
       loadCover();
       loadBookmark();
       loadComments();
+    }
+
+    function setMeta(prop, value) {
+      let node = document.querySelector('meta[property="' + prop + '"]');
+      if (!node) { node = document.createElement("meta"); node.setAttribute("property", prop); document.head.appendChild(node); }
+      node.setAttribute("content", value);
     }
 
     function wire() {
