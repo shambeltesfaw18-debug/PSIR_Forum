@@ -116,8 +116,35 @@
     document.body.insertBefore(a, document.body.firstChild);
   }
 
+  // Hamburger menu for the header on phones and desktop-site mode (pages without their own menu)
+  function mobileMenu() {
+    const nav = document.querySelector("header nav, .top nav");
+    if (!nav || nav.id === "navLinks" || document.querySelector(".mobile-menu")) return;
+    nav.classList.add("psir-nav");
+    if (!nav.id) nav.id = "psir-nav";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "psir-menu-btn";
+    btn.setAttribute("aria-controls", nav.id);
+    btn.setAttribute("aria-expanded", "false");
+    btn.setAttribute("aria-label", "Open menu");
+    btn.innerHTML = '<span aria-hidden="true">&#9776;</span>';
+    nav.parentNode.insertBefore(btn, nav);
+
+    const setOpen = open => {
+      nav.classList.toggle("open", open);
+      btn.setAttribute("aria-expanded", String(open));
+      btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      btn.innerHTML = open ? '<span aria-hidden="true">&#10005;</span>' : '<span aria-hidden="true">&#9776;</span>';
+    };
+    btn.addEventListener("click", () => setOpen(!nav.classList.contains("open")));
+    nav.addEventListener("click", e => { if (e.target.closest("a")) setOpen(false); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && nav.classList.contains("open")) setOpen(false); });
+  }
+
   function run() {
     skipLink();
+    mobileMenu();
     welcome();
     check();
     setInterval(check, 500);
