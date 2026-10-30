@@ -79,7 +79,7 @@
 
       try {
         const [personRes, academicRes, pubsRes] = await Promise.all([
-          db.from("profiles").select("id, full_name").eq("id", id).maybeSingle(),
+          db.from("profiles").select("id, full_name, role, avatar_url").eq("id", id).maybeSingle(),
           db.from("public_academic_profiles").select("*").eq("user_id", id).maybeSingle(),
           db.from("publications").select("id, title, publication_type, research_field, decided_at, pdf_path")
             .eq("author_id", id).eq("status", "approved").order("decided_at", { ascending: false }).limit(100)
@@ -91,7 +91,10 @@
         const academic = academicRes.error ? null : academicRes.data;
         const pubs = pubsRes.error ? [] : (pubsRes.data || []);
 
-        let html = '<h1>' + esc(person.full_name || "Member") + "</h1>";
+        const roleTag = person.role === "admin" ? '<span class="psir-badge psir-badge-admin">Admin</span>'
+          : (person.role === "moderator" ? '<span class="psir-badge psir-badge-mod">Moderator</span>' : "");
+        let html = (person.avatar_url ? '<img class="psir-avatar-lg" src="' + esc(person.avatar_url) + '" alt="" width="96" height="96">' : "")
+          + '<h1 style="display:inline-block;vertical-align:middle;margin:0 0 0 12px;">' + esc(person.full_name || "Member") + roleTag + "</h1>";
         html += '<p class="muted">Member of PSIR Forum. Academic details are self-declared and not verified.</p>';
 
         html += '<div class="card"><h2>Academic profile</h2>';

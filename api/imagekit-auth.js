@@ -7,7 +7,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL || "https://updxillknwufqekfzkur.s
 const SUPABASE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY || "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5";
 
 // Only these upload purposes exist. The browser names the purpose; the server picks the folder.
-const PURPOSES = { "news-cover": "news-covers" };
+const PURPOSES = { "news-cover": "news-covers", "avatar": "avatars" };
 
 module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");

@@ -192,3 +192,10 @@ header #navActions, header .nav-actions, header #psirAppearance { margin-left: a
 /* Language selector (one on every page); the older Amharic-only button is hidden */
 #psirLangButton { display: none !important; }
 #psirLang { min-height: 36px; border-radius: 6px; border: 1px solid #CBD5E1; padding: 4px 8px; font: inherit; font-size: 0.85rem; background: #FFFFFF; color: #263238; margin-left: 6px; }
+
+/* Role badges and profile photos */
+.psir-badge { display: inline-block; font-size: 0.7rem; font-weight: 800; line-height: 1; padding: 3px 7px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
+.psir-badge-admin { background: #E6B75A; color: #263238; }
+.psir-badge-mod { background: #EAF0FC; color: #2855A6; border: 1px solid #5B8DEF; }
+.psir-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 6px; vertical-align: middle; }
+.psir-avatar-lg { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 1px solid #DCE3EE; }

@@ -269,4 +269,84 @@
     await ensureRecord(data.session ? data.session.user : null);
     renderEditor();
   });
+
+  // ---------- 4. Profile photo (optional, recommended) ----------
+  const avatarBox = document.getElementById("avatarBox");
+  async function renderAvatar() {
+    if (!avatarBox) return;
+    const { data: sess } = await db.auth.getSession();
+    const user = sess.session ? sess.session.user : null;
+    avatarBox.innerHTML = "";
+    if (!user) return;
+    const { data: me } = await db.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle();
+    const hasPhoto = !!(me && me.avatar_url);
+
+    const card = document.createElement("div");
+    card.style.cssText = "background:#fff;border:1px solid #DCE3EE;border-radius:10px;padding:16px;margin-bottom:12px;";
+    const title = document.createElement("h2");
+    title.textContent = "Profile photo";
+    title.style.cssText = "font-size:18px;margin:0 0 6px;color:#1E3F82;";
+    const intro = document.createElement("p");
+    intro.textContent = "Optional, but recommended: add a clear, professional photo of yourself. It is shown next to your name.";
+    intro.style.cssText = "margin:0 0 10px;color:#64748B;font-size:14px;";
+    const img = document.createElement("img");
+    img.width = 96; img.height = 96;
+    img.style.cssText = "width:96px;height:96px;border-radius:50%;object-fit:cover;border:1px solid #DCE3EE;display:block;margin-bottom:10px;background:#EAF0FC;";
+    if (hasPhoto) { img.src = me.avatar_url; img.alt = "Your profile photo"; } else { img.alt = "No profile photo yet"; }
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/jpeg,image/png,image/webp";
+    input.setAttribute("aria-label", "Choose a profile photo");
+    input.style.cssText = "margin-bottom:8px;";
+    const save = document.createElement("button");
+    save.type = "button";
+    save.className = "btn btn-primary";
+    save.textContent = "Upload photo";
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "btn btn-line";
+    remove.textContent = "Remove photo";
+    remove.style.marginLeft = "8px";
+    remove.disabled = !hasPhoto;
+    const msg = document.createElement("p");
+    msg.setAttribute("role", "status");
+    msg.style.cssText = "margin:8px 0 0;font-weight:600;";
+
+    save.addEventListener("click", async () => {
+      const file = input.files[0];
+      if (!file) { msg.style.color = "#B42318"; msg.textContent = "Please choose a photo first."; return; }
+      save.disabled = true;
+      msg.style.color = "#1E3F82";
+      msg.textContent = "Uploading…";
+      try {
+        const token = sess.session.access_token;
+        const up = await window.PSIRImageKit.upload(file, {
+          purpose: "avatar", token: token,
+          onProgress: p => { msg.textContent = "Uploading… " + p + "%"; }
+        });
+        const { error } = await db.from("profiles").update({ avatar_url: up.url }).eq("id", user.id);
+        if (error) throw error;
+        msg.style.color = "#237A57";
+        msg.textContent = "Photo saved.";
+        renderAvatar();
+      } catch (e) {
+        msg.style.color = "#B42318";
+        msg.textContent = "Could not save the photo: " + (e.message || e);
+        save.disabled = false;
+      }
+    });
+    remove.addEventListener("click", async () => {
+      const { error } = await db.from("profiles").update({ avatar_url: null }).eq("id", user.id);
+      if (error) { msg.style.color = "#B42318"; msg.textContent = "Could not remove the photo: " + error.message; return; }
+      msg.style.color = "#237A57";
+      msg.textContent = "Photo removed.";
+      renderAvatar();
+    });
+
+    card.append(title, intro, img, input, document.createElement("br"), save, remove, msg);
+    avatarBox.appendChild(card);
+  }
+
+  renderAvatar();
+  db.auth.onAuthStateChange(() => setTimeout(renderAvatar, 0));
 })();
