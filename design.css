@@ -135,3 +135,17 @@ html:not([data-theme="dark"]) footer h1,
 html:not([data-theme="dark"]) footer h2,
 html:not([data-theme="dark"]) footer h3,
 html:not([data-theme="dark"]) footer h4 { color: #FFFFFF !important; }
+
+/* Responsive safety: content must fit the screen width, on phones and in desktop-site mode */
+img, video, iframe, canvas, svg { max-width: 100%; height: auto; }
+iframe { border: 0; }
+table { max-width: 100%; display: block; overflow-x: auto; }
+pre { max-width: 100%; overflow-x: auto; white-space: pre-wrap; }
+.card, .pub, .item, .panel, .feature, .comment, .thread, .notice, .note, .error, .empty,
+p, li, h1, h2, h3, h4, a, .meta { overflow-wrap: anywhere; word-break: normal; }
+.card, .pub, .item, .panel, .feature, .comment, .thread { min-width: 0; max-width: 100%; box-sizing: border-box; }
+html, body { max-width: 100%; }
+/* Keep touch targets at least 44px tall on phones */
+@media (max-width: 640px) {
+  button, .btn, .btn-line, .btn-outline, .btn-primary, .btn-gold, .text-action, .psir-btn, .btn-danger, .del, a.more { min-height: 44px; }
+}
