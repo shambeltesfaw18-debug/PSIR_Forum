@@ -160,6 +160,12 @@
   apply();
   // Text that appears later (lists, dialogs) follows the chosen language
   new MutationObserver(records => {
+    // The header is redrawn after sign-in or sign-out, which removes the selector: put it back
+    if (!document.getElementById("psirLang")) {
+      addSelector();
+      const sel = document.getElementById("psirLang");
+      if (sel) sel.value = lang;
+    }
     if (lang === "en") return;
     records.forEach(r => r.addedNodes.forEach(n => {
       if (n.nodeType === 3) translateNode(n, lang);
