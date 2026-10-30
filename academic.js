@@ -272,13 +272,17 @@
 
   // ---------- 4. Profile photo (optional, recommended) ----------
   const avatarBox = document.getElementById("avatarBox");
+  let avatarRun = 0;
   async function renderAvatar() {
     if (!avatarBox) return;
+    const run = ++avatarRun;   // only the latest call may draw the card
     const { data: sess } = await db.auth.getSession();
+    if (run !== avatarRun) return;
     const user = sess.session ? sess.session.user : null;
     avatarBox.innerHTML = "";
     if (!user) return;
     const { data: me } = await db.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle();
+    if (run !== avatarRun) return;
     const hasPhoto = !!(me && me.avatar_url);
 
     const card = document.createElement("div");
@@ -344,6 +348,7 @@
     });
 
     card.append(title, intro, img, input, document.createElement("br"), save, remove, msg);
+    avatarBox.innerHTML = "";
     avatarBox.appendChild(card);
   }
 
