@@ -280,7 +280,15 @@
         db.from('replies').select('id, body').eq('is_hidden', true).limit(100),
         db.from('publication_comments').select('id, body').eq('is_hidden', true).limit(100)
       ]);
+      // Research papers and news items hidden by a moderator (status set to rejected by the hide action)
+      const hidByMod = await db.from('moderation_actions').select('target_id')
+        .eq('action', 'hide').eq('target_type', 'publication').order('created_at', { ascending: false }).limit(100);
+      const pubIds = [...new Set((hidByMod.data || []).map(x => x.target_id))];
+      const pubRows = pubIds.length
+        ? (await db.from('publications').select('id, title').in('id', pubIds).eq('status', 'rejected')).data || []
+        : [];
       const items = [
+        ...pubRows.map(x => ({ type: 'publication', id: x.id, label: 'Research or news item (hidden by a moderator)', text: x.title })),
         ...((th.data || []).map(x => ({ type: 'thread', id: x.id, label: 'Discussion', text: x.title }))),
         ...((rp.data || []).map(x => ({ type: 'reply', id: x.id, label: 'Reply', text: stripTags(x.body) }))),
         ...((pc.data || []).map(x => ({ type: 'publication_comment', id: x.id, label: 'Comment on a research or news item', text: stripTags(x.body) })))
