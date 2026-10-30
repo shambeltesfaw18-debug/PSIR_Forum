@@ -248,3 +248,16 @@ html body .navbar .nav-links.open a {
   white-space: nowrap; font-size: 1rem; font-weight: 600; padding: 13px 4px;
   border-bottom: 1px solid #EEF2F7; color: #263238; text-decoration: none; display: flex; align-items: center; min-height: 46px;
 }
+
+/* Bright background (light mode only): white to light blue, with a faint warm tint at the bottom */
+html:not([data-theme="dark"]) body {
+  background: linear-gradient(170deg, #FFFFFF 0%, #EEF5FF 38%, #E3EEFD 70%, #FFF8E8 100%) fixed !important;
+  min-height: 100vh;
+}
+html:not([data-theme="dark"]) body section:not(.hero):not(footer),
+html:not([data-theme="dark"]) body main,
+html:not([data-theme="dark"]) body .section,
+html:not([data-theme="dark"]) body .section-white,
+html:not([data-theme="dark"]) body .section-cream {
+  background: transparent !important;
+}
