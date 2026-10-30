@@ -188,3 +188,7 @@ header #psirBell { min-height: 38px; }
 /* Menu button sits at the right edge of the header, after the login and language controls */
 header .mobile-menu, header .psir-menu-btn, header .psir-menu-right { order: 99 !important; margin-left: 8px !important; }
 header #navActions, header .nav-actions, header #psirAppearance { margin-left: auto; }
+
+/* Language selector (one on every page); the older Amharic-only button is hidden */
+#psirLangButton { display: none !important; }
+#psirLang { min-height: 36px; border-radius: 6px; border: 1px solid #CBD5E1; padding: 4px 8px; font: inherit; font-size: 0.85rem; background: #FFFFFF; color: #263238; margin-left: 6px; }
