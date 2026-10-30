@@ -272,6 +272,43 @@
 
     // ============ AUDIT LOG ============
 
+    // Hidden items that can be restored (discussions, replies, comments on research and news)
+    async function renderHidden(box) {
+      const stripTags = s => String(s || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+      const [th, rp, pc] = await Promise.all([
+        db.from('threads').select('id, title').eq('is_hidden', true).limit(100),
+        db.from('replies').select('id, body').eq('is_hidden', true).limit(100),
+        db.from('publication_comments').select('id, body').eq('is_hidden', true).limit(100)
+      ]);
+      const items = [
+        ...((th.data || []).map(x => ({ type: 'thread', id: x.id, label: 'Discussion', text: x.title }))),
+        ...((rp.data || []).map(x => ({ type: 'reply', id: x.id, label: 'Reply', text: stripTags(x.body) }))),
+        ...((pc.data || []).map(x => ({ type: 'publication_comment', id: x.id, label: 'Comment on a research or news item', text: stripTags(x.body) })))
+      ];
+      const wrap = el('div', 'card');
+      wrap.appendChild(el('strong', '', 'Hidden content: restore'));
+      if (!items.length) {
+        wrap.appendChild(el('p', 'meta', 'Nothing is hidden right now.'));
+      }
+      items.forEach(it => {
+        const row = el('div', '');
+        row.appendChild(el('p', 'meta', it.label));
+        row.appendChild(el('p', '', String(it.text || '').slice(0, 200)));
+        const b = el('button', 'btn btn-line btn-small', 'Restore');
+        b.addEventListener('click', async () => {
+          const reason = prompt('Reason for restoring this item (at least 5 characters):');
+          if (!reason || reason.trim().length < 5) return;
+          b.disabled = true;
+          const { error } = await db.rpc('restore_content', { p_target_type: it.type, p_target_id: it.id, p_reason: reason.trim() });
+          if (error) { b.disabled = false; alert('Could not restore: ' + error.message); return; }
+          loadLog();
+        });
+        row.appendChild(b);
+        wrap.appendChild(row);
+      });
+      box.appendChild(wrap);
+    }
+
     async function loadLog() {
       const box = $('log-view');
       box.innerHTML = '';
@@ -284,6 +321,7 @@
         if (error) throw error;
 
         box.innerHTML = '';
+        await renderHidden(box);
         if (!data.length) {
           box.appendChild(el('p', 'meta', 'No moderation actions yet.'));
           return;
