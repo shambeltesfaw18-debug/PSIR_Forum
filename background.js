@@ -6,12 +6,12 @@
   if (document.getElementById("psir-bg") || !document.body) return;
 
   const CONFIG = {
-    bg: "#1E3F82", colorA: "#2855A6", colorB: "#5B8DEF", colorC: "#A9C7F5", colorD: "#E6B75A",
+    bg: "#0B2A5C", colorA: "#2F6FD6", colorB: "#4FA3FF", colorC: "#BFE4FF", colorD: "#FFD36E",
     scale: 1, speed: 0.2, tilt: 1.87, rock: 0.12, horizon: 0.36, breathe: 0.29,
     spread: 0.41, curve: 3.32, direct: 0.97, bounce: 0.38, bounceCurve: 4.25,
     spillCentre: 0.3, spillWidth: 2.18, spillFloor: 0.26, amount: 0.2, warp: 2.58,
     warpScale: 0.78, flow: 0.475, roughness: 0.29, lacunarity: 1.99, motes: 0.074,
-    moteScale: 7, ambient: 0.24, contrast: 2.45, midpoint: 0.57, sink: 0.24, glow: 0.2,
+    moteScale: 7, ambient: 0.26, contrast: 3.1, midpoint: 0.52, sink: 0.18, glow: 0.45,
     dither: 0.58, vignette: 0.21, steer: -0.13, lift: 0.11, sweep: 0.5, parallax: 0.0137, maxDpr: 1
   };
 
