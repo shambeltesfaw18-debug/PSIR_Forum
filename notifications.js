@@ -117,6 +117,13 @@
       return;
     }
     const unread = data.filter(n => !n.read_at).length;
+    // Items shown in the list count as seen: mark them read after the list is drawn
+    const unreadIds = data.filter(n => !n.read_at).map(n => n.id);
+    if (unreadIds.length) {
+      setTimeout(() => {
+        db.from("notifications").update({ read_at: new Date().toISOString() }).in("id", unreadIds).then(() => refreshCount());
+      }, 0);
+    }
     let html = '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">' +
       '<strong style="color:#102b46;">Notifications</strong>' +
       '<button type="button" data-act="all" style="border:none;background:none;color:#2864a0;font-weight:700;cursor:pointer;"' + (unread ? "" : " disabled") + '>Mark all as read</button></div>';
@@ -222,4 +229,5 @@
   });
 
   setInterval(() => { if (me) refreshAll(); }, 60000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && me) refreshAll(); });
 })();

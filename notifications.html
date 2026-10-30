@@ -147,6 +147,11 @@
         .order("created_at", { ascending: false }).limit(100);
       if (error) { box.innerHTML = '<p class="notice error">Could not load notifications: ' + esc(error.message) + "</p>"; return; }
       if (!data.length) { box.innerHTML = '<p class="empty">You have no notifications.</p>'; return; }
+      // Shown on this page, so they count as read (highlighted for this visit)
+      const unreadIds = data.filter(n => !n.read_at).map(n => n.id);
+      if (unreadIds.length) {
+        setTimeout(() => { db.from("notifications").update({ read_at: new Date().toISOString() }).in("id", unreadIds); }, 0);
+      }
       box.innerHTML = data.map(n => `
         <div class="item ${n.read_at ? "" : "unread"}">
           <strong>${esc(n.title)}</strong>
