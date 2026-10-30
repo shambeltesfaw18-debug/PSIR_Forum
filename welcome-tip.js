@@ -142,7 +142,21 @@
     document.addEventListener("keydown", e => { if (e.key === "Escape" && nav.classList.contains("open")) setOpen(false); });
   }
 
+  // Same "PS" mark as the home page on the other pages (the home page already has its own)
+  function brandMark() {
+    if (document.getElementById("navActions")) return;
+    document.querySelectorAll("header .brand").forEach(b => {
+      if (b.querySelector(".psir-mark")) return;
+      const m = document.createElement("span");
+      m.className = "psir-mark";
+      m.setAttribute("aria-hidden", "true");
+      m.textContent = "PS";
+      b.insertBefore(m, b.firstChild);
+    });
+  }
+
   function run() {
+    brandMark();
     skipLink();
     mobileMenu();
     welcome();
