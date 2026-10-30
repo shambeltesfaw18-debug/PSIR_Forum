@@ -267,7 +267,7 @@
           <p>${esc(excerpt(kindOf(item) === "news" ? item.body : item.abstract))}</p>
           ${src ? '<div class="meta">Source: <a href="' + esc(src) + '" target="_blank" rel="noopener noreferrer">' + esc(item.source_name || "original report") + "</a></div>" : ""}
           <a class="more" href="/publication.html?id=${esc(item.id)}">Read more →</a>
-          ${isStaff ? '<button type="button" class="del" data-del="' + esc(item.id) + '" data-thumb="' + esc(item.thumb_path || "") + '">Delete</button>' : ""}
+          ${isStaff ? '<button type="button" class="del" data-del="' + esc(item.id) + '" data-thumb="' + esc(item.thumb_path || "") + '" data-file="' + esc(item.image_file_id || "") + '">Delete</button>' : ""}
         </article>`;
     }
 
@@ -299,7 +299,7 @@
 
     async function loadApproved() {
       const { data, error } = await db.from("publications")
-        .select("id, title, abstract, body, publication_type, section, status, author_id, created_at, decided_at, source_name, source_url, thumb_path, image_url")
+        .select("id, title, abstract, body, publication_type, section, status, author_id, created_at, decided_at, source_name, source_url, thumb_path, image_url, image_file_id")
         .eq("status", "approved").neq("section", "research")
         .order("decided_at", { ascending: false, nullsFirst: false }).limit(200);
       if (error) throw error;
@@ -336,6 +336,23 @@
         img.onerror = () => nodes[i].remove();
         nodes[i].appendChild(img);
       });
+    }
+
+    // Best effort: remove an ImageKit cover that is no longer used
+    async function deleteImage(fileId) {
+      if (!fileId) return;
+      try {
+        const token = await accessToken();
+        if (!token) return;
+        const r = await fetch("/api/imagekit-delete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+          body: JSON.stringify({ fileId: fileId })
+        });
+        if (!r.ok) console.warn("Cover image not removed:", r.status);
+      } catch (e) {
+        console.warn("Cover image not removed:", e);
+      }
     }
 
     async function accessToken() {
@@ -447,6 +464,7 @@
         if (result.error) throw result.error;
         if (!result.data || !result.data.length) throw new Error("The change was not saved. Please log in again and retry.");
         if (oldImage && newImage && oldImage !== newImage) await db.storage.from("publications").remove([oldImage]);
+        if (editingImageFileId && imageFileId && editingImageFileId !== imageFileId) await deleteImage(editingImageFileId);
         $("formPanel").hidden = true;
         editingId = null;
         say(asSubmitted ? "Submitted. A moderator will review it before it appears here." : "Draft saved. Only you can see it until you submit it.");
@@ -561,6 +579,7 @@
         const { data, error } = await db.from("publications").delete().eq("id", id).eq("author_id", me.id).select("id");
         if (error || !data || !data.length) { say("Could not delete: " + (error ? error.message : "permission denied"), true); return; }
         if (gone && gone.thumb_path) await db.storage.from("publications").remove([gone.thumb_path]);
+        if (window._mine && window._mine.get(id) && window._mine.get(id).image_file_id) await deleteImage(window._mine.get(id).image_file_id);
         say("Draft deleted.");
       }
       await refresh();
@@ -573,19 +592,20 @@
     $("nf_draft").addEventListener("click", () => save(false));
     $("nf_submit").addEventListener("click", () => save(true));
     $("nf_cancel").addEventListener("click", () => { $("formPanel").hidden = true; editingId = null; });
-    async function deleteApproved(id, thumb) {
+    async function deleteApproved(id, thumb, fileId) {
       if (!isStaff) return;
       if (!confirm("Delete this published item? It will be removed from News & Journal. This cannot be undone.")) return;
       const { data, error } = await db.from("publications").delete().eq("id", id).select("id");
       if (error || !data || !data.length) { say("Could not delete: " + (error ? error.message : "permission denied"), true); return; }
       if (thumb) await db.storage.from("publications").remove([thumb]);
+      await deleteImage(fileId);
       say("Item deleted.");
       await refresh();
     }
     ["news", "journal"].forEach(id => {
       $(id).addEventListener("click", e => {
         const b = e.target.closest("button.del");
-        if (b) deleteApproved(b.dataset.del, b.dataset.thumb);
+        if (b) deleteApproved(b.dataset.del, b.dataset.thumb, b.dataset.file);
       });
     });
     $("search").addEventListener("input", render);
