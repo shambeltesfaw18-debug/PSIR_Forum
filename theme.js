@@ -274,7 +274,13 @@
     "Governance & Public Policy": "/images/governance-public-policy.jpg?v=2",
     "African Affairs": "/images/african-affairs.jpg",
     "General Discussion": "/images/general-discussion.jpg",
-    "Hub of Idea Discussion Club": "/hub-of-idea-logo.png"
+    "Hub of Idea Discussion Club": "/hub-of-idea-logo.png",
+    "Ethiopian Politics & Affairs": "/images/ethiopia-politics.jpg"
+  };
+
+  // Card icons that replace the emoji
+  const CATEGORY_ICONS = {
+    "Ethiopian Politics & Affairs": "/images/ethiopia-icon.jpg"
   };
 
   document.querySelectorAll(".category-card[data-category]").forEach(card => {
@@ -283,6 +289,17 @@
 
     // Hide the small icon, since the picture now fills the card
     const slot = card.querySelector(".category-emoji");
+    const icon = CATEGORY_ICONS[card.dataset.category];
+    if (slot && icon) {
+      slot.innerHTML = "";
+      const img = document.createElement("img");
+      img.src = icon;
+      img.alt = "";
+      img.width = 44;
+      img.height = 44;
+      img.style.cssText = "width:44px;height:44px;object-fit:cover;border-radius:10px;display:block;";
+      slot.appendChild(img);
+    }
     if (slot) {
       slot.style.display = "grid";
       slot.style.placeItems = "center";
