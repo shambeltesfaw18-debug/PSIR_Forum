@@ -184,3 +184,7 @@ header #psirBell { min-height: 38px; }
   header .top-inner { justify-content: space-between; }
   header #psirAppearance { margin-left: 0; }
 }
+
+/* Menu button sits at the right edge of the header, after the login and language controls */
+header .mobile-menu, header .psir-menu-btn, header .psir-menu-right { order: 99 !important; margin-left: 8px !important; }
+header #navActions, header .nav-actions, header #psirAppearance { margin-left: auto; }

@@ -130,6 +130,7 @@
     btn.setAttribute("aria-label", "Open menu");
     btn.innerHTML = '<span aria-hidden="true">&#9776;</span>';
     nav.parentNode.insertBefore(btn, nav);
+    btn.classList.add("psir-menu-right");
 
     const setOpen = open => {
       nav.classList.toggle("open", open);
@@ -144,7 +145,10 @@
 
   // Same "PS" mark as the home page on the other pages (the home page already has its own)
   function brandMark() {
-    if (document.getElementById("navActions")) return;
+    // Skip if the header already shows a "PS" logo (for example the home page)
+    const hasLogo = Array.from(document.querySelectorAll("header *")).some(e =>
+      e.children.length === 0 && e.textContent.trim() === "PS" && !e.classList.contains("psir-mark"));
+    if (hasLogo || document.getElementById("navActions")) return;
     document.querySelectorAll("header .brand").forEach(b => {
       if (b.querySelector(".psir-mark")) return;
       const m = document.createElement("span");
