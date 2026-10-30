@@ -43,6 +43,25 @@ module.exports = async (req, res) => {
   const folderName = PURPOSES[body.purpose];
   if (!folderName) return res.status(400).json({ error: "Unknown upload type." });
 
+  // Rate limit: at most 20 upload permissions per member per hour.
+  // Checked with the member's own token, so the database's row-level security applies.
+  const since = new Date(Date.now() - 3600 * 1000).toISOString();
+  const memberHeaders = { Authorization: "Bearer " + match[1], apikey: SUPABASE_KEY };
+  try {
+    const recent = await fetch(SUPABASE_URL + "/rest/v1/imagekit_upload_log?select=id&created_at=gte." + encodeURIComponent(since) + "&limit=20", { headers: memberHeaders });
+    if (!recent.ok) return res.status(503).json({ error: "Could not check upload limits. Please try again." });
+    const used = await recent.json();
+    if (used.length >= 20) return res.status(429).json({ error: "You have reached the upload limit for now. Please try again later." });
+    const logged = await fetch(SUPABASE_URL + "/rest/v1/imagekit_upload_log", {
+      method: "POST",
+      headers: Object.assign({ "Content-Type": "application/json", Prefer: "return=minimal" }, memberHeaders),
+      body: JSON.stringify({ user_id: user.id })
+    });
+    if (!logged.ok) return res.status(503).json({ error: "Could not check upload limits. Please try again." });
+  } catch (e) {
+    return res.status(503).json({ error: "Could not check upload limits. Please try again." });
+  }
+
   const expire = Math.floor(Date.now() / 1000) + 600;           // valid for 10 minutes
   const token = crypto.randomBytes(16).toString("hex");
   const signature = crypto.createHmac("sha1", privateKey).update(token + expire).digest("hex");
