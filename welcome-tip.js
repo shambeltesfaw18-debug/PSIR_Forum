@@ -103,7 +103,21 @@
     tipFor(path);
   }
 
+  // Skip link: keyboard users can jump straight to the page content
+  function skipLink() {
+    const target = document.querySelector("main") || document.querySelector("#content") || document.querySelector(".wrap") || document.body;
+    if (!target.id) target.id = "main-content";
+    const a = document.createElement("a");
+    a.href = "#" + target.id;
+    a.textContent = "Skip to content";
+    a.style.cssText = "position:absolute;left:8px;top:-60px;z-index:10000;background:#2855A6;color:#FFFFFF;padding:10px 14px;border-radius:6px;font-weight:700;text-decoration:none;transition:top .1s;";
+    a.addEventListener("focus", () => { a.style.top = "8px"; });
+    a.addEventListener("blur", () => { a.style.top = "-60px"; });
+    document.body.insertBefore(a, document.body.firstChild);
+  }
+
   function run() {
+    skipLink();
     welcome();
     check();
     setInterval(check, 500);
