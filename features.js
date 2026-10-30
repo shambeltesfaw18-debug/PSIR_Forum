@@ -62,9 +62,18 @@
     if (me) {
       const { data: profile } = await db.from("profiles").select("role").eq("id", me.id).maybeSingle();
       if (profile) role = profile.role;
+      // If the role changed since the page loaded (signed in after the page opened), reload once so every control appears
+      if (LEADER.includes(role) && !sessionStorage.getItem("psirRoleApplied")) {
+        sessionStorage.setItem("psirRoleApplied", "1");
+        location.reload();
+        return;
+      }
     }
     addModerationLink();
   }
+
+  // Re-check the role whenever the sign-in state changes
+  db.auth.onAuthStateChange(() => { setTimeout(loadMe, 0); });
 
   function addModerationLink() {
     const nav = document.getElementById("navLinks");
