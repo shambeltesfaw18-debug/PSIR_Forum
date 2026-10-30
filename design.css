@@ -220,3 +220,18 @@ header #navActions, header .nav-actions, header #psirAppearance { margin-left: a
   html body .navbar #psirBell { width: 38px; height: 38px; min-height: 38px; padding: 0; flex: 0 0 auto; }
   html body .navbar .mobile-menu { order: 99; width: 40px; height: 40px; min-height: 40px; flex: 0 0 auto; margin-left: 0 !important; }
 }
+
+/* Home header on phones: fit the screen width (less text, narrower controls) */
+@media (max-width: 640px) {
+  html body .navbar .nav-inner { gap: 6px !important; padding: 8px 0 !important; }
+  html body .navbar .brand { flex: 0 1 auto; min-width: 0; overflow: hidden; }
+  html body .navbar .brand-name { font-size: 0.85rem; letter-spacing: 0.3px; overflow: hidden; text-overflow: ellipsis; }
+  html body .navbar .nav-actions > span { display: none !important; }
+  html body .navbar .nav-actions .btn { padding: 0 8px; font-size: 0.75rem; min-height: 34px; }
+  html body .navbar #psirLang { max-width: 88px; min-height: 34px; font-size: 0.74rem; padding: 2px 4px; }
+  html body .navbar #psirBell { width: 34px; height: 34px; min-height: 34px; }
+  html body .navbar .mobile-menu { width: 38px; height: 38px; min-height: 38px; font-size: 1.1rem; }
+}
+@media (max-width: 400px) {
+  html body .navbar .brand-name { display: none !important; }
+}
