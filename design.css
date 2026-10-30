@@ -102,3 +102,36 @@ html:not([data-theme="dark"]) footer a:hover { color: var(--psir-gold) !importan
 @media (max-width: 640px) {
   html:not([data-theme="dark"]) body { font-size: 16px; }
 }
+
+/* Text on dark backgrounds (hero banners and footer) must be light.
+   Buttons keep their own colours because the button rules are more specific. */
+html:not([data-theme="dark"]) .hero,
+html:not([data-theme="dark"]) .hero h1,
+html:not([data-theme="dark"]) .hero h2,
+html:not([data-theme="dark"]) .hero h3,
+html:not([data-theme="dark"]) .hero p,
+html:not([data-theme="dark"]) .hero li,
+html:not([data-theme="dark"]) .hero span,
+html:not([data-theme="dark"]) .hero .meta,
+html:not([data-theme="dark"]) .hero .lead,
+html:not([data-theme="dark"]) .hero small { color: #FFFFFF !important; }
+html:not([data-theme="dark"]) .hero p,
+html:not([data-theme="dark"]) .hero .lead,
+html:not([data-theme="dark"]) .hero .meta,
+html:not([data-theme="dark"]) .hero small { color: #E2E8F0 !important; }
+html:not([data-theme="dark"]) .hero .eyebrow,
+html:not([data-theme="dark"]) .eyebrow { color: #E6B75A !important; }
+html:not([data-theme="dark"]) .hero a { color: #FFFFFF !important; text-decoration: underline; }
+html:not([data-theme="dark"]) footer,
+html:not([data-theme="dark"]) footer h1,
+html:not([data-theme="dark"]) footer h2,
+html:not([data-theme="dark"]) footer h3,
+html:not([data-theme="dark"]) footer h4,
+html:not([data-theme="dark"]) footer p,
+html:not([data-theme="dark"]) footer li,
+html:not([data-theme="dark"]) footer span,
+html:not([data-theme="dark"]) footer div { color: #E2E8F0 !important; }
+html:not([data-theme="dark"]) footer h1,
+html:not([data-theme="dark"]) footer h2,
+html:not([data-theme="dark"]) footer h3,
+html:not([data-theme="dark"]) footer h4 { color: #FFFFFF !important; }
