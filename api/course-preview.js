@@ -13,6 +13,30 @@ const MIN_IMAGE = 3 * 1024;          // smaller files are usually tracking pixel
 const BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 const BOT_TOKEN = "PSIR-Forum-course-preview";
 
+// Well-known education providers: the website's own name is used when the page gives a vague one
+const KNOWN_PROVIDERS = [
+  ["open.edu", "The Open University (OpenLearn)"], ["open.ac.uk", "The Open University"],
+  ["coursera.org", "Coursera"], ["edx.org", "edX"], ["alison.com", "Alison"],
+  ["futurelearn.com", "FutureLearn"], ["khanacademy.org", "Khan Academy"], ["unitar.org", "UNITAR"]
+];
+function knownProvider(host) {
+  host = String(host || "").toLowerCase();
+  for (const [d, n] of KNOWN_PROVIDERS) if (host === d || host.endsWith("." + d)) return n;
+  return "";
+}
+// Best-effort limit per member (memory is per server instance, so this slows abuse but is not absolute)
+const RATE_WINDOW = 10 * 60 * 1000, RATE_MAX = 20;
+const hits = new Map();
+function rateLimited(id) {
+  const now = Date.now();
+  const list = (hits.get(id) || []).filter(t => now - t < RATE_WINDOW);
+  list.push(now);
+  hits.set(id, list);
+  if (hits.size > 500) for (const [k, v] of hits) if (!v.some(t => now - t < RATE_WINDOW)) hits.delete(k);
+  return list.length > RATE_MAX;
+}
+const LOGO_LIKE = /(logo|favicon|sprite|pixel|tracking|spacer|blank)/i;
+
 function isPrivateIp(ip) {
   if (net.isIPv4(ip)) {
     const p = ip.split(".").map(Number);
@@ -207,6 +231,36 @@ function extract(html, base) {
   };
 }
 
+// Follows up to 3 redirects, re-checking every hop against the same public-address rules
+async function fetchFollow(startUrl, opts, ms) {
+  let cur = startUrl;
+  for (let hop = 0; hop < 4; hop++) {
+    const r = await timedFetch(cur.href, opts, ms);
+    if (r.status >= 300 && r.status < 400 && r.headers.get("location")) {
+      if (r.body) r.body.cancel().catch(() => {});
+      const next = await safeUrl(new URL(r.headers.get("location"), cur).href);
+      if (!next) return null;
+      cur = next;
+      continue;
+    }
+    return { r, url: cur };
+  }
+  return null;
+}
+
+async function countBytes(r, max) {
+  if (!r.body) return 0;
+  const reader = r.body.getReader();
+  let total = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.length;
+    if (total > max) { reader.cancel().catch(() => {}); return total; }
+  }
+  return total;
+}
+
 // A thumbnail is kept only if it is a real, reasonably sized image on a public https address
 async function checkImage(src, base) {
   let u;
@@ -215,14 +269,17 @@ async function checkImage(src, base) {
   const ok = await safeUrl(u.href);
   if (!ok || u.href.length > 2000) return null;
   try {
-    const r = await timedFetch(ok.href, { headers: { "User-Agent": BROWSER_UA, Accept: "image/*" } }, 8000);
-    if (!r.ok || r.status >= 300) { if (r.body) r.body.cancel(); return null; }
+    const got = await fetchFollow(ok, { headers: { "User-Agent": BROWSER_UA, Accept: "image/*" } }, 8000);
+    if (!got) return null;
+    const r = got.r;
+    const drop = () => { if (r.body) r.body.cancel().catch(() => {}); };
+    if (!r.ok) { drop(); return null; }
     const type = (r.headers.get("content-type") || "").toLowerCase();
-    if (!/^image\/(jpeg|png|webp|gif)/.test(type)) { if (r.body) r.body.cancel(); return null; }
-    const size = Number(r.headers.get("content-length") || 0);
-    if (size && (size < MIN_IMAGE || size > MAX_IMAGE)) { if (r.body) r.body.cancel(); return null; }
-    if (r.body) r.body.cancel();
-    return ok.href;
+    if (!/^image\/(jpeg|png|webp|gif)/.test(type)) { drop(); return null; }
+    let size = Number(r.headers.get("content-length") || 0);
+    if (size) drop(); else size = await countBytes(r, MAX_IMAGE);
+    if (size < MIN_IMAGE || size > MAX_IMAGE) return null;
+    return got.url.href;
   } catch (e) { return null; }
 }
 
@@ -238,6 +295,7 @@ module.exports = async (req, res) => {
     if (check.ok) user = await check.json();
   } catch (e) { return res.status(503).json({ error: "Could not confirm your sign-in." }); }
   if (!user || !user.id) return res.status(401).json({ error: "Please log in to add a course." });
+  if (rateLimited(user.id)) return res.status(429).json({ code: "rate", error: "Too many requests. Please wait a few minutes and try again." });
 
   let body = req.body || {};
   if (typeof body === "string") { try { body = JSON.parse(body); } catch (e) { body = {}; } }
@@ -257,7 +315,8 @@ module.exports = async (req, res) => {
     }
     const info = extract(got.html, got.url);
     let image_url = null;
-    for (const c of info.imageCandidates) {
+    const ordered = info.imageCandidates.slice().sort((a, b) => (LOGO_LIKE.test(a) ? 1 : 0) - (LOGO_LIKE.test(b) ? 1 : 0));
+    for (const c of ordered) {
       image_url = await checkImage(c, got.url);
       if (image_url) break;
     }
@@ -265,7 +324,7 @@ module.exports = async (req, res) => {
     return res.status(200).json({
       url: got.url.href,
       title,
-      provider: info.provider,
+      provider: knownProvider(got.url.hostname) || info.provider,
       description: info.description,
       image_url,
       found: { title: !!title, description: !!info.description, provider: !!info.provider, image: !!image_url }
