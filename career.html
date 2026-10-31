@@ -113,6 +113,8 @@
           <button class="psir-btn psir-outline" type="button" id="sf-fetch">Get scholarship details</button>
           <div id="sf-fields" class="form" hidden>
             <p id="sf-note" class="muted"></p>
+            <div id="sf-thumb"></div>
+            <label>Thumbnail web address (https, optional)<input id="sf-img" type="url" maxlength="500"></label>
             <label>Scholarship title<input id="sf-title" maxlength="200"></label>
             <label>Hosting institution or organisation<input id="sf-host" maxlength="150"></label>
             <label>Description<textarea id="sf-desc" maxlength="3000" rows="3"></textarea></label>
@@ -691,6 +693,11 @@
       $("sf-title").value = ok && data.title ? data.title : "";
       $("sf-host").value = ok && data.provider ? data.provider : "";
       $("sf-desc").value = ok && data.description ? data.description : "";
+      const thumb = ok && data.image_url ? data.image_url : "";
+      $("sf-thumb").innerHTML = thumb
+        ? '<img src="' + esc(thumb) + '" alt="" style="width:100%;max-width:360px;aspect-ratio:16/9;object-fit:cover;border-radius:6px;">'
+        : '<p class="muted">No thumbnail was found on the page. You can add one below.</p>';
+      $("sf-img").value = "";
       ["sf-countries", "sf-levels", "sf-fields-of", "sf-funding", "sf-req"].forEach(id => { $(id).value = ""; });
       $("sf-deadline").value = "";
       const f = (ok && data.found) || {};
@@ -698,6 +705,7 @@
       if (!f.title) missing.push("title");
       if (!f.provider) missing.push("institution");
       if (!f.description) missing.push("description");
+      if (!f.image) missing.push("thumbnail");
       $("sf-note").textContent = ok
         ? (missing.length ? "We could not find these on the page: " + missing.join(", ") + ". Please complete them. Eligibility, funding, requirements and deadline are never guessed: fill them only from the official page." : "Details found. Check every field before sending.")
         : (data.error || "We couldn't automatically retrieve the information. Please complete the missing fields manually.");
@@ -717,7 +725,7 @@
       const { error } = await db.from("career_scholarships").insert({
         title: $("sf-title").value.trim(), host_institution: $("sf-host").value.trim(),
         description: $("sf-desc").value.trim() || null,
-        image_url: (schPreview && schPreview.image_url) || null,
+        image_url: ($("sf-img").value.trim() && /^https:\/\//i.test($("sf-img").value.trim())) ? $("sf-img").value.trim() : ((schPreview && schPreview.image_url) || null),
         url: (schPreview && schPreview.url) || url,
         countries: list("sf-countries"), levels: list("sf-levels"), fields: list("sf-fields-of"),
         funding: $("sf-funding").value.trim() || null, requirements: $("sf-req").value.trim() || null,
