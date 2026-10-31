@@ -200,6 +200,7 @@
             <button class="psir-btn psir-outline" type="button" data-share="${esc(c.id)}">Share</button>
           </div>
         </article>`).join("") : '<p class="muted">No courses match your filters yet.</p>';
+      addAdminDelete("courses", "course-", "course");
     }
     function showCourse(id) {
       const c = courses.find(x => x.id === id);
@@ -366,6 +367,7 @@
           <div data-applyform="${esc(j.id)}"></div>
         </article>`;
       }).join("") : '<p class="muted">No jobs match your filters yet.</p>';
+      addAdminDelete("jobs", "job-", "job");
     }
     ["j-search", "j-type", "j-region"].forEach(id => $(id).addEventListener("input", renderJobs));
 
@@ -609,6 +611,7 @@
             <button class="psir-btn psir-outline" type="button" data-sshare="${esc(s.id)}">Share</button>
           </div>
         </article>`).join("") : '<p class="muted">No scholarships match your filters yet.</p>';
+      addAdminDelete("scholarships", "scholarship-", "scholarship");
     }
     const notStated = a => (a && a.length ? esc(a.join(", ")) : "Not stated on the page");
     function showScholarship(id) {
@@ -725,6 +728,36 @@
       $("sch-form").reset();
       $("sf-fields").hidden = true; schPreview = null; $("sf-send").disabled = true;
       say("Thank you. The scholarship will appear after a moderator checks it.");
+    });
+
+    // Admin and moderator delete buttons on approved cards (the database already allows staff to delete)
+    const DEL_TABLE = { course: "career_courses", job: "career_jobs", scholarship: "career_scholarships" };
+    function addAdminDelete(containerId, prefix, kind) {
+      if (!staff) return;
+      document.querySelectorAll("#" + containerId + ' article[id^="' + prefix + '"]').forEach(card => {
+        if (card.querySelector("[data-del-kind]")) return;
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "psir-btn psir-outline-red";
+        b.textContent = "Delete";
+        b.style.marginTop = "6px";
+        b.dataset.delKind = kind;
+        b.dataset.delId = card.id.slice(prefix.length);
+        card.appendChild(b);
+      });
+    }
+    document.addEventListener("click", async e => {
+      const b = e.target.closest("[data-del-kind]");
+      if (!b || !staff) return;
+      if (!confirm("Delete this " + b.dataset.delKind + " permanently? This cannot be undone.")) return;
+      b.disabled = true;
+      const { data, error } = await db.from(DEL_TABLE[b.dataset.delKind]).delete().eq("id", b.dataset.delId).select("id");
+      if (error || !data || !data.length) {
+        b.disabled = false;
+        return say("Could not delete: " + (error ? error.message : "permission denied"), true);
+      }
+      say("Deleted.");
+      loadCourses(); loadJobs(); loadScholarships();
     });
 
     // ---- session ----
