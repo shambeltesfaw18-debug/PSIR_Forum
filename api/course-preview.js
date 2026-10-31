@@ -98,6 +98,26 @@ function attrs(tag) {
 }
 function clean(s, max) { return decode(s).replace(/\s+/g, " ").trim().slice(0, max); }
 
+function pickImage(src, base) {
+  try {
+    const u = new URL(src, base);
+    if (u.protocol === "http:") u.protocol = "https:";
+    if (u.protocol !== "https:") return null;
+    return u.href.length <= 2000 ? u.href : null;
+  } catch (e) { return null; }
+}
+
+// First paragraph of real text, used when the page has no description tag
+function firstParagraph(html) {
+  const body = html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, " ");
+  const paras = body.match(/<p\b[^>]*>[\s\S]*?<\/p>/gi) || [];
+  for (const p of paras) {
+    const text = clean(p.replace(/<[^>]+>/g, " "), 1000);
+    if (text.length >= 80) return text;
+  }
+  return "";
+}
+
 function extract(html, base) {
   const meta = {};
   (html.match(/<meta\b[^>]*>/gi) || []).forEach(tag => {
@@ -105,19 +125,30 @@ function extract(html, base) {
     const key = (a.property || a.name || a.itemprop || "").toLowerCase();
     if (key && a.content !== undefined && meta[key] === undefined) meta[key] = a.content;
   });
+  let linkImage = "";
+  (html.match(/<link\b[^>]*>/gi) || []).forEach(tag => {
+    const a = attrs(tag);
+    if ((a.rel || "").toLowerCase() === "image_src" && a.href) linkImage = a.href;
+  });
+  const pick = (...keys) => {
+    for (const k of keys) if (meta[k] && meta[k].trim()) return meta[k];
+    return "";
+  };
   const titleTag = (html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || "";
-  const title = clean(meta["og:title"] || meta["twitter:title"] || titleTag, 200);
-  const description = clean(meta["og:description"] || meta["description"] || meta["twitter:description"] || "", 1000);
-  const siteName = clean(meta["og:site_name"] || "", 150) || base.hostname.replace(/^www\./, "");
-  let image = clean(meta["og:image"] || meta["twitter:image"] || meta["image"] || "", 2000);
+  const title = clean(pick("og:title", "twitter:title") || titleTag, 200);
+  let description = clean(pick("og:description", "description", "twitter:description"), 1000);
+  if (!description) description = firstParagraph(html);
+  const provider = clean(pick("og:site_name", "application-name"), 150) || base.hostname.replace(/^www\./, "");
+  const candidates = [
+    pick("og:image", "og:image:secure_url", "og:image:url", "twitter:image", "twitter:image:src", "image"),
+    linkImage
+  ].filter(Boolean);
   let image_url = null;
-  if (image) {
-    try {
-      const u = new URL(image, base);
-      if (u.protocol === "https:" && u.href.length <= 500) image_url = u.href;
-    } catch (e) { image_url = null; }
+  for (const c of candidates) {
+    const v = pickImage(clean(c, 2000), base);
+    if (v) { image_url = v; break; }
   }
-  return { title, description, provider: siteName, image_url };
+  return { title, description, provider, image_url, found: { description: !!description, image: !!image_url } };
 }
 
 module.exports = async (req, res) => {
@@ -150,7 +181,7 @@ module.exports = async (req, res) => {
     const info = extract(page.html, page.url);
     const title = info.title && info.title.length >= 5 ? info.title : (page.url.hostname + " course");
     const provider = info.provider && info.provider.length >= 2 ? info.provider : page.url.hostname;
-    return res.status(200).json({ url: page.url.href, title, provider, description: info.description, image_url: info.image_url });
+    return res.status(200).json({ url: page.url.href, title, provider, description: info.description, image_url: info.image_url, found: info.found });
   } catch (e) {
     return res.status(422).json({ code: "unreadable", error: "Could not read this page. Please try another link." });
   }

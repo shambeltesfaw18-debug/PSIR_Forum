@@ -81,6 +81,11 @@
           <label>Course link (the course page, starting with https://)<input id="cf-url" type="url" required placeholder="https://..."></label>
           <button class="psir-btn psir-outline" type="button" id="cf-fetch">Get course details</button>
           <div id="cf-preview" class="card" hidden></div>
+          <div id="cf-extra" class="form" hidden>
+            <p class="muted">We could not find a description or thumbnail on this page. You can add them (optional).</p>
+            <label>Description (optional)<textarea id="cf-x-desc" maxlength="1000" rows="3"></textarea></label>
+            <label>Thumbnail web address (https, optional)<input id="cf-x-img" type="url" maxlength="500"></label>
+          </div>
           <div id="cf-manual" class="form" hidden>
             <p id="cf-manual-note" class="muted"></p>
             <label>Course title<input id="cf-title" maxlength="200"></label>
@@ -214,7 +219,7 @@
     ["c-search", "c-level", "c-cost", "c-region", "c-ptype"].forEach(id => $(id).addEventListener("input", renderCourses));
 
     let coursePreview = null;
-    $("cf-url").addEventListener("input", () => { coursePreview = null; $("cf-send").disabled = true; $("cf-preview").hidden = true; $("cf-manual").hidden = true; });
+    $("cf-url").addEventListener("input", () => { coursePreview = null; $("cf-send").disabled = true; $("cf-preview").hidden = true; $("cf-manual").hidden = true; $("cf-extra").hidden = true; });
     function manualCheck() {
       const ok = coursePreview && coursePreview.manual && $("cf-title").value.trim().length >= 5 && $("cf-provider").value.trim().length >= 2;
       $("cf-send").disabled = !ok;
@@ -253,6 +258,7 @@
           throw new Error(data.error || "Could not read this page.");
         }
         coursePreview = data;
+        $("cf-extra").hidden = !!(data.description && data.image_url);
         $("cf-manual").hidden = true;
         $("cf-preview").hidden = false;
         $("cf-preview").innerHTML = (data.image_url
@@ -273,6 +279,11 @@
     $("course-form").addEventListener("submit", async e => {
       e.preventDefault();
       if (!me || !coursePreview || busy) return;
+      const xd = $("cf-x-desc") ? $("cf-x-desc").value.trim() : "";
+      const xi = $("cf-x-img") ? $("cf-x-img").value.trim() : "";
+      if (xi && !/^https:\/\//i.test(xi)) return say("The thumbnail address must start with https://", true);
+      if (xd) coursePreview.description = xd;
+      if (xi) coursePreview.image_url = xi;
       busy = true; $("cf-send").disabled = true;
       const { error } = await db.from("career_courses").insert({
         title: coursePreview.title, provider: coursePreview.provider,
@@ -283,7 +294,7 @@
       busy = false;
       if (error) { $("cf-send").disabled = false; return say("Could not send: " + error.message, true); }
       $("course-form").reset();
-      $("cf-preview").hidden = true; $("cf-manual").hidden = true; coursePreview = null;
+      $("cf-preview").hidden = true; $("cf-manual").hidden = true; $("cf-extra").hidden = true; coursePreview = null;
       say("Thank you. The course will appear after a moderator checks it.");
     });
 
