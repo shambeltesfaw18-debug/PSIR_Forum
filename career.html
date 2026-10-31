@@ -59,6 +59,7 @@
 
     <div class="tabs" role="tablist" aria-label="Career sections">
       <button role="tab" id="tab-courses" aria-selected="true" aria-controls="view-courses" data-view="courses">Courses</button>
+      <button role="tab" id="tab-scholarships" aria-selected="false" aria-controls="view-scholarships" data-view="scholarships">Scholarships</button>
       <button role="tab" id="tab-jobs" aria-selected="false" aria-controls="view-jobs" data-view="jobs">Jobs</button>
       <button role="tab" id="tab-employer" aria-selected="false" aria-controls="view-employer" data-view="employer">Employers</button>
       <button role="tab" id="tab-mine" aria-selected="false" aria-controls="view-mine" data-view="mine">My applications</button>
@@ -93,6 +94,35 @@
             <label>Description (optional)<textarea id="cf-desc" maxlength="1000" rows="3"></textarea></label>
           </div>
           <button class="psir-btn psir-navy" type="submit" id="cf-send" disabled>Send for review</button>
+        </form>
+      </details>
+    </section>
+
+    <section id="view-scholarships" class="panel-view" role="tabpanel" aria-labelledby="tab-scholarships" hidden>
+      <div class="filters">
+        <input id="s-search" type="search" placeholder="Search scholarships or institutions" aria-label="Search scholarships">
+        <input id="s-country" type="search" placeholder="Eligible country (for example Ethiopia)" aria-label="Country">
+        <select id="s-level" aria-label="Academic level"><option value="">All levels</option><option>Undergraduate</option><option>Masters</option><option>PhD</option><option>Postdoctoral</option><option>Short course</option></select>
+      </div>
+      <div id="scholarships" class="grid"><p class="muted">Loading scholarships…</p></div>
+      <div id="scholarship-detail" class="box" hidden></div>
+      <details class="box"><summary>Suggest a scholarship</summary>
+        <form id="sch-form" class="form">
+          <label>Scholarship link (the official page, starting with https://)<input id="sf-url" type="url" required placeholder="https://..."></label>
+          <button class="psir-btn psir-outline" type="button" id="sf-fetch">Get scholarship details</button>
+          <div id="sf-fields" class="form" hidden>
+            <p id="sf-note" class="muted"></p>
+            <label>Scholarship title<input id="sf-title" maxlength="200"></label>
+            <label>Hosting institution or organisation<input id="sf-host" maxlength="150"></label>
+            <label>Description<textarea id="sf-desc" maxlength="3000" rows="3"></textarea></label>
+            <label>Eligible countries (comma separated)<input id="sf-countries" maxlength="500"></label>
+            <label>Academic levels (comma separated)<input id="sf-levels" maxlength="300"></label>
+            <label>Fields of study (comma separated)<input id="sf-fields-of" maxlength="300"></label>
+            <label>Funding coverage<textarea id="sf-funding" maxlength="500" rows="2"></textarea></label>
+            <label>Application requirements<textarea id="sf-req" maxlength="2000" rows="3"></textarea></label>
+            <label>Application deadline (leave empty if not stated)<input id="sf-deadline" type="date"></label>
+          </div>
+          <button class="psir-btn psir-navy" type="submit" id="sf-send" disabled>Send for review</button>
         </form>
       </details>
     </section>
@@ -455,7 +485,8 @@
     // ---- review (admins and moderators) ----
     async function loadReview() {
       if (!staff) return;
-      const [co, jo, em] = await Promise.all([
+      const [sc, co, jo, em] = await Promise.all([
+        db.from("career_scholarships").select("*").eq("status", "pending").order("created_at"),
         db.from("career_courses").select("*").eq("status", "pending").order("created_at"),
         db.from("career_jobs").select("*").eq("status", "pending").order("created_at"),
         db.from("career_employers").select("*").eq("verified", false).order("created_at")
@@ -471,11 +502,12 @@
           </div>
         </article>`;
       $("review").innerHTML = `<div class="grid">
+        ${(sc.data || []).map(r => card("scholarship", r, r.title, r.host_institution + " · " + (r.url || ""), r.description)).join("")}
         ${(co.data || []).map(r => card("course", r, r.title, r.provider + " · " + (r.url || ""), r.description)).join("")}
         ${(jo.data || []).map(r => card("job", r, r.title, r.organisation + " · " + r.job_type, r.description)).join("")}
         ${(em.data || []).map(r => card("employer", r, r.organisation, (r.website || "") + " · " + (r.contact_email || ""), "")).join("")}
       </div>`;
-      if (!(co.data || []).length && !(jo.data || []).length && !(em.data || []).length) {
+      if (!(sc.data || []).length && !(co.data || []).length && !(jo.data || []).length && !(em.data || []).length) {
         $("review").innerHTML = '<p class="muted">Nothing is waiting for review.</p>';
       }
     }
@@ -489,7 +521,7 @@
         if (b.dataset.act === "reject") res = await db.from("career_employers").delete().eq("user_id", id);
         else res = await db.from("career_employers").update({ verified: true, verified_by: me.id, verified_at: now }).eq("user_id", id).select("user_id");
       } else {
-        const table = kind === "course" ? "career_courses" : "career_jobs";
+        const table = kind === "course" ? "career_courses" : (kind === "scholarship" ? "career_scholarships" : "career_jobs");
         if (b.dataset.act === "reject" && note.length < 5) return say("Please give a reason of at least 5 characters to reject.", true);
         const change = b.dataset.act === "approve"
           ? (kind === "course" ? { status: "approved", reviewed_by: me.id, reviewed_at: now, reviewer_notes: note || null, checked_on: now.slice(0, 10) }
@@ -501,7 +533,154 @@
       if (res.error || (res.data && !res.data.length)) return say("Could not update: " + (res.error ? res.error.message : "permission denied"), true);
       say(b.dataset.act === "approve" ? "Approved." : "Rejected.");
       card.remove();
-      loadCourses(); loadJobs();
+      loadCourses(); loadScholarships(); loadJobs();
+    });
+
+    // ---- scholarships ----
+    let scholarships = [];
+    async function loadScholarships() {
+      const { data, error } = await db.from("career_scholarships")
+        .select("id, title, host_institution, description, image_url, url, countries, levels, fields, funding, requirements, deadline")
+        .eq("status", "approved").order("created_at", { ascending: false }).limit(300);
+      scholarships = error ? [] : (data || []);
+      renderScholarships();
+      if (location.hash.indexOf("#scholarship-") === 0) showScholarship(location.hash.slice(13));
+    }
+    function renderScholarships() {
+      const q = $("s-search").value.trim().toLowerCase(), c = $("s-country").value.trim().toLowerCase(), lvl = $("s-level").value;
+      const today = new Date().toISOString().slice(0, 10);
+      const rows = scholarships.filter(s =>
+        (!s.deadline || s.deadline >= today) &&
+        (!lvl || (s.levels || []).indexOf(lvl) !== -1) &&
+        (!c || (s.countries || []).some(x => String(x).toLowerCase().indexOf(c) !== -1)) &&
+        (!q || [s.title, s.host_institution, s.description].join(" ").toLowerCase().indexOf(q) !== -1));
+      $("scholarships").innerHTML = rows.length ? rows.map(s => `
+        <article class="card" id="scholarship-${esc(s.id)}">
+          ${s.image_url ? '<img src="' + esc(s.image_url) + '" alt="" loading="lazy" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:6px;">' : ""}
+          <span class="pill">${esc((s.levels || []).join(", ") || "Level not stated")}</span>
+          <h3>${esc(s.title)}</h3>
+          <div class="muted">${esc(s.host_institution)} · ${s.deadline ? "Deadline " + esc(s.deadline) : "Deadline not stated"}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+            <button class="psir-btn psir-navy" type="button" data-sdetail="${esc(s.id)}">View details</button>
+            <button class="psir-btn psir-outline" type="button" data-sshare="${esc(s.id)}">Share</button>
+          </div>
+        </article>`).join("") : '<p class="muted">No scholarships match your filters yet.</p>';
+    }
+    const notStated = a => (a && a.length ? esc(a.join(", ")) : "Not stated on the page");
+    function showScholarship(id) {
+      const s = scholarships.find(x => x.id === id);
+      const box = $("scholarship-detail");
+      if (!s) { box.hidden = true; return; }
+      const link = safeHttp(s.url);
+      box.innerHTML = (s.image_url ? '<img src="' + esc(s.image_url) + '" alt="" loading="lazy" style="width:100%;max-width:480px;aspect-ratio:16/9;object-fit:cover;border-radius:6px;margin-bottom:8px;">' : "")
+        + '<h2 style="color:#1E3F82;margin:8px 0 4px;font-size:1.3rem;">' + esc(s.title) + "</h2>"
+        + '<div class="muted">' + esc(s.host_institution) + "</div>"
+        + (s.description ? "<p>" + esc(s.description) + "</p>" : "")
+        + "<p><strong>Eligible countries:</strong> " + notStated(s.countries) + "</p>"
+        + "<p><strong>Academic levels:</strong> " + notStated(s.levels) + "</p>"
+        + "<p><strong>Fields of study:</strong> " + notStated(s.fields) + "</p>"
+        + "<p><strong>Funding coverage:</strong> " + (s.funding ? esc(s.funding) : "Not stated on the page") + "</p>"
+        + "<p><strong>Application requirements:</strong> " + (s.requirements ? esc(s.requirements) : "Not stated on the page") + "</p>"
+        + "<p><strong>Application deadline:</strong> " + (s.deadline ? esc(s.deadline) : "Not stated on the page. Check the official site.") + "</p>"
+        + '<p class="muted" style="border-left:3px solid #E6B75A;padding-left:10px;">You will leave PSIR Forum to apply on the official website. Details can change, so confirm them there.</p>'
+        + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">'
+        + (link ? '<a class="psir-btn psir-navy" href="' + esc(link) + '" target="_blank" rel="noopener noreferrer">Apply on the official website</a>' : "")
+        + '<button class="psir-btn psir-outline" type="button" data-sshare="' + esc(s.id) + '">Share</button>'
+        + '<button class="psir-btn psir-outline" type="button" id="scholarship-close">Close</button></div>';
+      box.hidden = false;
+      history.replaceState(null, "", "#scholarship-" + s.id);
+      box.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    async function shareScholarship(id) {
+      const s = scholarships.find(x => x.id === id);
+      if (!s) return;
+      const url = location.origin + "/career.html#scholarship-" + id;
+      try {
+        if (navigator.share) { await navigator.share({ title: s.title, text: s.title + " (" + s.host_institution + ")", url: url }); return; }
+        await navigator.clipboard.writeText(url);
+        say("Link copied. Share it with anyone.");
+      } catch (e) {
+        if (e && e.name === "AbortError") return;
+        say("Could not share. Copy the address from the browser bar.", true);
+      }
+    }
+    $("scholarships").addEventListener("click", e => {
+      const d = e.target.closest("[data-sdetail]"), s = e.target.closest("[data-sshare]");
+      if (d) showScholarship(d.dataset.sdetail);
+      if (s) shareScholarship(s.dataset.sshare);
+    });
+    $("scholarship-detail").addEventListener("click", e => {
+      const s = e.target.closest("[data-sshare]");
+      if (s) shareScholarship(s.dataset.sshare);
+      if (e.target.closest("#scholarship-close")) { $("scholarship-detail").hidden = true; history.replaceState(null, "", location.pathname); }
+    });
+    ["s-search", "s-country", "s-level"].forEach(id => $(id).addEventListener("input", renderScholarships));
+
+    // Suggest a scholarship: the reader fills what it can; every field stays editable; nothing is invented
+    let schPreview = null;
+    function schCheck() {
+      $("sf-send").disabled = !($("sf-title").value.trim().length >= 5 && $("sf-host").value.trim().length >= 2);
+    }
+    ["sf-title", "sf-host"].forEach(id => $(id).addEventListener("input", schCheck));
+    $("sf-url").addEventListener("input", () => { schPreview = null; $("sf-fields").hidden = true; $("sf-send").disabled = true; });
+    $("sf-fetch").addEventListener("click", async () => {
+      if (!me) return say("Please log in to add a scholarship.", true);
+      const url = $("sf-url").value.trim();
+      if (!/^https:\/\//i.test(url)) return say("The scholarship link must start with https://", true);
+      $("sf-fetch").disabled = true;
+      say("Reading the scholarship page…");
+      let data = {}, ok = false;
+      try {
+        const token = (await db.auth.getSession()).data.session.access_token;
+        const r = await fetch("/api/course-preview", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+          body: JSON.stringify({ url: url })
+        });
+        data = await r.json().catch(() => ({}));
+        ok = r.ok;
+      } catch (e) { data = { error: "Could not read this page." }; }
+      schPreview = ok ? data : null;
+      $("sf-title").value = ok && data.title ? data.title : "";
+      $("sf-host").value = ok && data.provider ? data.provider : "";
+      $("sf-desc").value = ok && data.description ? data.description : "";
+      ["sf-countries", "sf-levels", "sf-fields-of", "sf-funding", "sf-req"].forEach(id => { $(id).value = ""; });
+      $("sf-deadline").value = "";
+      const f = (ok && data.found) || {};
+      const missing = [];
+      if (!f.title) missing.push("title");
+      if (!f.provider) missing.push("institution");
+      if (!f.description) missing.push("description");
+      $("sf-note").textContent = ok
+        ? (missing.length ? "We could not find these on the page: " + missing.join(", ") + ". Please complete them. Eligibility, funding, requirements and deadline are never guessed: fill them only from the official page." : "Details found. Check every field before sending.")
+        : (data.error || "We couldn't automatically retrieve the information. Please complete the missing fields manually.");
+      $("sf-fields").hidden = false;
+      $("sf-fetch").disabled = false;
+      schCheck();
+    });
+    $("sch-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      if (!me || busy) return;
+      const url = $("sf-url").value.trim();
+      if (!/^https:\/\//i.test(url)) return say("The scholarship link must start with https://", true);
+      const deadline = $("sf-deadline").value || null;
+      if (deadline && deadline < new Date().toISOString().slice(0, 10)) return say("This deadline has already passed. Please check the page.", true);
+      const list = id => $(id).value.split(",").map(x => x.trim()).filter(Boolean).slice(0, 20);
+      busy = true; $("sf-send").disabled = true;
+      const { error } = await db.from("career_scholarships").insert({
+        title: $("sf-title").value.trim(), host_institution: $("sf-host").value.trim(),
+        description: $("sf-desc").value.trim() || null,
+        image_url: (schPreview && schPreview.image_url) || null,
+        url: (schPreview && schPreview.url) || url,
+        countries: list("sf-countries"), levels: list("sf-levels"), fields: list("sf-fields-of"),
+        funding: $("sf-funding").value.trim() || null, requirements: $("sf-req").value.trim() || null,
+        deadline: deadline, status: "pending", submitted_by: me.id
+      });
+      busy = false;
+      if (error) { schCheck(); return say(error.code === "23505" ? "This scholarship has already been approved." : "Could not send: " + error.message, true); }
+      $("sch-form").reset();
+      $("sf-fields").hidden = true; schPreview = null; $("sf-send").disabled = true;
+      say("Thank you. The scholarship will appear after a moderator checks it.");
     });
 
     // ---- session ----
@@ -515,7 +694,7 @@
         staff = ["admin", "moderator"].indexOf(role) !== -1;
       }
       $("tab-review").hidden = !staff;
-      await Promise.all([loadCourses(), loadJobs(), loadEmployer(), loadMine(), loadReview()]);
+      await Promise.all([loadCourses(), loadScholarships(), loadJobs(), loadEmployer(), loadMine(), loadReview()]);
     }
     db.auth.onAuthStateChange(() => setTimeout(refresh, 0));
     refresh();
