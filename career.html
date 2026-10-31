@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Career on PSIR Forum: courses and job opportunities in Political Science, International Relations, governance and policy, starting in Ethiopia.">
+  <meta property="og:site_name" content="PSIR Forum">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Career | PSIR Forum">
+  <meta property="og:description" content="Courses and job opportunities in Political Science, International Relations, governance and policy.">
+  <meta name="theme-color" content="#2855A6">
+  <title>Career | PSIR Forum</title>
+  <link rel="stylesheet" href="buttons.css">
+  <link rel="stylesheet" href="design.css">
+  <style>
+    .tabs { display:flex; gap:8px; flex-wrap:wrap; margin:18px 0 12px; }
+    .tabs button { min-height:42px; padding:0 16px; border-radius:6px; border:1px solid #CBD5E1; background:#fff; color:#2855A6; font:inherit; font-weight:700; cursor:pointer; }
+    .tabs button[aria-selected="true"] { background:#2855A6; color:#fff; border-color:#2855A6; }
+    .panel-view[hidden] { display:none !important; }
+    .filters { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 14px; }
+    .filters input, .filters select, .form input, .form select, .form textarea { border:1px solid #CBD5E1; border-radius:6px; padding:10px 12px; font:inherit; background:#fff; color:#263238; min-height:42px; }
+    .filters input { flex:1; min-width:180px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr)); gap:14px; }
+    .card { background:#fff; border:1px solid #DCE3EE; border-radius:10px; padding:16px; display:flex; flex-direction:column; gap:6px; }
+    .card h3 { margin:0; font-size:1.05rem; color:#1E3F82; line-height:1.35; overflow-wrap:anywhere; }
+    .pill { display:inline-block; font-size:.72rem; font-weight:800; padding:3px 8px; border-radius:4px; background:#EAF0FC; color:#2855A6; width:fit-content; }
+    .pill.gold { background:#E6B75A; color:#263238; }
+    .muted { color:#64748B; font-size:.9rem; }
+    .form { display:grid; gap:10px; margin-top:12px; }
+    .form label { font-weight:700; color:#1E3F82; font-size:.92rem; display:grid; gap:4px; }
+    .box { background:#fff; border:1px solid #DCE3EE; border-radius:10px; padding:18px; margin-top:14px; }
+    .msg { font-weight:600; min-height:22px; }
+    details summary { cursor:pointer; color:#2855A6; font-weight:700; }
+    @media (max-width:640px) { .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="container top-inner">
+      <a class="brand" href="/">PSIR FORUM</a>
+      <nav class="top-links" aria-label="Main navigation">
+        <a href="/">Home</a>
+        <a href="/categories">Categories</a>
+        <a href="/discussions">Discussions</a>
+        <a href="/research.html">Research Hub</a>
+        <a href="/news.html">News &amp; Journal</a>
+        <a href="/career.html" aria-current="page">Career</a>
+        <a href="/saved.html">Saved papers</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap" style="width:min(1100px, calc(100% - 36px)); margin:0 auto; padding:24px 0 40px;">
+    <p class="eyebrow" style="color:#A8771C; font-weight:800; letter-spacing:1.2px; font-size:.75rem; text-transform:uppercase; margin:0 0 6px;">Career</p>
+    <h1 style="color:#1E3F82; margin:0 0 6px;">Courses and opportunities</h1>
+    <p class="muted" style="margin:0;">Courses and jobs are checked by moderators before they appear. Jobs are posted by verified employers. Starting in Ethiopia, then across all regions.</p>
+
+    <div class="tabs" role="tablist" aria-label="Career sections">
+      <button role="tab" id="tab-courses" aria-selected="true" aria-controls="view-courses" data-view="courses">Courses</button>
+      <button role="tab" id="tab-jobs" aria-selected="false" aria-controls="view-jobs" data-view="jobs">Jobs</button>
+      <button role="tab" id="tab-employer" aria-selected="false" aria-controls="view-employer" data-view="employer">Employers</button>
+      <button role="tab" id="tab-mine" aria-selected="false" aria-controls="view-mine" data-view="mine">My applications</button>
+      <button role="tab" id="tab-review" aria-selected="false" aria-controls="view-review" data-view="review" hidden>Review</button>
+    </div>
+    <p id="msg" class="msg" role="status"></p>
+
+    <section id="view-courses" class="panel-view" role="tabpanel" aria-labelledby="tab-courses">
+      <div class="filters">
+        <input id="c-search" type="search" placeholder="Search courses or providers" aria-label="Search courses">
+        <select id="c-level" aria-label="Level"><option value="">All levels</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Professional</option></select>
+        <select id="c-cost" aria-label="Cost"><option value="">Any cost</option><option value="free">Free</option><option value="paid">Paid</option><option value="free_and_paid">Free and paid options</option></select>
+        <input id="c-region" type="search" placeholder="Region (for example Ethiopia)" aria-label="Region">
+      </div>
+      <div id="courses" class="grid"><p class="muted">Loading courses…</p></div>
+      <details class="box"><summary>Suggest a course</summary>
+        <form id="course-form" class="form">
+          <label>Course title<input id="cf-title" required minlength="5" maxlength="200"></label>
+          <label>Provider (university, institute or platform)<input id="cf-provider" required minlength="2" maxlength="150"></label>
+          <label>Description<textarea id="cf-desc" maxlength="1000" rows="3"></textarea></label>
+          <label>Level<select id="cf-level"><option value="">Choose</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Professional</option></select></label>
+          <label>Language<input id="cf-lang" value="English" maxlength="40"></label>
+          <label>Cost<select id="cf-cost"><option value="free">Free</option><option value="paid">Paid</option><option value="free_and_paid">Free and paid options</option></select></label>
+          <label>Cost details (optional)<input id="cf-cost-note" maxlength="200"></label>
+          <label>Duration (optional)<input id="cf-duration" maxlength="100"></label>
+          <label>Course web address (must start with https://)<input id="cf-url" type="url" required></label>
+          <label>Region<input id="cf-region" value="Ethiopia" maxlength="60"></label>
+          <label>Topics (comma separated, optional)<input id="cf-topics" maxlength="200"></label>
+          <button class="psir-btn" type="submit" id="cf-send">Send for review</button>
+        </form>
+      </details>
+    </section>
+
+    <section id="view-jobs" class="panel-view" role="tabpanel" aria-labelledby="tab-jobs" hidden>
+      <div class="filters">
+        <input id="j-search" type="search" placeholder="Search jobs or organisations" aria-label="Search jobs">
+        <select id="j-type" aria-label="Job type"><option value="">All types</option><option>Internship</option><option>Research Assistant</option><option>Policy Job</option><option>Full-time</option><option>Part-time</option><option>Volunteer</option><option>Fellowship</option></select>
+        <input id="j-region" type="search" placeholder="Region (for example Ethiopia)" aria-label="Region">
+      </div>
+      <div id="jobs" class="grid"><p class="muted">Loading jobs…</p></div>
+    </section>
+
+    <section id="view-employer" class="panel-view" role="tabpanel" aria-labelledby="tab-employer" hidden>
+      <div id="employer"></div>
+    </section>
+
+    <section id="view-mine" class="panel-view" role="tabpanel" aria-labelledby="tab-mine" hidden>
+      <div id="mine" class="grid"></div>
+    </section>
+
+    <section id="view-review" class="panel-view" role="tabpanel" aria-labelledby="tab-review" hidden>
+      <div id="review"></div>
+    </section>
+  </main>
+
+  <footer style="margin-top:24px;"><div class="container"><a href="/">PSIR Forum</a> · <a href="/policy.html">Academic publishing policy</a> · <a href="/info.html?page=guidelines">Community Guidelines</a></div></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (() => {
+    "use strict";
+    const db = window.supabase.createClient("https://updxillknwufqekfzkur.supabase.co", "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5");
+    const $ = id => document.getElementById(id);
+    let me = null, role = null, employer = null, staff = false, busy = false;
+
+    function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c]); }
+    function say(text, bad) { const m = $("msg"); m.textContent = text || ""; m.style.color = bad ? "#B42318" : "#237A57"; }
+    function safeHttp(u) { return /^https?:\/\//i.test(u || "") ? u : null; }
+    const COST = { free: "Free", paid: "Paid", free_and_paid: "Free and paid options" };
+
+    // ---- tabs ----
+    function show(view) {
+      document.querySelectorAll(".panel-view").forEach(s => { s.hidden = s.id !== "view-" + view; });
+      document.querySelectorAll('[role="tab"]').forEach(t => t.setAttribute("aria-selected", String(t.dataset.view === view)));
+    }
+    document.querySelectorAll('[role="tab"]').forEach(t => t.addEventListener("click", () => show(t.dataset.view)));
+
+    // ---- courses ----
+    let courses = [];
+    async function loadCourses() {
+      const { data, error } = await db.from("career_courses")
+        .select("id, title, provider, description, level, language, cost_type, cost_note, duration, url, region, topics")
+        .eq("status", "approved").order("created_at", { ascending: false }).limit(300);
+      courses = error ? [] : (data || []);
+      renderCourses();
+    }
+    function renderCourses() {
+      const q = $("c-search").value.trim().toLowerCase(), lvl = $("c-level").value, cost = $("c-cost").value, reg = $("c-region").value.trim().toLowerCase();
+      const rows = courses.filter(c =>
+        (!lvl || c.level === lvl) && (!cost || c.cost_type === cost) &&
+        (!reg || String(c.region || "").toLowerCase().includes(reg)) &&
+        (!q || [c.title, c.provider, c.description].join(" ").toLowerCase().includes(q)));
+      $("courses").innerHTML = rows.length ? rows.map(c => `
+        <article class="card">
+          <span class="pill">${esc(COST[c.cost_type] || c.cost_type)}${c.level ? " · " + esc(c.level) : ""}</span>
+          <h3>${esc(c.title)}</h3>
+          <div class="muted">${esc(c.provider)} · ${esc(c.language)}${c.duration ? " · " + esc(c.duration) : ""}</div>
+          ${c.description ? "<p>" + esc(c.description) + "</p>" : ""}
+          ${c.cost_note ? '<div class="muted">' + esc(c.cost_note) + "</div>" : ""}
+          <a class="psir-btn psir-outline" href="${esc(safeHttp(c.url) || "#")}" target="_blank" rel="noopener noreferrer">Open course</a>
+        </article>`).join("") : '<p class="muted">No courses match your filters yet.</p>';
+    }
+    ["c-search", "c-level", "c-cost", "c-region"].forEach(id => $(id).addEventListener("input", renderCourses));
+
+    $("course-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      if (!me) return say("Please log in to suggest a course.", true);
+      if (busy) return;
+      const url = safeHttp($("cf-url").value.trim());
+      if (!url) return say("The course address must start with https://", true);
+      busy = true; $("cf-send").disabled = true;
+      const topics = $("cf-topics").value.split(",").map(s => s.trim()).filter(Boolean).slice(0, 10);
+      const { error } = await db.from("career_courses").insert({
+        title: $("cf-title").value.trim(), provider: $("cf-provider").value.trim(),
+        description: $("cf-desc").value.trim() || null, level: $("cf-level").value || null,
+        language: $("cf-lang").value.trim() || "English", cost_type: $("cf-cost").value,
+        cost_note: $("cf-cost-note").value.trim() || null, duration: $("cf-duration").value.trim() || null,
+        url, region: $("cf-region").value.trim() || "Ethiopia", topics, status: "pending", submitted_by: me.id
+      });
+      busy = false; $("cf-send").disabled = false;
+      if (error) return say("Could not send: " + error.message, true);
+      $("course-form").reset();
+      say("Thank you. The course will appear after a moderator checks it.");
+    });
+
+    // ---- jobs ----
+    let jobs = [];
+    async function loadJobs() {
+      const { data, error } = await db.from("career_jobs")
+        .select("id, title, organisation, job_type, description, location, region, apply_url, apply_email, accept_site_applications, deadline, employer_id, created_at")
+        .eq("status", "approved").order("created_at", { ascending: false }).limit(300);
+      jobs = error ? [] : (data || []);
+      renderJobs();
+    }
+    function renderJobs() {
+      const q = $("j-search").value.trim().toLowerCase(), type = $("j-type").value, reg = $("j-region").value.trim().toLowerCase();
+      const today = new Date().toISOString().slice(0, 10);
+      const rows = jobs.filter(j =>
+        (!type || j.job_type === type) && (!reg || String(j.region || "").toLowerCase().includes(reg)) &&
+        (!j.deadline || j.deadline >= today) &&
+        (!q || [j.title, j.organisation, j.description].join(" ").toLowerCase().includes(q)));
+      $("jobs").innerHTML = rows.length ? rows.map(j => {
+        const ways = [];
+        if (safeHttp(j.apply_url)) ways.push(`<a class="psir-btn psir-outline" href="${esc(j.apply_url)}" target="_blank" rel="noopener noreferrer">Apply on employer site</a>`);
+        if (j.apply_email) ways.push(`<a class="psir-btn psir-outline" href="mailto:${esc(j.apply_email)}?subject=${encodeURIComponent("Application: " + j.title)}">Apply by email</a>`);
+        if (j.accept_site_applications) ways.push(`<button class="psir-btn psir-navy" type="button" data-apply="${esc(j.id)}">Apply on PSIR Forum</button>`);
+        return `
+        <article class="card" id="job-${esc(j.id)}">
+          <span class="pill gold">${esc(j.job_type)}</span>
+          <h3>${esc(j.title)}</h3>
+          <div class="muted">${esc(j.organisation)} · ${esc(j.location || j.region || "")}${j.deadline ? " · Deadline " + esc(j.deadline) : ""}</div>
+          <p>${esc(j.description)}</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">${ways.join("")}</div>
+          <div data-applyform="${esc(j.id)}"></div>
+        </article>`;
+      }).join("") : '<p class="muted">No jobs match your filters yet.</p>';
+    }
+    ["j-search", "j-type", "j-region"].forEach(id => $(id).addEventListener("input", renderJobs));
+
+    // On-site application: CV as a PDF, stored privately
+    $("jobs").addEventListener("click", e => {
+      const b = e.target.closest("button[data-apply]");
+      if (!b) return;
+      const slot = document.querySelector(`[data-applyform="${b.dataset.apply}"]`);
+      if (!me) return say("Please log in to apply.", true);
+      if (slot.innerHTML) { slot.innerHTML = ""; return; }
+      slot.innerHTML = `
+        <form class="form" data-job="${esc(b.dataset.apply)}" style="margin-top:12px;">
+          <label>Full name<input name="name" required minlength="2" maxlength="150" value="${esc(me.user_metadata && me.user_metadata.full_name || "")}"></label>
+          <label>Email<input name="email" type="email" required value="${esc(me.email || "")}"></label>
+          <label>Message (optional)<textarea name="message" maxlength="2000" rows="3"></textarea></label>
+          <label>CV (PDF, up to 5 MB)<input name="cv" type="file" accept="application/pdf" required></label>
+          <button class="psir-btn psir-navy" type="submit">Send application</button>
+        </form>`;
+    });
+    $("jobs").addEventListener("submit", async e => {
+      if (!e.target.dataset.job) return;
+      e.preventDefault();
+      if (busy) return;
+      const f = e.target, file = f.cv.files[0];
+      if (!file || file.type !== "application/pdf" || file.size > 5 * 1024 * 1024) return say("Please upload a PDF CV of up to 5 MB.", true);
+      const sig = new Uint8Array(await file.slice(0, 4).arrayBuffer());
+      if (String.fromCharCode(...sig) !== "%PDF") return say("This file is not a valid PDF.", true);
+      busy = true;
+      const path = me.id + "/" + crypto.randomUUID() + ".pdf";
+      const up = await db.storage.from("career-cvs").upload(path, file, { contentType: "application/pdf", upsert: false });
+      if (up.error) { busy = false; return say("CV upload failed: " + up.error.message, true); }
+      const { error } = await db.from("career_applications").insert({
+        job_id: f.dataset.job, applicant_id: me.id, full_name: f.name.value.trim(),
+        email: f.email.value.trim(), message: f.message.value.trim() || null, cv_path: path
+      });
+      busy = false;
+      if (error) {
+        await db.storage.from("career-cvs").remove([path]);
+        return say(error.code === "23505" ? "You have already applied for this job." : "Could not send: " + error.message, true);
+      }
+      f.closest("[data-applyform]").innerHTML = "";
+      say("Application sent. Thank you.");
+      loadMine();
+    });
+
+    // ---- employers ----
+    async function loadEmployer() {
+      if (!me) { $("employer").innerHTML = '<div class="box">Log in to request employer status or post jobs.</div>'; return; }
+      const { data } = await db.from("career_employers").select("*").eq("user_id", me.id).maybeSingle();
+      employer = data || null;
+      if (!employer) {
+        $("employer").innerHTML = `
+          <div class="box">
+            <h3 style="margin-top:0;color:#1E3F82;">Request employer status</h3>
+            <p class="muted">Admins verify each organisation before you can post jobs.</p>
+            <form id="er-form" class="form">
+              <label>Organisation<input id="er-org" required minlength="2" maxlength="150"></label>
+              <label>Website (optional)<input id="er-web" type="url" maxlength="300"></label>
+              <label>Contact email (only admins see this)<input id="er-mail" type="email" maxlength="200" required></label>
+              <button class="psir-btn psir-navy" type="submit">Send request</button>
+            </form>
+          </div>`;
+        $("er-form").addEventListener("submit", async e => {
+          e.preventDefault();
+          const { error } = await db.from("career_employers").insert({
+            user_id: me.id, organisation: $("er-org").value.trim(),
+            website: $("er-web").value.trim() || null, contact_email: $("er-mail").value.trim()
+          });
+          if (error) return say("Could not send the request: " + error.message, true);
+          say("Request sent. An admin will verify your organisation.");
+          loadEmployer();
+        });
+      } else if (!employer.verified) {
+        $("employer").innerHTML = `<div class="box"><h3 style="margin-top:0;color:#1E3F82;">${esc(employer.organisation)}</h3><p>Your employer request is waiting for admin verification.</p></div>`;
+      } else {
+        $("employer").innerHTML = `
+          <div class="box">
+            <h3 style="margin-top:0;color:#1E3F82;">Post a job for ${esc(employer.organisation)} <span class="pill gold">Verified</span></h3>
+            <form id="job-form" class="form">
+              <label>Job title<input id="jf-title" required minlength="5" maxlength="200"></label>
+              <label>Job type<select id="jf-type"><option>Internship</option><option>Research Assistant</option><option>Policy Job</option><option>Full-time</option><option>Part-time</option><option>Volunteer</option><option>Fellowship</option></select></label>
+              <label>Description (at least 50 characters)<textarea id="jf-desc" required minlength="50" maxlength="5000" rows="5"></textarea></label>
+              <label>Location<input id="jf-loc" maxlength="150"></label>
+              <label>Region<input id="jf-region" value="Ethiopia" maxlength="60"></label>
+              <label>Application link (employer site, optional)<input id="jf-url" type="url" maxlength="500"></label>
+              <label>Application email (optional)<input id="jf-email" type="email" maxlength="200"></label>
+              <label style="grid-template-columns:auto 1fr;align-items:center;"><input id="jf-site" type="checkbox"> Accept applications on PSIR Forum (CVs as PDF)</label>
+              <label>Deadline (optional)<input id="jf-deadline" type="date"></label>
+              <button class="psir-btn psir-navy" type="submit">Send for review</button>
+            </form>
+          </div>`;
+        $("job-form").addEventListener("submit", async e => {
+          e.preventDefault();
+          const url = $("jf-url").value.trim(), mail = $("jf-email").value.trim(), site = $("jf-site").checked;
+          if (!url && !mail && !site) return say("Please give at least one way to apply.", true);
+          const { error } = await db.from("career_jobs").insert({
+            employer_id: me.id, title: $("jf-title").value.trim(), organisation: employer.organisation,
+            job_type: $("jf-type").value, description: $("jf-desc").value.trim(), location: $("jf-loc").value.trim() || null,
+            region: $("jf-region").value.trim() || "Ethiopia", apply_url: url || null, apply_email: mail || null,
+            accept_site_applications: site, deadline: $("jf-deadline").value || null, status: "pending"
+          });
+          if (error) return say("Could not send the job: " + error.message, true);
+          e.target.reset();
+          say("Job sent for review. It will appear after an admin approves it.");
+        });
+      }
+    }
+
+    // ---- my applications ----
+    async function loadMine() {
+      if (!me) { $("mine").innerHTML = '<p class="muted">Log in to see your applications.</p>'; return; }
+      const { data } = await db.from("career_applications").select("job_id, created_at").eq("applicant_id", me.id).order("created_at", { ascending: false });
+      const list = data || [];
+      if (!list.length) { $("mine").innerHTML = '<p class="muted">You have not applied for any job yet.</p>'; return; }
+      const ids = [...new Set(list.map(a => a.job_id))];
+      const { data: js } = await db.from("career_jobs").select("id, title, organisation").in("id", ids);
+      const names = new Map((js || []).map(j => [j.id, j]));
+      $("mine").innerHTML = list.map(a => {
+        const j = names.get(a.job_id);
+        return `<article class="card"><h3>${esc(j ? j.title : "Job")}</h3><div class="muted">${esc(j ? j.organisation : "")} · Applied ${esc(new Date(a.created_at).toLocaleDateString())}</div></article>`;
+      }).join("");
+    }
+
+    // ---- review (admins and moderators) ----
+    async function loadReview() {
+      if (!staff) return;
+      const [co, jo, em] = await Promise.all([
+        db.from("career_courses").select("*").eq("status", "pending").order("created_at"),
+        db.from("career_jobs").select("*").eq("status", "pending").order("created_at"),
+        db.from("career_employers").select("*").eq("verified", false).order("created_at")
+      ]);
+      const card = (kind, r, title, sub, body) => `
+        <article class="card" data-kind="${kind}" data-id="${esc(r.id || r.user_id)}">
+          <span class="pill">${esc(kind)}</span><h3>${esc(title)}</h3><div class="muted">${esc(sub)}</div>
+          ${body ? "<p>" + esc(body) + "</p>" : ""}
+          <textarea class="rn" placeholder="Reason (needed to reject)" maxlength="1000" rows="2"></textarea>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="psir-btn psir-green" data-act="approve" type="button">Approve</button>
+            <button class="psir-btn psir-outline-red" data-act="reject" type="button">Reject</button>
+          </div>
+        </article>`;
+      $("review").innerHTML = `<div class="grid">
+        ${(co.data || []).map(r => card("course", r, r.title, r.provider + " · " + (r.url || ""), r.description)).join("")}
+        ${(jo.data || []).map(r => card("job", r, r.title, r.organisation + " · " + r.job_type, r.description)).join("")}
+        ${(em.data || []).map(r => card("employer", r, r.organisation, (r.website || "") + " · " + (r.contact_email || ""), "")).join("")}
+      </div>`;
+      if (!(co.data || []).length && !(jo.data || []).length && !(em.data || []).length) {
+        $("review").innerHTML = '<p class="muted">Nothing is waiting for review.</p>';
+      }
+    }
+    $("review").addEventListener("click", async e => {
+      const b = e.target.closest("button[data-act]");
+      if (!b) return;
+      const card = b.closest("article"), kind = card.dataset.kind, id = card.dataset.id, note = card.querySelector(".rn").value.trim();
+      const now = new Date().toISOString();
+      let res;
+      if (kind === "employer") {
+        if (b.dataset.act === "reject") res = await db.from("career_employers").delete().eq("user_id", id);
+        else res = await db.from("career_employers").update({ verified: true, verified_by: me.id, verified_at: now }).eq("user_id", id).select("user_id");
+      } else {
+        const table = kind === "course" ? "career_courses" : "career_jobs";
+        if (b.dataset.act === "reject" && note.length < 5) return say("Please give a reason of at least 5 characters to reject.", true);
+        const change = b.dataset.act === "approve"
+          ? (kind === "course" ? { status: "approved", reviewed_by: me.id, reviewed_at: now, reviewer_notes: note || null }
+                               : { status: "approved", reviewer_id: me.id, reviewed_at: now, reviewer_notes: note || null })
+          : (kind === "course" ? { status: "rejected", reviewed_by: me.id, reviewed_at: now, reviewer_notes: note }
+                               : { status: "rejected", reviewer_id: me.id, reviewed_at: now, reviewer_notes: note });
+        res = await db.from(table).update(change).eq("id", id).select("id");
+      }
+      if (res.error || (res.data && !res.data.length)) return say("Could not update: " + (res.error ? res.error.message : "permission denied"), true);
+      say(b.dataset.act === "approve" ? "Approved." : "Rejected.");
+      card.remove();
+      loadCourses(); loadJobs();
+    });
+
+    // ---- session ----
+    async function refresh() {
+      const { data } = await db.auth.getSession();
+      me = data.session ? data.session.user : null;
+      staff = false;
+      if (me) {
+        const { data: p } = await db.from("profiles").select("role").eq("id", me.id).maybeSingle();
+        role = p ? p.role : null;
+        staff = ["admin", "moderator"].indexOf(role) !== -1;
+      }
+      $("tab-review").hidden = !staff;
+      await Promise.all([loadCourses(), loadJobs(), loadEmployer(), loadMine(), loadReview()]);
+    }
+    db.auth.onAuthStateChange(() => setTimeout(refresh, 0));
+    refresh();
+  })();
+  </script>
+</body>
+</html>
