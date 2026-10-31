@@ -1,0 +1,145 @@
+// Vercel serverless function: reads a public course page and returns its title, provider,
+// description and thumbnail. Only signed-in members can use it. Private, local and
+// non-HTTPS addresses are refused, and the number of redirects and the page size are limited.
+const dns = require("dns").promises;
+const net = require("net");
+
+const SUPABASE_URL = process.env.SUPABASE_URL || "https://updxillknwufqekfzkur.supabase.co";
+const SUPABASE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY || "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5";
+const MAX_BYTES = 600 * 1024;
+
+function isPrivateIp(ip) {
+  if (net.isIPv4(ip)) {
+    const p = ip.split(".").map(Number);
+    return p[0] === 10 || p[0] === 127 || p[0] === 0 || p[0] >= 224 ||
+      (p[0] === 169 && p[1] === 254) || (p[0] === 172 && p[1] >= 16 && p[1] <= 31) ||
+      (p[0] === 192 && p[1] === 168) || (p[0] === 100 && p[1] >= 64 && p[1] <= 127);
+  }
+  if (net.isIPv6(ip)) {
+    const l = ip.toLowerCase();
+    return l === "::1" || l === "::" || l.startsWith("fc") || l.startsWith("fd") || l.startsWith("fe80") ||
+      l.startsWith("::ffff:127.") || l.startsWith("::ffff:10.") || l.startsWith("::ffff:192.168.");
+  }
+  return true;
+}
+
+async function safeUrl(raw) {
+  let u;
+  try { u = new URL(raw); } catch (e) { return null; }
+  if (u.protocol !== "https:" || u.username || u.password) return null;
+  if (u.port && u.port !== "443") return null;
+  const addrs = await dns.lookup(u.hostname, { all: true });
+  if (!addrs.length || addrs.some(a => isPrivateIp(a.address))) return null;
+  return u;
+}
+
+async function readLimited(r) {
+  const reader = r.body.getReader();
+  const chunks = [];
+  let total = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.length;
+    if (total > MAX_BYTES) { chunks.push(value.subarray(0, value.length - (total - MAX_BYTES))); break; }
+    chunks.push(value);
+  }
+  return Buffer.concat(chunks.map(c => Buffer.from(c))).toString("utf8");
+}
+
+async function fetchPage(start) {
+  let current = start;
+  for (let hop = 0; hop < 4; hop++) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
+    let r;
+    try {
+      r = await fetch(current.href, {
+        redirect: "manual", signal: ctrl.signal,
+        headers: { "User-Agent": "PSIR-Forum-course-preview/1.0", Accept: "text/html" }
+      });
+    } finally { clearTimeout(timer); }
+    if (r.status >= 300 && r.status < 400 && r.headers.get("location")) {
+      const next = await safeUrl(new URL(r.headers.get("location"), current).href);
+      if (!next) return null;
+      current = next;
+      continue;
+    }
+    if (!r.ok) return null;
+    if (!/text\/html|application\/xhtml/i.test(r.headers.get("content-type") || "")) return null;
+    return { url: current, html: await readLimited(r) };
+  }
+  return null;
+}
+
+const ENT = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
+function decode(s) {
+  return String(s || "").replace(/&(#\d+|#x[0-9a-f]+|[a-z]+);/gi, (m, e) => {
+    if (e[0] === "#") {
+      const n = e[1] === "x" || e[1] === "X" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10);
+      return isFinite(n) ? String.fromCodePoint(n) : m;
+    }
+    return ENT[e.toLowerCase()] !== undefined ? ENT[e.toLowerCase()] : m;
+  });
+}
+function attrs(tag) {
+  const out = {};
+  tag.replace(/([a-zA-Z:_-]+)\s*=\s*("([^"]*)"|'([^']*)'|([^\s"'>]+))/g, (m, k, v, a, b, c) => {
+    out[k.toLowerCase()] = a !== undefined ? a : (b !== undefined ? b : (c || ""));
+    return m;
+  });
+  return out;
+}
+function clean(s, max) { return decode(s).replace(/\s+/g, " ").trim().slice(0, max); }
+
+function extract(html, base) {
+  const meta = {};
+  (html.match(/<meta\b[^>]*>/gi) || []).forEach(tag => {
+    const a = attrs(tag);
+    const key = (a.property || a.name || a.itemprop || "").toLowerCase();
+    if (key && a.content !== undefined && meta[key] === undefined) meta[key] = a.content;
+  });
+  const titleTag = (html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || "";
+  const title = clean(meta["og:title"] || meta["twitter:title"] || titleTag, 200);
+  const description = clean(meta["og:description"] || meta["description"] || meta["twitter:description"] || "", 1000);
+  const siteName = clean(meta["og:site_name"] || "", 150) || base.hostname.replace(/^www\./, "");
+  let image = clean(meta["og:image"] || meta["twitter:image"] || meta["image"] || "", 2000);
+  let image_url = null;
+  if (image) {
+    try {
+      const u = new URL(image, base);
+      if (u.protocol === "https:" && u.href.length <= 500) image_url = u.href;
+    } catch (e) { image_url = null; }
+  }
+  return { title, description, provider: siteName, image_url };
+}
+
+module.exports = async (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+  if (req.method !== "POST") { res.setHeader("Allow", "POST"); return res.status(405).json({ error: "Method not allowed." }); }
+
+  const match = /^Bearer\s+(\S+)$/i.exec(req.headers.authorization || "");
+  if (!match) return res.status(401).json({ error: "Please log in to add a course." });
+  let user = null;
+  try {
+    const check = await fetch(SUPABASE_URL + "/auth/v1/user", { headers: { Authorization: "Bearer " + match[1], apikey: SUPABASE_KEY } });
+    if (check.ok) user = await check.json();
+  } catch (e) { return res.status(503).json({ error: "Could not confirm your sign-in." }); }
+  if (!user || !user.id) return res.status(401).json({ error: "Please log in to add a course." });
+
+  let body = req.body || {};
+  if (typeof body === "string") { try { body = JSON.parse(body); } catch (e) { body = {}; } }
+  const start = await safeUrl(String(body.url || ""));
+  if (!start) return res.status(400).json({ error: "Please give a public course link that starts with https://" });
+
+  try {
+    const page = await fetchPage(start);
+    if (!page) return res.status(422).json({ error: "Could not read this page. Check that the link is public and opens in a browser." });
+    const info = extract(page.html, page.url);
+    const title = info.title && info.title.length >= 5 ? info.title : (page.url.hostname + " course");
+    const provider = info.provider && info.provider.length >= 2 ? info.provider : page.url.hostname;
+    return res.status(200).json({ url: page.url.href, title, provider, description: info.description, image_url: info.image_url });
+  } catch (e) {
+    return res.status(422).json({ error: "Could not read this page. Please try another link." });
+  }
+};

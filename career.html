@@ -78,19 +78,10 @@
       <div id="courses" class="grid"><p class="muted">Loading courses…</p></div>
       <details class="box"><summary>Suggest a course</summary>
         <form id="course-form" class="form">
-          <label>Course title<input id="cf-title" required minlength="5" maxlength="200"></label>
-          <label>Provider (university, institute or platform)<input id="cf-provider" required minlength="2" maxlength="150"></label>
-          <label>Description<textarea id="cf-desc" maxlength="1000" rows="3"></textarea></label>
-          <label>Level<select id="cf-level"><option value="">Choose</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Professional</option></select></label>
-          <label>Language<input id="cf-lang" value="English" maxlength="40"></label>
-          <label>Provider type<select id="cf-ptype"><option value="platform">Online learning platform</option><option value="university">University</option><option value="organisation">International organisation</option><option value="other">Other</option></select></label>
-          <label>Cost<select id="cf-cost"><option value="free">Free</option><option value="paid">Paid</option><option value="free_and_paid">Free and paid options</option></select></label>
-          <label>Cost details (optional)<input id="cf-cost-note" maxlength="200"></label>
-          <label>Duration (optional)<input id="cf-duration" maxlength="100"></label>
-          <label>Course web address (must start with https://)<input id="cf-url" type="url" required></label>
-          <label>Region<input id="cf-region" value="Ethiopia" maxlength="60"></label>
-          <label>Topics (comma separated, optional)<input id="cf-topics" maxlength="200"></label>
-          <button class="psir-btn" type="submit" id="cf-send">Send for review</button>
+          <label>Course link (the course page, starting with https://)<input id="cf-url" type="url" required placeholder="https://..."></label>
+          <button class="psir-btn psir-outline" type="button" id="cf-fetch">Get course details</button>
+          <div id="cf-preview" class="card" hidden></div>
+          <button class="psir-btn psir-navy" type="submit" id="cf-send" disabled>Send for review</button>
         </form>
       </details>
     </section>
@@ -143,7 +134,7 @@
     let courses = [];
     async function loadCourses() {
       const { data, error } = await db.from("career_courses")
-        .select("id, title, provider, description, level, language, cost_type, cost_note, duration, url, region, topics, provider_type, checked_on")
+        .select("id, title, provider, description, level, language, cost_type, cost_note, duration, url, region, topics, provider_type, checked_on, image_url")
         .eq("status", "approved").order("created_at", { ascending: false }).limit(300);
       courses = error ? [] : (data || []);
       renderCourses();
@@ -158,6 +149,7 @@
         (!q || [c.title, c.provider, c.description].join(" ").toLowerCase().includes(q)));
       $("courses").innerHTML = rows.length ? rows.map(c => `
         <article class="card" id="course-${esc(c.id)}">
+          ${c.image_url ? '<img src="' + esc(c.image_url) + '" alt="" loading="lazy" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:6px;">' : ""}
           <span class="pill">${esc(PTYPE[c.provider_type] || "Provider")} · ${esc(COST[c.cost_type] || c.cost_type)}${c.level ? " · " + esc(c.level) : ""}</span>
           <h3>${esc(c.title)}</h3>
           <div class="muted">${esc(c.provider)} · ${esc(c.language)}${c.duration ? " · " + esc(c.duration) : ""}</div>
@@ -172,7 +164,7 @@
       const box = $("course-detail");
       if (!c) { box.hidden = true; return; }
       const link = safeHttp(c.url);
-      box.innerHTML = `
+      box.innerHTML = (c.image_url ? '<img src="' + esc(c.image_url) + '" alt="" loading="lazy" style="width:100%;max-width:480px;aspect-ratio:16/9;object-fit:cover;border-radius:6px;margin-bottom:8px;">' : "") + `
         <span class="pill">${esc(PTYPE[c.provider_type] || "Provider")} · ${esc(COST[c.cost_type] || c.cost_type)}</span>
         <h2 style="color:#1E3F82;margin:8px 0 4px;font-size:1.3rem;">${esc(c.title)}</h2>
         <div class="muted">${esc(c.provider)}${c.level ? " · " + esc(c.level) : ""} · ${esc(c.language)}${c.duration ? " · " + esc(c.duration) : ""} · ${esc(c.region || "")}</div>
@@ -215,24 +207,54 @@
     });
     ["c-search", "c-level", "c-cost", "c-region", "c-ptype"].forEach(id => $(id).addEventListener("input", renderCourses));
 
+    let coursePreview = null;
+    $("cf-url").addEventListener("input", () => { coursePreview = null; $("cf-send").disabled = true; $("cf-preview").hidden = true; });
+    $("cf-fetch").addEventListener("click", async () => {
+      if (!me) return say("Please log in to add a course.", true);
+      const url = $("cf-url").value.trim();
+      if (!/^https:\/\//i.test(url)) return say("The course link must start with https://", true);
+      $("cf-fetch").disabled = true;
+      say("Reading the course page…");
+      try {
+        const token = (await db.auth.getSession()).data.session.access_token;
+        const r = await fetch("/api/course-preview", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+          body: JSON.stringify({ url: url })
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.error || "Could not read this page.");
+        coursePreview = data;
+        $("cf-preview").hidden = false;
+        $("cf-preview").innerHTML = (data.image_url
+          ? '<img src="' + esc(data.image_url) + '" alt="" loading="lazy" style="width:100%;max-width:360px;aspect-ratio:16/9;object-fit:cover;border-radius:6px;">' : "")
+          + '<h3 style="margin:6px 0 0;color:#1E3F82;">' + esc(data.title) + "</h3>"
+          + '<div class="muted">' + esc(data.provider) + "</div>"
+          + '<p>' + esc(data.description || "No description was found on the page. You can still send the course for review.") + "</p>";
+        $("cf-send").disabled = false;
+        say("Details found. Check them, then send for review.");
+      } catch (e) {
+        coursePreview = null;
+        $("cf-send").disabled = true;
+        say(e.message, true);
+      } finally {
+        $("cf-fetch").disabled = false;
+      }
+    });
     $("course-form").addEventListener("submit", async e => {
       e.preventDefault();
-      if (!me) return say("Please log in to suggest a course.", true);
-      if (busy) return;
-      const url = safeHttp($("cf-url").value.trim());
-      if (!url) return say("The course address must start with https://", true);
+      if (!me || !coursePreview || busy) return;
       busy = true; $("cf-send").disabled = true;
-      const topics = $("cf-topics").value.split(",").map(s => s.trim()).filter(Boolean).slice(0, 10);
       const { error } = await db.from("career_courses").insert({
-        title: $("cf-title").value.trim(), provider: $("cf-provider").value.trim(),
-        description: $("cf-desc").value.trim() || null, level: $("cf-level").value || null,
-        language: $("cf-lang").value.trim() || "English", cost_type: $("cf-cost").value,
-        cost_note: $("cf-cost-note").value.trim() || null, duration: $("cf-duration").value.trim() || null,
-        url, region: $("cf-region").value.trim() || "Ethiopia", topics, status: "pending", submitted_by: me.id, provider_type: $("cf-ptype").value
+        title: coursePreview.title, provider: coursePreview.provider,
+        description: coursePreview.description || null, url: coursePreview.url,
+        image_url: coursePreview.image_url || null, cost_type: "free", provider_type: "platform",
+        language: "English", region: "Ethiopia", status: "pending", submitted_by: me.id
       });
-      busy = false; $("cf-send").disabled = false;
-      if (error) return say("Could not send: " + error.message, true);
+      busy = false;
+      if (error) { $("cf-send").disabled = false; return say("Could not send: " + error.message, true); }
       $("course-form").reset();
+      $("cf-preview").hidden = true; coursePreview = null;
       say("Thank you. The course will appear after a moderator checks it.");
     });
 
