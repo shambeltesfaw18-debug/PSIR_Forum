@@ -71,8 +71,10 @@
         <input id="c-search" type="search" placeholder="Search courses or providers" aria-label="Search courses">
         <select id="c-level" aria-label="Level"><option value="">All levels</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Professional</option></select>
         <select id="c-cost" aria-label="Cost"><option value="">Any cost</option><option value="free">Free</option><option value="paid">Paid</option><option value="free_and_paid">Free and paid options</option></select>
+        <select id="c-ptype" aria-label="Provider type"><option value="">All providers</option><option value="platform">Online platforms</option><option value="university">Universities</option><option value="organisation">International organisations</option><option value="other">Other</option></select>
         <input id="c-region" type="search" placeholder="Region (for example Ethiopia)" aria-label="Region">
       </div>
+      <div id="course-detail" class="box" hidden></div>
       <div id="courses" class="grid"><p class="muted">Loading courses…</p></div>
       <details class="box"><summary>Suggest a course</summary>
         <form id="course-form" class="form">
@@ -81,6 +83,7 @@
           <label>Description<textarea id="cf-desc" maxlength="1000" rows="3"></textarea></label>
           <label>Level<select id="cf-level"><option value="">Choose</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Professional</option></select></label>
           <label>Language<input id="cf-lang" value="English" maxlength="40"></label>
+          <label>Provider type<select id="cf-ptype"><option value="platform">Online learning platform</option><option value="university">University</option><option value="organisation">International organisation</option><option value="other">Other</option></select></label>
           <label>Cost<select id="cf-cost"><option value="free">Free</option><option value="paid">Paid</option><option value="free_and_paid">Free and paid options</option></select></label>
           <label>Cost details (optional)<input id="cf-cost-note" maxlength="200"></label>
           <label>Duration (optional)<input id="cf-duration" maxlength="100"></label>
@@ -140,28 +143,77 @@
     let courses = [];
     async function loadCourses() {
       const { data, error } = await db.from("career_courses")
-        .select("id, title, provider, description, level, language, cost_type, cost_note, duration, url, region, topics")
+        .select("id, title, provider, description, level, language, cost_type, cost_note, duration, url, region, topics, provider_type, checked_on")
         .eq("status", "approved").order("created_at", { ascending: false }).limit(300);
       courses = error ? [] : (data || []);
       renderCourses();
+      if (location.hash.indexOf("#course-") === 0) showCourse(location.hash.slice(8));
     }
+    const PTYPE = { platform: "Online platform", university: "University", organisation: "International organisation", other: "Provider" };
     function renderCourses() {
-      const q = $("c-search").value.trim().toLowerCase(), lvl = $("c-level").value, cost = $("c-cost").value, reg = $("c-region").value.trim().toLowerCase();
+      const q = $("c-search").value.trim().toLowerCase(), lvl = $("c-level").value, cost = $("c-cost").value, reg = $("c-region").value.trim().toLowerCase(), pt = $("c-ptype").value;
       const rows = courses.filter(c =>
-        (!lvl || c.level === lvl) && (!cost || c.cost_type === cost) &&
+        (!lvl || c.level === lvl) && (!cost || c.cost_type === cost) && (!pt || c.provider_type === pt) &&
         (!reg || String(c.region || "").toLowerCase().includes(reg)) &&
         (!q || [c.title, c.provider, c.description].join(" ").toLowerCase().includes(q)));
       $("courses").innerHTML = rows.length ? rows.map(c => `
-        <article class="card">
-          <span class="pill">${esc(COST[c.cost_type] || c.cost_type)}${c.level ? " · " + esc(c.level) : ""}</span>
+        <article class="card" id="course-${esc(c.id)}">
+          <span class="pill">${esc(PTYPE[c.provider_type] || "Provider")} · ${esc(COST[c.cost_type] || c.cost_type)}${c.level ? " · " + esc(c.level) : ""}</span>
           <h3>${esc(c.title)}</h3>
           <div class="muted">${esc(c.provider)} · ${esc(c.language)}${c.duration ? " · " + esc(c.duration) : ""}</div>
-          ${c.description ? "<p>" + esc(c.description) + "</p>" : ""}
-          ${c.cost_note ? '<div class="muted">' + esc(c.cost_note) + "</div>" : ""}
-          <a class="psir-btn psir-outline" href="${esc(safeHttp(c.url) || "#")}" target="_blank" rel="noopener noreferrer">Open course</a>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+            <button class="psir-btn psir-navy" type="button" data-detail="${esc(c.id)}">View details</button>
+            <button class="psir-btn psir-outline" type="button" data-share="${esc(c.id)}">Share</button>
+          </div>
         </article>`).join("") : '<p class="muted">No courses match your filters yet.</p>';
     }
-    ["c-search", "c-level", "c-cost", "c-region"].forEach(id => $(id).addEventListener("input", renderCourses));
+    function showCourse(id) {
+      const c = courses.find(x => x.id === id);
+      const box = $("course-detail");
+      if (!c) { box.hidden = true; return; }
+      const link = safeHttp(c.url);
+      box.innerHTML = `
+        <span class="pill">${esc(PTYPE[c.provider_type] || "Provider")} · ${esc(COST[c.cost_type] || c.cost_type)}</span>
+        <h2 style="color:#1E3F82;margin:8px 0 4px;font-size:1.3rem;">${esc(c.title)}</h2>
+        <div class="muted">${esc(c.provider)}${c.level ? " · " + esc(c.level) : ""} · ${esc(c.language)}${c.duration ? " · " + esc(c.duration) : ""} · ${esc(c.region || "")}</div>
+        ${c.cost_note ? '<p class="muted">' + esc(c.cost_note) + "</p>" : ""}
+        ${c.description ? "<p>" + esc(c.description) + "</p>" : ""}
+        ${c.topics && c.topics.length ? '<p class="muted">Topics: ' + esc(c.topics.join(", ")) + "</p>" : ""}
+        ${c.checked_on ? '<p class="muted">Link last checked: ' + esc(c.checked_on) + "</p>" : ""}
+        <p class="muted" style="border-left:3px solid #E6B75A;padding-left:10px;">You will leave PSIR Forum to enrol on the provider's website. Course details can change, so check the provider's page before you enrol.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+          ${link ? '<a class="psir-btn psir-navy" href="' + esc(link) + '" target="_blank" rel="noopener noreferrer">Enrol on the provider\'s website</a>' : ""}
+          <button class="psir-btn psir-outline" type="button" data-share="${esc(c.id)}">Share</button>
+          <button class="psir-btn psir-outline" type="button" id="course-close">Close</button>
+        </div>`;
+      box.hidden = false;
+      history.replaceState(null, "", "#course-" + c.id);
+      box.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    async function shareCourse(id) {
+      const c = courses.find(x => x.id === id);
+      if (!c) return;
+      const url = location.origin + "/career.html#course-" + id;
+      try {
+        if (navigator.share) { await navigator.share({ title: c.title, text: c.title + " (" + c.provider + ")", url: url }); return; }
+        await navigator.clipboard.writeText(url);
+        say("Link copied. Share it with anyone.");
+      } catch (e) {
+        if (e && e.name === "AbortError") return;
+        say("Could not share. Copy the address from the browser bar.", true);
+      }
+    }
+    $("courses").addEventListener("click", e => {
+      const d = e.target.closest("[data-detail]"), s = e.target.closest("[data-share]");
+      if (d) showCourse(d.dataset.detail);
+      if (s) shareCourse(s.dataset.share);
+    });
+    $("course-detail").addEventListener("click", e => {
+      const s = e.target.closest("[data-share]");
+      if (s) shareCourse(s.dataset.share);
+      if (e.target.closest("#course-close")) { $("course-detail").hidden = true; history.replaceState(null, "", location.pathname); }
+    });
+    ["c-search", "c-level", "c-cost", "c-region", "c-ptype"].forEach(id => $(id).addEventListener("input", renderCourses));
 
     $("course-form").addEventListener("submit", async e => {
       e.preventDefault();
@@ -176,7 +228,7 @@
         description: $("cf-desc").value.trim() || null, level: $("cf-level").value || null,
         language: $("cf-lang").value.trim() || "English", cost_type: $("cf-cost").value,
         cost_note: $("cf-cost-note").value.trim() || null, duration: $("cf-duration").value.trim() || null,
-        url, region: $("cf-region").value.trim() || "Ethiopia", topics, status: "pending", submitted_by: me.id
+        url, region: $("cf-region").value.trim() || "Ethiopia", topics, status: "pending", submitted_by: me.id, provider_type: $("cf-ptype").value
       });
       busy = false; $("cf-send").disabled = false;
       if (error) return say("Could not send: " + error.message, true);
@@ -378,7 +430,7 @@
         const table = kind === "course" ? "career_courses" : "career_jobs";
         if (b.dataset.act === "reject" && note.length < 5) return say("Please give a reason of at least 5 characters to reject.", true);
         const change = b.dataset.act === "approve"
-          ? (kind === "course" ? { status: "approved", reviewed_by: me.id, reviewed_at: now, reviewer_notes: note || null }
+          ? (kind === "course" ? { status: "approved", reviewed_by: me.id, reviewed_at: now, reviewer_notes: note || null, checked_on: now.slice(0, 10) }
                                : { status: "approved", reviewer_id: me.id, reviewed_at: now, reviewer_notes: note || null })
           : (kind === "course" ? { status: "rejected", reviewed_by: me.id, reviewed_at: now, reviewer_notes: note }
                                : { status: "rejected", reviewer_id: me.id, reviewed_at: now, reviewer_notes: note });
