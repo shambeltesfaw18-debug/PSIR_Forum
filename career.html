@@ -81,6 +81,12 @@
           <label>Course link (the course page, starting with https://)<input id="cf-url" type="url" required placeholder="https://..."></label>
           <button class="psir-btn psir-outline" type="button" id="cf-fetch">Get course details</button>
           <div id="cf-preview" class="card" hidden></div>
+          <div id="cf-manual" class="form" hidden>
+            <p id="cf-manual-note" class="muted"></p>
+            <label>Course title<input id="cf-title" maxlength="200"></label>
+            <label>Provider (university, organisation or platform)<input id="cf-provider" maxlength="150"></label>
+            <label>Description (optional)<textarea id="cf-desc" maxlength="1000" rows="3"></textarea></label>
+          </div>
           <button class="psir-btn psir-navy" type="submit" id="cf-send" disabled>Send for review</button>
         </form>
       </details>
@@ -208,7 +214,18 @@
     ["c-search", "c-level", "c-cost", "c-region", "c-ptype"].forEach(id => $(id).addEventListener("input", renderCourses));
 
     let coursePreview = null;
-    $("cf-url").addEventListener("input", () => { coursePreview = null; $("cf-send").disabled = true; $("cf-preview").hidden = true; });
+    $("cf-url").addEventListener("input", () => { coursePreview = null; $("cf-send").disabled = true; $("cf-preview").hidden = true; $("cf-manual").hidden = true; });
+    function manualCheck() {
+      const ok = coursePreview && coursePreview.manual && $("cf-title").value.trim().length >= 5 && $("cf-provider").value.trim().length >= 2;
+      $("cf-send").disabled = !ok;
+    }
+    ["cf-title", "cf-provider", "cf-desc"].forEach(id => $(id).addEventListener("input", () => {
+      if (!coursePreview || !coursePreview.manual) return;
+      coursePreview.title = $("cf-title").value.trim();
+      coursePreview.provider = $("cf-provider").value.trim();
+      coursePreview.description = $("cf-desc").value.trim() || null;
+      manualCheck();
+    }));
     $("cf-fetch").addEventListener("click", async () => {
       if (!me) return say("Please log in to add a course.", true);
       const url = $("cf-url").value.trim();
@@ -223,8 +240,20 @@
           body: JSON.stringify({ url: url })
         });
         const data = await r.json().catch(() => ({}));
-        if (!r.ok) throw new Error(data.error || "Could not read this page.");
+        if (!r.ok) {
+          if (data.code === "blocked") {
+            coursePreview = { manual: true, url: url, title: "", provider: "", description: null, image_url: null };
+            $("cf-preview").hidden = true;
+            $("cf-manual").hidden = false;
+            $("cf-manual-note").textContent = data.error;
+            $("cf-title").value = ""; $("cf-provider").value = ""; $("cf-desc").value = "";
+            manualCheck();
+            return say("Please enter the course title and provider.", true);
+          }
+          throw new Error(data.error || "Could not read this page.");
+        }
         coursePreview = data;
+        $("cf-manual").hidden = true;
         $("cf-preview").hidden = false;
         $("cf-preview").innerHTML = (data.image_url
           ? '<img src="' + esc(data.image_url) + '" alt="" loading="lazy" style="width:100%;max-width:360px;aspect-ratio:16/9;object-fit:cover;border-radius:6px;">' : "")
@@ -254,7 +283,7 @@
       busy = false;
       if (error) { $("cf-send").disabled = false; return say("Could not send: " + error.message, true); }
       $("course-form").reset();
-      $("cf-preview").hidden = true; coursePreview = null;
+      $("cf-preview").hidden = true; $("cf-manual").hidden = true; coursePreview = null;
       say("Thank you. The course will appear after a moderator checks it.");
     });
 

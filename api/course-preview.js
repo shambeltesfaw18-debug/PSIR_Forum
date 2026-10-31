@@ -56,20 +56,26 @@ async function fetchPage(start) {
     try {
       r = await fetch(current.href, {
         redirect: "manual", signal: ctrl.signal,
-        headers: { "User-Agent": "PSIR-Forum-course-preview/1.0", Accept: "text/html" }
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          Accept: "text/html,application/xhtml+xml", "Accept-Language": "en"
+        }
       });
     } finally { clearTimeout(timer); }
     if (r.status >= 300 && r.status < 400 && r.headers.get("location")) {
       const next = await safeUrl(new URL(r.headers.get("location"), current).href);
-      if (!next) return null;
+      if (!next) return { ok: false, code: "unreadable" };
       current = next;
       continue;
     }
-    if (!r.ok) return null;
-    if (!/text\/html|application\/xhtml/i.test(r.headers.get("content-type") || "")) return null;
-    return { url: current, html: await readLimited(r) };
+    if (!r.ok) {
+      const blocked = [401, 403, 429, 503].indexOf(r.status) !== -1;
+      return { ok: false, code: blocked ? "blocked" : "unreadable" };
+    }
+    if (!/text\/html|application\/xhtml/i.test(r.headers.get("content-type") || "")) return { ok: false, code: "unreadable" };
+    return { ok: true, url: current, html: await readLimited(r) };
   }
-  return null;
+  return { ok: false, code: "unreadable" };
 }
 
 const ENT = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
@@ -133,13 +139,19 @@ module.exports = async (req, res) => {
   if (!start) return res.status(400).json({ error: "Please give a public course link that starts with https://" });
 
   try {
-    const page = await fetchPage(start);
-    if (!page) return res.status(422).json({ error: "Could not read this page. Check that the link is public and opens in a browser." });
+    const got = await fetchPage(start);
+    if (!got.ok) {
+      if (got.code === "blocked") {
+        return res.status(422).json({ code: "blocked", error: "This website does not allow automatic reading. Please enter the course title and provider yourself. You can add a short description too." });
+      }
+      return res.status(422).json({ code: "unreadable", error: "Could not read this page. Check that the link is public and opens in a browser." });
+    }
+    const page = got;
     const info = extract(page.html, page.url);
     const title = info.title && info.title.length >= 5 ? info.title : (page.url.hostname + " course");
     const provider = info.provider && info.provider.length >= 2 ? info.provider : page.url.hostname;
     return res.status(200).json({ url: page.url.href, title, provider, description: info.description, image_url: info.image_url });
   } catch (e) {
-    return res.status(422).json({ error: "Could not read this page. Please try another link." });
+    return res.status(422).json({ code: "unreadable", error: "Could not read this page. Please try another link." });
   }
 };
