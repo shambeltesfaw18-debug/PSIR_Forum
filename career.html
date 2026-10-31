@@ -79,6 +79,7 @@
       <div id="courses" class="grid"><p class="muted">Loading courses…</p></div>
       <details class="box"><summary>Suggest a course</summary>
         <form id="course-form" class="form">
+          <label>What is this link?<select id="cf-kind"><option value="course">A free online course</option><option value="scholarship">A scholarship</option></select></label>
           <label>Course link (the course page, starting with https://)<input id="cf-url" type="url" required placeholder="https://..."></label>
           <button class="psir-btn psir-outline" type="button" id="cf-fetch">Get course details</button>
           <div id="cf-preview" class="card" hidden></div>
@@ -264,6 +265,12 @@
     $("cf-fetch").addEventListener("click", async () => {
       if (!me) return say("Please log in to add a course.", true);
       const url = $("cf-url").value.trim();
+      if ($("cf-kind").value === "scholarship") {
+        $("sf-url").value = url;
+        $("cf-url").value = "";
+        show("scholarships");
+        return say("This is a scholarship. Its link has been moved to the Scholarships form. Tap Get scholarship details.");
+      }
       if (!/^https:\/\//i.test(url)) return say("The course link must start with https://", true);
       $("cf-fetch").disabled = true;
       say("Reading the course page…");
@@ -405,10 +412,47 @@
     });
 
     // ---- employers ----
+    function renderStaffJobForm() {
+      $("employer").innerHTML = `
+          <div class="box">
+            <h3 style="margin-top:0;color:#1E3F82;">Post a job <span class="pill gold">Admin</span></h3>
+            <p class="muted">Jobs you post as an admin are published straight away.</p>
+            <form id="sjob-form" class="form">
+              <label>Organisation<input id="sj-org" required minlength="2" maxlength="150"></label>
+              <label>Job title<input id="sj-title" required minlength="5" maxlength="200"></label>
+              <label>Job type<select id="sj-type"><option>Internship</option><option>Research Assistant</option><option>Policy Job</option><option>Full-time</option><option>Part-time</option><option>Volunteer</option><option>Fellowship</option></select></label>
+              <label>Description (at least 50 characters)<textarea id="sj-desc" required minlength="50" maxlength="5000" rows="5"></textarea></label>
+              <label>Location<input id="sj-loc" maxlength="150"></label>
+              <label>Region<input id="sj-region" value="Ethiopia" maxlength="60"></label>
+              <label>Application link (optional)<input id="sj-url" type="url" maxlength="500"></label>
+              <label>Application email (optional)<input id="sj-email" type="email" maxlength="200"></label>
+              <label style="grid-template-columns:auto 1fr;align-items:center;"><input id="sj-site" type="checkbox"> Accept applications on PSIR Forum (CVs as PDF)</label>
+              <label>Deadline (optional)<input id="sj-deadline" type="date"></label>
+              <button class="psir-btn psir-navy" type="submit">Publish job</button>
+            </form>
+          </div>`;
+      $("sjob-form").addEventListener("submit", async e => {
+        e.preventDefault();
+        const url = $("sj-url").value.trim(), mail = $("sj-email").value.trim(), site = $("sj-site").checked;
+        if (!url && !mail && !site) return say("Please give at least one way to apply.", true);
+        const { error } = await db.from("career_jobs").insert({
+          employer_id: me.id, title: $("sj-title").value.trim(), organisation: $("sj-org").value.trim(),
+          job_type: $("sj-type").value, description: $("sj-desc").value.trim(), location: $("sj-loc").value.trim() || null,
+          region: $("sj-region").value.trim() || "Ethiopia", apply_url: url || null, apply_email: mail || null,
+          accept_site_applications: site, deadline: $("sj-deadline").value || null, status: "approved"
+        });
+        if (error) return say("Could not publish the job: " + error.message, true);
+        e.target.reset();
+        say("Job published.");
+        loadJobs();
+      });
+    }
+
     async function loadEmployer() {
       if (!me) { $("employer").innerHTML = '<div class="box">Log in to request employer status or post jobs.</div>'; return; }
       const { data } = await db.from("career_employers").select("*").eq("user_id", me.id).maybeSingle();
       employer = data || null;
+      if (!employer && staff) { renderStaffJobForm(); return; }
       if (!employer) {
         $("employer").innerHTML = `
           <div class="box">
@@ -694,6 +738,7 @@
         staff = ["admin", "moderator"].indexOf(role) !== -1;
       }
       $("tab-review").hidden = !staff;
+      if (staff && location.hash === "#review") show("review");
       await Promise.all([loadCourses(), loadScholarships(), loadJobs(), loadEmployer(), loadMine(), loadReview()]);
     }
     db.auth.onAuthStateChange(() => setTimeout(refresh, 0));
