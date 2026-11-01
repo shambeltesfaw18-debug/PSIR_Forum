@@ -148,7 +148,7 @@
     // Skip if the header already shows a "PS" logo (for example the home page)
     const hasLogo = Array.from(document.querySelectorAll("header *")).some(e =>
       e.children.length === 0 && e.textContent.trim() === "PS" && !e.classList.contains("psir-mark"));
-    if (hasLogo || document.getElementById("navActions")) return;
+    if (hasLogo || document.getElementById("navActions") || document.querySelector(".brand-mark, header img[src*='logo.jpg']")) return;
     document.querySelectorAll("header .brand").forEach(b => {
       if (b.querySelector(".psir-mark")) return;
       const m = document.createElement("span");
