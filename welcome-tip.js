@@ -154,7 +154,7 @@
       const m = document.createElement("span");
       m.className = "psir-mark";
       m.setAttribute("aria-hidden", "true");
-      m.textContent = "PS";
+      m.innerHTML = '<img src="/images/logo.jpg" alt="PSIR Forum logo" width="40" height="40" style="width:40px;height:40px;border-radius:8px;display:block;object-fit:cover;">';
       b.insertBefore(m, b.firstChild);
     });
   }
