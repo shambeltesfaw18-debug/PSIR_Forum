@@ -355,11 +355,17 @@
 
     // ---- jobs ----
     let jobs = [];
+    let employerRoles = new Map();
     async function loadJobs() {
       const { data, error } = await db.from("career_jobs")
         .select("id, title, organisation, job_type, description, location, region, apply_url, apply_email, accept_site_applications, deadline, employer_id, created_at, salary, experience")
         .eq("status", "approved").order("created_at", { ascending: false }).limit(300);
       jobs = error ? [] : (data || []);
+      const ids = [...new Set(jobs.map(j => j.employer_id))];
+      if (ids.length) {
+        const { data: emps } = await db.from("career_verified_employers").select("user_id, role").in("user_id", ids);
+        employerRoles = new Map((emps || []).map(x => [x.user_id, x.role]));
+      }
       renderJobs();
       if (location.hash.indexOf("#job-") === 0) showJob(location.hash.slice(5));
     }
@@ -398,6 +404,7 @@
         return `
         <article class="card" id="job-${esc(j.id)}">
           <span class="pill gold">${esc(j.job_type)}</span>
+          ${employerRoles.get(j.employer_id) && employerRoles.get(j.employer_id) !== "organisation" ? '<span class="pill">' + (employerRoles.get(j.employer_id) === "lecturer" ? "Lecturer" : "Researcher") + "</span>" : ""}
           <h3>${esc(j.title)}</h3>
           <div class="muted">${esc(j.organisation)} · ${esc(j.location || j.region || "")}${j.deadline ? " · Deadline " + esc(j.deadline) : ""}</div>
           ${j.salary || j.experience ? '<div class="muted">' + (j.salary ? "Salary: " + esc(j.salary) : "") + (j.salary && j.experience ? " · " : "") + (j.experience ? "Experience: " + esc(j.experience) : "") + "</div>" : ""}
@@ -511,15 +518,19 @@
             <form id="er-form" class="form">
               <label>Organisation<input id="er-org" required minlength="2" maxlength="150"></label>
               <label>Website (optional)<input id="er-web" type="url" maxlength="300"></label>
+              <label>I am a<select id="er-role"><option value="organisation">An organisation or company</option><option value="lecturer">A lecturer or academic</option><option value="researcher">A researcher</option></select></label>
+              <label>University email (required for lecturers and researchers)<input id="er-acad" type="email" maxlength="200"></label>
               <label>Contact email (only admins see this)<input id="er-mail" type="email" maxlength="200" required></label>
               <button class="psir-btn psir-navy" type="submit">Send request</button>
             </form>
           </div>`;
         $("er-form").addEventListener("submit", async e => {
           e.preventDefault();
+          const role = $("er-role").value, acad = $("er-acad").value.trim();
+          if (role !== "organisation" && !acad) return say("Please enter your university email. It is needed to verify academic accounts.", true);
           const { error } = await db.from("career_employers").insert({
             user_id: me.id, organisation: $("er-org").value.trim(),
-            website: $("er-web").value.trim() || null, contact_email: $("er-mail").value.trim()
+            website: $("er-web").value.trim() || null, contact_email: $("er-mail").value.trim(), role: $("er-role").value, academic_email: $("er-acad").value.trim() || null
           });
           if (error) return say("Could not send the request: " + error.message, true);
           say("Request sent. An admin will verify your organisation.");
