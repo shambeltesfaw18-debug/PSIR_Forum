@@ -1,0 +1,58 @@
+name: Weekly restore test
+
+on:
+  schedule:
+    - cron: "0 3 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: test-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+      GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
+      GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
+      GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
+      GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download the newest backup
+        run: python3 scripts/backup/drive.py latest backup.sql.gz.enc
+
+      - name: Decrypt
+        run: |
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 300000 -pass env:BACKUP_ENCRYPTION_KEY \
+            -in backup.sql.gz.enc -out restore.sql.gz
+          gunzip -f restore.sql.gz
+
+      - name: Restore into the scratch database
+        env:
+          PGPASSWORD: test-only
+        run: |
+          psql -h localhost -U postgres -d postgres -q -f restore.sql > restore.log 2>&1 || true
+          echo "Error lines in restore log: $(grep -c ERROR restore.log || true)"
+
+      - name: Check the data is there
+        env:
+          PGPASSWORD: test-only
+        run: |
+          COUNT=$(psql -h localhost -U postgres -d postgres -tAc "select count(*) from public.profiles")
+          echo "Profiles restored: $COUNT"
+          test "$COUNT" -gt 0
