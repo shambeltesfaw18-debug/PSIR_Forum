@@ -361,6 +361,26 @@
       jobs = error ? [] : (data || []);
       renderJobs();
     }
+    // Long job descriptions: show a short part with Read more / Show less
+    function descBlock(j) {
+      const d = String(j.description || "");
+      if (d.length <= 280) return '<p style="white-space:pre-line;">' + esc(d) + "</p>";
+      return '<div data-desc>'
+        + '<p data-short style="white-space:pre-line;">' + esc(d.slice(0, 280).trimEnd()) + "…</p>"
+        + '<p data-full hidden style="white-space:pre-line;">' + esc(d) + "</p>"
+        + '<button class="psir-btn psir-outline" type="button" data-readmore style="min-height:36px;margin-top:4px;">Read more</button>'
+        + "</div>";
+    }
+    document.addEventListener("click", e => {
+      const b = e.target.closest("[data-readmore]");
+      if (!b) return;
+      const box = b.closest("[data-desc]");
+      const open = box.querySelector("[data-full]").hidden;
+      box.querySelector("[data-full]").hidden = !open;
+      box.querySelector("[data-short]").hidden = open;
+      b.textContent = open ? "Show less" : "Read more";
+    });
+
     function renderJobs() {
       const q = $("j-search").value.trim().toLowerCase(), type = $("j-type").value, reg = $("j-region").value.trim().toLowerCase();
       const today = new Date().toISOString().slice(0, 10);
@@ -379,7 +399,7 @@
           <h3>${esc(j.title)}</h3>
           <div class="muted">${esc(j.organisation)} · ${esc(j.location || j.region || "")}${j.deadline ? " · Deadline " + esc(j.deadline) : ""}</div>
           ${j.salary || j.experience ? '<div class="muted">' + (j.salary ? "Salary: " + esc(j.salary) : "") + (j.salary && j.experience ? " · " : "") + (j.experience ? "Experience: " + esc(j.experience) : "") + "</div>" : ""}
-          <p>${esc(j.description)}</p>
+          ${descBlock(j)}
           <div style="display:flex;gap:8px;flex-wrap:wrap;">${ways.join("")}</div>
           <div data-applyform="${esc(j.id)}"></div>
         </article>`;
