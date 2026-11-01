@@ -272,3 +272,10 @@ html[data-theme="dark"] header .psir-menu-btn { background: #16243A !important; 
 @media (max-width: 1024px) {
   html[data-theme="dark"] header nav.psir-nav.open { background: #0F1A2A !important; border-top-color: #2A3B52 !important; }
 }
+
+/* Dark mode readability: home page menu panel, headings and links */
+html[data-theme="dark"] .navbar .nav-links.open { background: #0F1A2A !important; border-top-color: #2A3B52 !important; }
+html[data-theme="dark"] .navbar .nav-links.open a { color: #E8EDF5 !important; border-bottom-color: #2A3B52 !important; }
+html[data-theme="dark"] h1, html[data-theme="dark"] h2, html[data-theme="dark"] h3, html[data-theme="dark"] h4 { color: #E8EDF5 !important; }
+html[data-theme="dark"] a { color: #9CC6F0; }
+html[data-theme="dark"] a:hover { color: #E6B75A; }
