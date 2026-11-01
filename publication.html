@@ -151,6 +151,11 @@
         </div>`;
 
       document.title = pub.title + " | PSIR Forum";
+      {
+        let canon = document.querySelector('link[rel="canonical"]');
+        if (!canon) { canon = document.createElement("link"); canon.rel = "canonical"; document.head.appendChild(canon); }
+        canon.href = "https://psirforum.vercel.app/publication.html?id=" + pub.id;
+      }
       setMeta("og:title", pub.title + " | PSIR Forum");
       setMeta("og:description", String(pub.abstract || "").replace(/\s+/g, " ").slice(0, 200));
       wire();
