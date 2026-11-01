@@ -261,3 +261,14 @@ html:not([data-theme="dark"]) body .section-white,
 html:not([data-theme="dark"]) body .section-cream {
   background: transparent !important;
 }
+
+/* Dark mode header: menu text, brand and the open menu panel stay readable */
+html[data-theme="dark"] header.top { background: #0F1A2A !important; border-bottom-color: #2A3B52 !important; }
+html[data-theme="dark"] header .brand { color: #E8EDF5 !important; }
+html[data-theme="dark"] header nav a { color: #E8EDF5 !important; }
+html[data-theme="dark"] header nav a:hover { color: #E6B75A !important; }
+html[data-theme="dark"] header nav a[aria-current="page"] { color: #E6B75A !important; border-bottom-color: #E6B75A !important; }
+html[data-theme="dark"] header .psir-menu-btn { background: #16243A !important; color: #E8EDF5 !important; border-color: #3A4D66 !important; }
+@media (max-width: 1024px) {
+  html[data-theme="dark"] header nav.psir-nav.open { background: #0F1A2A !important; border-top-color: #2A3B52 !important; }
+}
