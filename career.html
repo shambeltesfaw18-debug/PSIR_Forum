@@ -150,6 +150,7 @@
         <select id="j-type" aria-label="Job type"><option value="">All types</option><option>Internship</option><option>Research Assistant</option><option>Policy Job</option><option>Full-time</option><option>Part-time</option><option>Volunteer</option><option>Fellowship</option></select>
         <input id="j-region" type="search" placeholder="Region (for example Ethiopia)" aria-label="Region">
       </div>
+      <div id="job-detail" class="box" hidden></div>
       <div id="jobs" class="grid"><p class="muted">Loading jobs…</p></div>
     </section>
 
@@ -360,6 +361,7 @@
         .eq("status", "approved").order("created_at", { ascending: false }).limit(300);
       jobs = error ? [] : (data || []);
       renderJobs();
+      if (location.hash.indexOf("#job-") === 0) showJob(location.hash.slice(5));
     }
     // Long job descriptions: show a short part with Read more / Show less
     function descBlock(j) {
@@ -400,7 +402,7 @@
           <div class="muted">${esc(j.organisation)} · ${esc(j.location || j.region || "")}${j.deadline ? " · Deadline " + esc(j.deadline) : ""}</div>
           ${j.salary || j.experience ? '<div class="muted">' + (j.salary ? "Salary: " + esc(j.salary) : "") + (j.salary && j.experience ? " · " : "") + (j.experience ? "Experience: " + esc(j.experience) : "") + "</div>" : ""}
           ${descBlock(j)}
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">${ways.join("")}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="psir-btn psir-navy" type="button" data-jdetail="${esc(j.id)}">View details</button><button class="psir-btn psir-outline" type="button" data-jshare="${esc(j.id)}">Share</button>${ways.join("")}</div>
           <div data-applyform="${esc(j.id)}"></div>
         </article>`;
       }).join("") : '<p class="muted">No jobs match your filters yet.</p>';
@@ -409,10 +411,10 @@
     ["j-search", "j-type", "j-region"].forEach(id => $(id).addEventListener("input", renderJobs));
 
     // On-site application: CV as a PDF, stored privately
-    $("jobs").addEventListener("click", e => {
+    document.addEventListener("click", e => {
       const b = e.target.closest("button[data-apply]");
       if (!b) return;
-      const slot = document.querySelector(`[data-applyform="${b.dataset.apply}"]`);
+      const slot = (b.closest("#job-detail") || document).querySelector(`[data-applyform="${b.dataset.apply}"]`);
       if (!me) return say("Please log in to apply.", true);
       if (slot.innerHTML) { slot.innerHTML = ""; return; }
       slot.innerHTML = `
@@ -424,7 +426,7 @@
           <button class="psir-btn psir-navy" type="submit">Send application</button>
         </form>`;
     });
-    $("jobs").addEventListener("submit", async e => {
+    document.addEventListener("submit", async e => {
       if (!e.target.dataset.job) return;
       e.preventDefault();
       if (busy) return;
@@ -857,6 +859,52 @@
     document.addEventListener("click", e => {
       if (e.target && e.target.id === "jf-fill") fillJob("jf");
       if (e.target && e.target.id === "sj-fill") fillJob("sj");
+    });
+
+    // Job details panel (same pattern as courses and scholarships)
+    function showJob(id) {
+      const j = jobs.find(x => x.id === id);
+      const box = $("job-detail");
+      if (!j) { box.hidden = true; return; }
+      const link = safeHttp(j.apply_url);
+      box.innerHTML = '<span class="pill gold">' + esc(j.job_type) + "</span>"
+        + '<h2 style="color:#1E3F82;margin:8px 0 4px;font-size:1.3rem;">' + esc(j.title) + "</h2>"
+        + '<div class="muted">' + esc(j.organisation) + " · " + esc(j.location || j.region || "")
+        + (j.deadline ? " · Deadline " + esc(j.deadline) : " · Deadline not stated") + "</div>"
+        + (j.salary ? "<p><strong>Salary:</strong> " + esc(j.salary) + "</p>" : "")
+        + (j.experience ? "<p><strong>Experience:</strong> " + esc(j.experience) + "</p>" : "")
+        + '<p style="white-space:pre-line;">' + esc(j.description) + "</p>"
+        + '<p class="muted" style="border-left:3px solid #E6B75A;padding-left:10px;">Check the details with the employer before you apply.</p>'
+        + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">'
+        + (link ? '<a class="psir-btn psir-navy" href="' + esc(link) + '" target="_blank" rel="noopener noreferrer">Apply on employer site</a>' : "")
+        + (j.apply_email ? '<a class="psir-btn psir-outline" href="mailto:' + esc(j.apply_email) + "?subject=" + encodeURIComponent("Application: " + j.title) + '">Apply by email</a>' : "")
+        + (j.accept_site_applications ? '<button class="psir-btn psir-navy" type="button" data-apply="' + esc(j.id) + '">Apply on PSIR Forum</button>' : "")
+        + '<button class="psir-btn psir-outline" type="button" data-jshare="' + esc(j.id) + '">Share</button>'
+        + '<button class="psir-btn psir-outline" type="button" id="job-close">Close</button></div>'
+        + '<div data-applyform="' + esc(j.id) + '"></div>';
+      box.hidden = false;
+      history.replaceState(null, "", "#job-" + j.id);
+      box.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    async function shareJob(id) {
+      const j = jobs.find(x => x.id === id);
+      if (!j) return;
+      const url = location.origin + "/career.html#job-" + id;
+      try {
+        if (navigator.share) { await navigator.share({ title: j.title, text: j.title + " (" + j.organisation + ")", url: url }); return; }
+        await navigator.clipboard.writeText(url);
+        say("Link copied. Share it with anyone.");
+      } catch (e) {
+        if (e && e.name === "AbortError") return;
+        say("Could not share. Copy the address from the browser bar.", true);
+      }
+    }
+    document.addEventListener("click", e => {
+      const d = e.target.closest("[data-jdetail]");
+      if (d) { showJob(d.dataset.jdetail); return; }
+      const s = e.target.closest("[data-jshare]");
+      if (s) { shareJob(s.dataset.jshare); return; }
+      if (e.target.closest("#job-close")) { $("job-detail").hidden = true; history.replaceState(null, "", location.pathname); }
     });
 
     // ---- session ----
