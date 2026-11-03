@@ -129,6 +129,7 @@
             <p id="sf-note" class="muted"></p>
             <div id="sf-thumb"></div>
             <label>Thumbnail web address (https, optional)<input id="sf-img" type="url" maxlength="500"></label>
+            <label>Application form (Google Forms link, optional)<input id="sf-form" type="url" maxlength="500"></label>
             <label>Scholarship title<input id="sf-title" maxlength="200"></label>
             <label>Hosting institution or organisation<input id="sf-host" maxlength="150"></label>
             <label>Description<textarea id="sf-desc" maxlength="3000" rows="3"></textarea></label>
@@ -358,7 +359,7 @@
     let employerRoles = new Map();
     async function loadJobs() {
       const { data, error } = await db.from("career_jobs")
-        .select("id, title, organisation, job_type, description, location, region, apply_url, apply_email, accept_site_applications, deadline, employer_id, created_at, salary, experience")
+        .select("id, title, organisation, job_type, description, location, region, apply_url, apply_email, accept_site_applications, deadline, employer_id, created_at, salary, experience, image_url, apply_form_url")
         .eq("status", "approved").order("created_at", { ascending: false }).limit(300);
       jobs = error ? [] : (data || []);
       const ids = [...new Set(jobs.map(j => j.employer_id))];
@@ -403,6 +404,7 @@
         if (j.accept_site_applications) ways.push(`<button class="psir-btn psir-navy" type="button" data-apply="${esc(j.id)}">Apply on PSIR Forum</button>`);
         return `
         <article class="card" id="job-${esc(j.id)}">
+          ${j.image_url ? '<img src="' + esc(j.image_url) + '" alt="" loading="lazy" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:6px;">' : ""}
           <span class="pill gold">${esc(j.job_type)}</span>
           ${employerRoles.get(j.employer_id) && employerRoles.get(j.employer_id) !== "organisation" ? '<span class="pill">' + (employerRoles.get(j.employer_id) === "lecturer" ? "Lecturer" : "Researcher") + "</span>" : ""}
           <h3>${esc(j.title)}</h3>
@@ -480,6 +482,8 @@
               <label>Location<input id="sj-loc" maxlength="150"></label>
               <label>Region<input id="sj-region" value="Ethiopia" maxlength="60"></label>
               <label>Application link (optional)<input id="sj-url" type="url" maxlength="500"></label>
+              <label>Application form (Google Forms link, optional)<input id="sj-form" type="url" maxlength="500"></label>
+              <label>Thumbnail web address (https, optional)<input id="sj-img" type="url" maxlength="500"></label>
               <label>Application email (optional)<input id="sj-email" type="email" maxlength="200"></label>
               <label style="grid-template-columns:auto 1fr;align-items:center;"><input id="sj-site" type="checkbox"> Accept applications on PSIR Forum (CVs as PDF)</label>
               <label>Salary (optional)<input id="sj-salary" maxlength="200"></label>
@@ -496,7 +500,7 @@
           employer_id: me.id, title: $("sj-title").value.trim(), organisation: $("sj-org").value.trim(),
           job_type: $("sj-type").value, description: $("sj-desc").value.trim(), location: $("sj-loc").value.trim() || null,
           region: $("sj-region").value.trim() || "Ethiopia", apply_url: url || null, apply_email: mail || null,
-          accept_site_applications: site, deadline: $("sj-deadline").value || null, salary: $("sj-salary").value.trim() || null, experience: $("sj-exp").value.trim() || null, status: "approved"
+          accept_site_applications: site, deadline: $("sj-deadline").value || null, salary: $("sj-salary").value.trim() || null, experience: $("sj-exp").value.trim() || null, image_url: $("sj-img").value.trim() || null, apply_form_url: $("sj-form").value.trim() || null, status: "approved"
         });
         if (error) return say("Could not publish the job: " + error.message, true);
         e.target.reset();
@@ -556,6 +560,8 @@
               <label>Location<input id="jf-loc" maxlength="150"></label>
               <label>Region<input id="jf-region" value="Ethiopia" maxlength="60"></label>
               <label>Application link (employer site, optional)<input id="jf-url" type="url" maxlength="500"></label>
+              <label>Application form (Google Forms link, optional)<input id="jf-form" type="url" maxlength="500"></label>
+              <label>Thumbnail web address (https, optional)<input id="jf-img" type="url" maxlength="500"></label>
               <label>Application email (optional)<input id="jf-email" type="email" maxlength="200"></label>
               <label style="grid-template-columns:auto 1fr;align-items:center;"><input id="jf-site" type="checkbox"> Accept applications on PSIR Forum (CVs as PDF)</label>
               <label>Salary (optional)<input id="jf-salary" maxlength="200"></label>
@@ -572,7 +578,7 @@
             employer_id: me.id, title: $("jf-title").value.trim(), organisation: employer.organisation,
             job_type: $("jf-type").value, description: $("jf-desc").value.trim(), location: $("jf-loc").value.trim() || null,
             region: $("jf-region").value.trim() || "Ethiopia", apply_url: url || null, apply_email: mail || null,
-            accept_site_applications: site, deadline: $("jf-deadline").value || null, salary: $("jf-salary").value.trim() || null, experience: $("jf-exp").value.trim() || null, status: "pending"
+            accept_site_applications: site, deadline: $("jf-deadline").value || null, salary: $("jf-salary").value.trim() || null, experience: $("jf-exp").value.trim() || null, image_url: $("jf-img").value.trim() || null, apply_form_url: $("jf-form").value.trim() || null, status: "pending"
           });
           if (error) return say("Could not send the job: " + error.message, true);
           e.target.reset();
@@ -691,6 +697,7 @@
         + '<h2 style="color:#1E3F82;margin:8px 0 4px;font-size:1.3rem;">' + esc(s.title) + "</h2>"
         + '<div class="muted">' + esc(s.host_institution) + "</div>"
         + (s.description ? "<p>" + esc(s.description) + "</p>" : "")
+        + formEmbed(s.apply_form_url)
         + "<p><strong>Eligible countries:</strong> " + notStated(s.countries) + "</p>"
         + "<p><strong>Academic levels:</strong> " + notStated(s.levels) + "</p>"
         + "<p><strong>Fields of study:</strong> " + notStated(s.fields) + "</p>"
@@ -795,7 +802,7 @@
         url: (schPreview && schPreview.url) || url,
         countries: list("sf-countries"), levels: list("sf-levels"), fields: list("sf-fields-of"),
         funding: $("sf-funding").value.trim() || null, requirements: $("sf-req").value.trim() || null,
-        deadline: deadline, status: "pending", submitted_by: me.id
+        deadline: deadline, apply_form_url: $("sf-form").value.trim() || null, status: "pending", submitted_by: me.id
       });
       busy = false;
       if (error) { schCheck(); return say(error.code === "23505" ? "This scholarship has already been approved." : "Could not send: " + error.message, true); }
@@ -859,6 +866,7 @@
         setIf(p + "-deadline", f.deadline);
         setIf(p + "-url", f.apply_url);
         setIf(p + "-email", f.apply_email);
+        setIf(p + "-img", f.image_url);
         if (f.organisation && $(p + "-org")) setIf(p + "-org", f.organisation);
         if (f.job_type && $(p + "-type")) $(p + "-type").value = f.job_type;
         const missing = (data.missing || []).map(k => k.replace("job_type", "job type")).join(", ");
@@ -872,13 +880,31 @@
       if (e.target && e.target.id === "sj-fill") fillJob("sj");
     });
 
+    // Thumbnails and application forms
+    function thumbImg(src) {
+      return '<img src="' + esc(src) + '" alt="" loading="lazy" style="width:100%;max-width:480px;aspect-ratio:16/9;object-fit:cover;border-radius:6px;margin-bottom:8px;">';
+    }
+    // Google Forms can be shown inside the page; other forms open in a new tab
+    function formEmbed(url) {
+      if (!url) return "";
+      if (/^https:\/\/docs\.google\.com\/forms\//i.test(url)) {
+        const src = url + (url.indexOf("?") === -1 ? "?embedded=true" : "&embedded=true");
+        return '<div style="margin:12px 0;">'
+          + '<p class="muted" style="margin:0 0 6px;">Complete the application form below. You can also open it in a new tab.</p>'
+          + '<iframe src="' + esc(src) + '" title="Application form" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="width:100%;height:620px;border:1px solid #DCE3EE;border-radius:8px;background:#FFFFFF;"></iframe>'
+          + '<p style="margin:6px 0 0;"><a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">Open the form in a new tab</a></p>'
+          + "</div>";
+      }
+      return '<div style="margin:12px 0;"><a class="psir-btn psir-navy" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">Open the application form</a></div>';
+    }
+
     // Job details panel (same pattern as courses and scholarships)
     function showJob(id) {
       const j = jobs.find(x => x.id === id);
       const box = $("job-detail");
       if (!j) { box.hidden = true; return; }
       const link = safeHttp(j.apply_url);
-      box.innerHTML = '<span class="pill gold">' + esc(j.job_type) + "</span>"
+      box.innerHTML = (j.image_url ? thumbImg(j.image_url) : "") + '<span class="pill gold">' + esc(j.job_type) + "</span>"
         + '<h2 style="color:#1E3F82;margin:8px 0 4px;font-size:1.3rem;">' + esc(j.title) + "</h2>"
         + '<div class="muted">' + esc(j.organisation) + " · " + esc(j.location || j.region || "")
         + (j.deadline ? " · Deadline " + esc(j.deadline) : " · Deadline not stated") + "</div>"
@@ -892,6 +918,7 @@
         + (j.accept_site_applications ? '<button class="psir-btn psir-navy" type="button" data-apply="' + esc(j.id) + '">Apply on PSIR Forum</button>' : "")
         + '<button class="psir-btn psir-outline" type="button" data-jshare="' + esc(j.id) + '">Share</button>'
         + '<button class="psir-btn psir-outline" type="button" id="job-close">Close</button></div>'
+        + formEmbed(j.apply_form_url)
         + '<div data-applyform="' + esc(j.id) + '"></div>';
       box.hidden = false;
       history.replaceState(null, "", "#job-" + j.id);

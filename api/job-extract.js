@@ -210,6 +210,15 @@ function fromStructuredData(html, base) {
 }
 
 // Open Graph and standard meta tags (title, organisation, short description)
+function imageFrom(meta, base) {
+  const v = clean(meta["og:image"] || meta["twitter:image"] || "", 2000);
+  if (!v) return "";
+  try {
+    const u = new URL(v, base);
+    if (u.protocol === "http:") u.protocol = "https:";
+    return u.protocol === "https:" && u.href.length <= 500 ? u.href : "";
+  } catch (e) { return ""; }
+}
 function fromMeta(html, base) {
   const meta = {};
   (html.match(/<meta\b[^>]*>/gi) || []).forEach(tag => {
@@ -221,7 +230,7 @@ function fromMeta(html, base) {
   return {
     title: clean(meta["og:title"] || titleTag, 200),
     organisation: clean(meta["og:site_name"] || "", 150),
-    description: clean(meta["og:description"] || meta["description"] || "", 5000)
+    description: clean(meta["og:description"] || meta["description"] || "", 5000), image_url: imageFrom(meta, base)
   };
 }
 
@@ -251,7 +260,7 @@ function fromText(raw) {
 
 function pick(...sources) {
   const out = {};
-  ["title", "organisation", "job_type", "description", "location", "salary", "experience", "deadline", "apply_url", "apply_email"].forEach(k => {
+  ["title", "organisation", "job_type", "description", "location", "salary", "experience", "deadline", "apply_url", "apply_email", "image_url"].forEach(k => {
     out[k] = "";
     for (const s of sources) { if (s && s[k]) { out[k] = s[k]; break; } }
   });
