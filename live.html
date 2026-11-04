@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="The PSIR Forum General Live Room: join live seminars, debates and open discussions with the PSIR community.">
+  <meta property="og:site_name" content="PSIR Forum">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Live Room | PSIR Forum">
+  <meta property="og:description" content="Join live seminars, debates and open discussions with the PSIR community.">
+  <meta name="theme-color" content="#2855A6">
+  <title>Live Room | PSIR Forum</title>
+  <link rel="icon" type="image/jpeg" href="/images/logo.jpg">
+  <link rel="stylesheet" href="buttons.css">
+  <link rel="stylesheet" href="design.css">
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+    .lr-wrap { width: min(860px, calc(100% - 36px)); margin: 0 auto; padding: 24px 0 40px; }
+    .lr-hero { border-radius: 10px; padding: 32px 24px; color: #fff; background: linear-gradient(180deg, rgba(30,63,130,.92), rgba(16,43,70,.96)); margin-bottom: 18px; }
+    .lr-hero h1 { color: #fff; margin: 0 0 6px; font-size: clamp(1.6rem, 4vw, 2.2rem); }
+    .lr-hero p { color: #E2E8F0; margin: 0; max-width: 60ch; }
+    .lr-kicker { color: #E6B75A; font-weight: 800; letter-spacing: 1.2px; font-size: .75rem; text-transform: uppercase; margin: 0 0 6px; }
+    .lr-box { background: #FFFFFF; border: 1px solid #DCE3EE; border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+    .lr-box h2 { color: #1E3F82; font-size: 1.2rem; margin: 0 0 8px; }
+    .lr-box p { line-height: 1.55; color: #263238; margin: 0 0 10px; }
+    .lr-join { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+    .lr-join .psir-btn { min-height: 48px; }
+    .lr-note { border-left: 3px solid #E6B75A; padding-left: 12px; color: #475569; font-size: .95rem; }
+    html[data-theme="dark"] .lr-box { background: #16243A; border-color: #2A3B52; }
+    html[data-theme="dark"] .lr-box h2 { color: #9CC6F0; }
+    html[data-theme="dark"] .lr-box p { color: #E8EDF5; }
+    html[data-theme="dark"] .lr-note { color: #CBD5E1; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="container top-inner">
+      <a class="brand" href="/">PSIR FORUM</a>
+      <nav class="top-links" aria-label="Main navigation">
+        <a href="/">Home</a>
+        <a href="/categories">Categories</a>
+        <a href="/discussions">Discussions</a>
+        <a href="/research.html">Research Hub</a>
+        <a href="/news.html">News &amp; Journal</a>
+        <a href="/career.html">Career</a>
+        <a href="/saved.html">Saved papers</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="lr-wrap">
+    <section class="lr-hero">
+      <p class="lr-kicker">Live Room</p>
+      <h1>General Live Room</h1>
+      <p>Join live seminars, research talks, debates and open discussions with members of the PSIR community.</p>
+    </section>
+
+    <section class="lr-box" aria-labelledby="join-title">
+      <h2 id="join-title">Join the General Room</h2>
+      <p>The room opens in your browser. You do not need to install any software. Allow the microphone and camera only when you want to speak or be seen.</p>
+      <div class="lr-join">
+        <a class="psir-btn psir-navy psir-lg" id="lrJoin" href="https://kmeet.infomaniak.com/PSIR-general" target="_blank" rel="noopener noreferrer">Join the General Room</a>
+      </div>
+      <p class="lr-note" style="margin-top:14px;">Sessions do not run on a fixed timetable yet. Session times are announced in your notifications, on the Discussions page, and on our Telegram and Facebook pages.</p>
+    </section>
+
+    <section class="lr-box" aria-labelledby="rules-title">
+      <h2 id="rules-title">Before you join</h2>
+      <p>Be respectful to everyone in the room. Speak one at a time, keep to the topic of the session, and let the host manage the order of questions.</p>
+      <p>Do not share other members’ personal information, and do not share recordings or screenshots that identify people without their agreement. Members who disrupt a session may be asked to leave, and reports can be made through the forum.</p>
+    </section>
+
+    <section class="lr-box" aria-labelledby="topic-title">
+      <h2 id="topic-title">Topic rooms</h2>
+      <p>Topic-specific rooms, such as International Relations or Peace and Security, can be found on the Categories page. Use the General Room for sessions that cover more than one area.</p>
+      <div class="lr-join"><a class="psir-btn psir-outline" href="/categories">Go to Categories</a></div>
+    </section>
+  </main>
+
+  <footer><div class="container"><a href="/">PSIR Forum</a> · <a href="/policy.html">Academic publishing policy</a> · <a href="/info.html?page=guidelines">Community Guidelines</a> · <a href="/info.html?page=contact">Contact</a></div></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="welcome-tip.js"></script>
+  <script src="language.js"></script>
+  <script src="error-log.js"></script>
+  <script src="consent.js"></script>
+</body>
+</html>

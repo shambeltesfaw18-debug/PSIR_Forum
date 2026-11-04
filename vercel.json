@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/live",
+      "destination": "/live.html"
+    },
+    {
       "source": "/sitemap-papers.xml",
       "destination": "/api/sitemap-papers"
     },
