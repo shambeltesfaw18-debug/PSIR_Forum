@@ -151,6 +151,26 @@
         <select id="j-type" aria-label="Job type"><option value="">All types</option><option>Internship</option><option>Research Assistant</option><option>Policy Job</option><option>Full-time</option><option>Part-time</option><option>Volunteer</option><option>Fellowship</option></select>
         <input id="j-region" type="search" placeholder="Region (for example Ethiopia)" aria-label="Region">
       </div>
+      <details class="box"><summary>Post a job or internship</summary>
+        <p class="muted" style="margin:8px 0;">Give the official link of the vacancy and a poster or image of it. Posts from members are checked by a moderator before they appear. Admin posts appear straight away.</p>
+        <form id="pj-form" class="form">
+          <label>Official job link (must start with https://)<input id="pj-url" type="url" required placeholder="https://..."></label>
+          <button class="psir-btn psir-outline" type="button" id="pj-fill">Fill in details from the link</button>
+          <label>Poster or image of the original vacancy (JPG, PNG or WebP, up to 5 MB)<input id="pj-poster" type="file" accept="image/jpeg,image/png,image/webp" required></label>
+          <label>Job title<input id="pj-title" required minlength="5" maxlength="200"></label>
+          <label>Organisation<input id="pj-org" required minlength="2" maxlength="150"></label>
+          <label>Job type<select id="pj-type"><option>Internship</option><option>Research Assistant</option><option>Policy Job</option><option>Full-time</option><option>Part-time</option><option>Volunteer</option><option>Fellowship</option></select></label>
+          <label>Description (at least 50 characters)<textarea id="pj-desc" required minlength="50" maxlength="5000" rows="4"></textarea></label>
+          <label>Location<input id="pj-loc" maxlength="150"></label>
+          <label>Region<input id="pj-region" value="Ethiopia" maxlength="60"></label>
+          <label>Application form link (optional, for example Google Forms or Microsoft Forms)<input id="pj-form-link" type="url" maxlength="500"></label>
+          <label>Application email (optional)<input id="pj-email" type="email" maxlength="200"></label>
+          <label>Salary (optional)<input id="pj-salary" maxlength="200"></label>
+          <label>Experience level (optional)<input id="pj-exp" maxlength="200"></label>
+          <label>Deadline (optional)<input id="pj-deadline" type="date"></label>
+          <button class="psir-btn psir-navy" type="submit" id="pj-send">Send for review</button>
+        </form>
+      </details>
       <div id="job-detail" class="box" hidden></div>
       <div id="jobs" class="grid"><p class="muted">Loading jobs…</p></div>
     </section>
@@ -885,13 +905,26 @@
       return '<img src="' + esc(src) + '" alt="" loading="lazy" style="width:100%;max-width:480px;aspect-ratio:16/9;object-fit:cover;border-radius:6px;margin-bottom:8px;">';
     }
     // Google Forms can be shown inside the page; other forms open in a new tab
+    function embedUrlFor(url) {
+      try {
+        const u = new URL(url);
+        const h = u.hostname.toLowerCase();
+        if (u.protocol !== "https:") return null;
+        if (h === "docs.google.com" && u.pathname.indexOf("/forms/") === 0) return url + (u.search ? "&" : "?") + "embedded=true";
+        if (h === "forms.office.com" || h === "forms.microsoft.com") return url;
+        if (h === "typeform.com" || h.endsWith(".typeform.com")) return url;
+        if (h === "jotform.com" || h.endsWith(".jotform.com")) return url;
+        if (h === "tally.so") return url;
+        return null;
+      } catch (e) { return null; }
+    }
     function formEmbed(url) {
       if (!url) return "";
-      if (/^https:\/\/docs\.google\.com\/forms\//i.test(url)) {
-        const src = url + (url.indexOf("?") === -1 ? "?embedded=true" : "&embedded=true");
+      const embedSrc = embedUrlFor(url);
+      if (embedSrc) {
         return '<div style="margin:12px 0;">'
-          + '<p class="muted" style="margin:0 0 6px;">Complete the application form below. You can also open it in a new tab.</p>'
-          + '<iframe src="' + esc(src) + '" title="Application form" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="width:100%;height:620px;border:1px solid #DCE3EE;border-radius:8px;background:#FFFFFF;"></iframe>'
+          + '<p class="muted" style="margin:0 0 6px;">Complete the application form below. Your answers go to the form provider. You can also open the form in a new tab.</p>'
+          + '<iframe src="' + esc(embedSrc) + '" title="Application form" loading="lazy" referrerpolicy="no-referrer-when-downgrade" sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox" style="width:100%;height:640px;border:1px solid #DCE3EE;border-radius:8px;background:#FFFFFF;"></iframe>'
           + '<p style="margin:6px 0 0;"><a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">Open the form in a new tab</a></p>'
           + "</div>";
       }
@@ -945,6 +978,80 @@
       if (e.target.closest("#job-close")) { $("job-detail").hidden = true; history.replaceState(null, "", location.pathname); }
     });
 
+    // ---- member job posting (official link and poster) ----
+    async function fillNewJob() {
+      const link = $("pj-url").value.trim();
+      if (!/^https:\/\//i.test(link)) return say("The official job link must start with https://", true);
+      say("Reading the job…");
+      try {
+        const token = (await db.auth.getSession()).data.session.access_token;
+        const r = await fetch("/api/job-extract", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+          body: JSON.stringify({ url: link, text: "" })
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.error || "Could not read the job.");
+        const f = data.fields || {};
+        const set = (id, v) => { if (v && $(id)) $(id).value = v; };
+        set("pj-title", f.title); set("pj-org", f.organisation); set("pj-desc", f.description);
+        set("pj-loc", f.location); set("pj-salary", f.salary); set("pj-exp", f.experience); set("pj-deadline", f.deadline);
+        if (f.job_type) $("pj-type").value = f.job_type;
+        const missing = (data.missing || []).map(k => k.replace("job_type", "job type")).join(", ");
+        say("Details filled in. Check every field, add the poster, then send." + (missing ? " Not found on the page: " + missing + "." : ""));
+      } catch (e) { say(e.message || "Could not read the job.", true); }
+    }
+    document.addEventListener("click", e => {
+      if (e.target && e.target.id === "pj-fill") fillNewJob();
+    });
+    document.addEventListener("submit", async e => {
+      if (!e.target || e.target.id !== "pj-form") return;
+      e.preventDefault();
+      if (!me) return say("Please log in to post a job.", true);
+      if (busy) return;
+      const url = $("pj-url").value.trim();
+      if (!/^https:\/\//i.test(url)) return say("The official job link must start with https://", true);
+      const poster = $("pj-poster").files[0];
+      if (!poster) return say("Please add a poster or image of the original vacancy.", true);
+      if (!/^image\/(jpeg|png|webp)$/.test(poster.type) || poster.size > 5 * 1024 * 1024) return say("The poster must be a JPG, PNG or WebP image up to 5 MB.", true);
+      const formLink = $("pj-form-link").value.trim();
+      if (formLink && !/^https:\/\//i.test(formLink)) return say("The application form link must start with https://", true);
+      busy = true;
+      $("pj-send").disabled = true;
+      say("Uploading the poster…");
+      try {
+        const token = (await db.auth.getSession()).data.session.access_token;
+        const up = await window.PSIRImageKit.upload(poster, { purpose: "job-poster", token: token });
+        const { error } = await db.from("career_jobs").insert({
+          employer_id: me.id,
+          title: $("pj-title").value.trim(),
+          organisation: $("pj-org").value.trim(),
+          job_type: $("pj-type").value,
+          description: $("pj-desc").value.trim(),
+          location: $("pj-loc").value.trim() || null,
+          region: $("pj-region").value.trim() || "Ethiopia",
+          apply_url: url,
+          apply_form_url: formLink || null,
+          apply_email: $("pj-email").value.trim() || null,
+          salary: $("pj-salary").value.trim() || null,
+          experience: $("pj-exp").value.trim() || null,
+          deadline: $("pj-deadline").value || null,
+          image_url: up.url,
+          accept_site_applications: false,
+          status: staff ? "approved" : "pending"
+        });
+        if (error) throw error;
+        $("pj-form").reset();
+        say(staff ? "Job published." : "Thank you. The job will appear after a moderator checks it.");
+        loadJobs();
+      } catch (err) {
+        say("Could not post the job: " + (err.message || err), true);
+      } finally {
+        busy = false;
+        $("pj-send").disabled = false;
+      }
+    });
+
     // ---- session ----
     async function refresh() {
       const { data } = await db.auth.getSession();
@@ -968,5 +1075,6 @@
 <script src="language.js"></script>
 <script src="appearance.js"></script>
 <script src="notifications.js"></script>
+<script src="imagekit.js"></script>
 </body>
 </html>
