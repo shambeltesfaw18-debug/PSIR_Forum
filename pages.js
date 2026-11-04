@@ -35,7 +35,7 @@
     const path = (pathname || "/").replace(/\/+$/, "") || "/";
     if (path === "/") return { view: "home" };
     if (path === "/categories") return { view: "categories" };
-    if (path === "/live") return { view: "categories" };
+    if (path === "/live") { window.location.replace("/live.html"); return { view: "home" }; }
     if (path === "/discussions" || path === "/bookmarks") return { view: "forum" };
     const match = path.match(/^\/categories\/([a-z0-9-]+)$/);
     if (match) return { view: "category", slug: match[1] };
