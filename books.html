@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Free books, lecture notes and learning materials for political science and international relations, shared by PSIR Forum.">
+  <meta property="og:site_name" content="PSIR Forum">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Books and Materials | PSIR Forum">
+  <meta property="og:description" content="Free books, lecture notes and learning materials for political science and international relations.">
+  <link rel="icon" type="image/jpeg" href="/images/logo.jpg">
+  <title>Books and Materials | PSIR Forum</title>
+  <link rel="stylesheet" href="buttons.css">
+  <link rel="stylesheet" href="design.css">
+  <style>
+    body { font-family: "Times New Roman", Times, serif; }
+    [hidden] { display: none !important; }
+    .wrap { width: min(1100px, calc(100% - 36px)); margin: 0 auto; padding: 24px 0 40px; }
+    .hero { border-radius: 10px; padding: 28px 24px; background: linear-gradient(135deg, #1E3F82 0%, #2855A6 100%); color: #FFFFFF; margin-bottom: 18px; }
+    .hero h1 { color: #FFFFFF; margin: 0 0 6px; font-size: clamp(1.6rem, 4vw, 2.1rem); }
+    .hero p { color: #E2E8F0; margin: 0; max-width: 62ch; }
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0; }
+    .filters input, .filters select, .form input, .form select, .form textarea { border: 1px solid #CBD5E1; border-radius: 6px; padding: 10px 12px; font: inherit; background: #FFFFFF; color: #263238; min-height: 42px; }
+    .filters input { flex: 1; min-width: 200px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); gap: 14px; }
+    .card { background: #FFFFFF; border: 1px solid #DCE3EE; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+    .card h3 { margin: 0; font-size: 1.05rem; color: #1E3F82; line-height: 1.35; overflow-wrap: anywhere; }
+    .pill { display: inline-block; font-size: .75rem; font-weight: 700; padding: 3px 8px; border-radius: 4px; background: #EAF0FC; color: #2855A6; width: fit-content; }
+    .pill.gold { background: #E6B75A; color: #263238; }
+    .muted { color: #64748B; font-size: .92rem; }
+    .box { background: #FFFFFF; border: 1px solid #DCE3EE; border-radius: 10px; padding: 18px; margin-top: 16px; }
+    .form { display: grid; gap: 10px; margin-top: 12px; }
+    .form label { font-weight: 700; color: #1E3F82; font-size: .95rem; display: grid; gap: 4px; }
+    .msg { font-weight: 600; min-height: 22px; margin: 10px 0; }
+    details summary { cursor: pointer; color: #2855A6; font-weight: 700; font-size: 1.05rem; }
+    @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="container top-inner">
+      <a class="brand" href="/">PSIR FORUM</a>
+      <nav class="top-links" aria-label="Main navigation">
+        <a href="/">Home</a>
+        <a href="/categories">Categories</a>
+        <a href="/discussions">Discussions</a>
+        <a href="/research.html" aria-current="page">Research Hub</a>
+        <a href="/news.html">News &amp; Journal</a>
+        <a href="/career.html">Career</a>
+        <a href="/saved.html">Saved papers</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero" aria-labelledby="books-title">
+      <p style="color:#E6B75A;font-weight:800;letter-spacing:1.2px;font-size:.75rem;text-transform:uppercase;margin:0 0 6px;">Learning materials</p>
+      <h1 id="books-title">Books and Materials</h1>
+      <p>Free books, lecture notes and reading lists for political science and international relations. Links and PDFs are checked before they are shared. Please respect the licence shown on each item.</p>
+    </section>
+
+    <p id="msg" class="msg" role="status"></p>
+
+    <div class="filters">
+      <input id="f-search" type="search" placeholder="Search title or author" aria-label="Search materials">
+      <select id="f-topic" aria-label="Topic"><option value="">All topics</option><option>International relations</option><option>Political theory</option><option>African politics</option><option>Research methods</option><option>Diplomacy and foreign policy</option><option>Governance and public policy</option><option>Peace and security</option><option>Other</option></select>
+      <select id="f-level" aria-label="Level"><option value="">All levels</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Any level</option></select>
+    </div>
+
+    <div id="review-box" hidden class="box">
+      <h2 style="margin:0 0 6px;font-size:1.15rem;color:#1E3F82;">Waiting for review</h2>
+      <div id="review" class="grid"></div>
+    </div>
+
+    <div id="materials" class="grid"><p class="muted">Loading materials…</p></div>
+
+    <details class="box">
+      <summary>Share a book or material</summary>
+      <p class="muted" style="margin:8px 0 0;">Share a link to a legal free source, or upload a PDF that you own or that is licensed for sharing. Members' submissions are checked by a moderator before they appear.</p>
+      <form id="m-form" class="form">
+        <label>Title<input id="m-title" required minlength="5" maxlength="200"></label>
+        <label>Author (optional)<input id="m-author" maxlength="200"></label>
+        <label>Topic<select id="m-topic" required><option value="">Choose a topic</option><option>International relations</option><option>Political theory</option><option>African politics</option><option>Research methods</option><option>Diplomacy and foreign policy</option><option>Governance and public policy</option><option>Peace and security</option><option>Other</option></select></label>
+        <label>Level<select id="m-level"><option>Any level</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></label>
+        <label>Language<input id="m-language" value="English" maxlength="40"></label>
+        <label>Licence or permission<select id="m-license" required><option>Open access</option><option>Creative Commons</option><option>Public domain</option><option>Owner permission</option><option>Other (see description)</option></select></label>
+        <label>Description (optional)<textarea id="m-desc" maxlength="1000" rows="3"></textarea></label>
+        <label>Link to the source (https://, optional)<input id="m-link" type="url" placeholder="https://..."></label>
+        <label>Or upload a PDF (up to 10 MB, optional)<input id="m-file" type="file" accept="application/pdf"></label>
+        <button class="psir-btn psir-navy" type="submit" id="m-send">Send for review</button>
+      </form>
+    </details>
+  </main>
+
+  <footer><div class="container"><a href="/">PSIR Forum</a> · <a href="/policy.html">Academic publishing policy</a> · <a href="/info.html?page=guidelines">Community Guidelines</a> · <a href="/info.html?page=contact">Contact</a></div></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (() => {
+    "use strict";
+    const db = window.supabase.createClient("https://updxillknwufqekfzkur.supabase.co", "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5");
+    const $ = id => document.getElementById(id);
+    let me = null, staff = false, busy = false, items = [];
+    const TOPICS = ["International relations", "Political theory", "African politics", "Research methods", "Diplomacy and foreign policy", "Governance and public policy", "Peace and security", "Other"];
+
+    function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]); }
+    function say(text, bad) { const m = $("msg"); m.textContent = text || ""; m.style.color = bad ? "#B42318" : "#237A57"; }
+
+    function card(m, review) {
+      const open = m.link_url ? '<a class="psir-btn psir-navy" href="' + esc(m.link_url) + '" target="_blank" rel="noopener noreferrer">Open the link</a>' : "";
+      const dl = m.file_path ? '<button class="psir-btn psir-navy" type="button" data-dl="' + esc(m.id) + '" data-path="' + esc(m.file_path) + '">Download PDF</button>' : "";
+      const rev = review ? '<button class="psir-btn psir-green" type="button" data-act="approve" data-id="' + esc(m.id) + '">Approve</button><button class="psir-btn psir-outline-red" type="button" data-act="reject" data-id="' + esc(m.id) + '">Reject</button>' : "";
+      return '<article class="card">'
+        + '<span class="pill">' + esc(m.topic) + (m.level ? " · " + esc(m.level) : "") + "</span>"
+        + "<h3>" + esc(m.title) + "</h3>"
+        + '<div class="muted">' + (m.author ? esc(m.author) + " · " : "") + esc(m.language) + " · " + esc(m.license) + "</div>"
+        + (m.description ? "<p>" + esc(m.description) + "</p>" : "")
+        + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">' + open + dl + rev + "</div>"
+        + "</article>";
+    }
+
+    function render() {
+      const q = $("f-search").value.trim().toLowerCase(), t = $("f-topic").value, l = $("f-level").value;
+      const rows = items.filter(m => (!t || m.topic === t) && (!l || m.level === l) && (!q || (m.title + " " + (m.author || "")).toLowerCase().indexOf(q) !== -1));
+      $("materials").innerHTML = rows.length ? rows.map(m => card(m, false)).join("") : '<p class="muted">No materials match your search yet.</p>';
+    }
+    ["f-search", "f-topic", "f-level"].forEach(id => $(id).addEventListener("input", render));
+
+    async function load() {
+      const { data, error } = await db.from("learning_materials")
+        .select("id, title, author, topic, level, language, description, link_url, file_path, license, created_at")
+        .eq("status", "approved").order("created_at", { ascending: false }).limit(500);
+      items = error ? [] : (data || []);
+      render();
+    }
+
+    async function loadReview() {
+      if (!staff) { $("review-box").hidden = true; return; }
+      const { data } = await db.from("learning_materials")
+        .select("id, title, author, topic, level, language, description, link_url, file_path, license, created_at")
+        .eq("status", "pending").order("created_at");
+      const rows = data || [];
+      $("review-box").hidden = rows.length === 0;
+      $("review").innerHTML = rows.map(m => card(m, true)).join("");
+    }
+
+    document.addEventListener("click", async e => {
+      const dl = e.target.closest("[data-dl]");
+      if (dl) {
+        const { data, error } = await db.storage.from("learning-files").createSignedUrl(dl.dataset.path, 600);
+        if (error || !data) return say("The file could not be opened. " + (error ? error.message : ""), true);
+        window.open(data.signedUrl, "_blank", "noopener");
+        return;
+      }
+      const act = e.target.closest("[data-act]");
+      if (act && staff) {
+        const id = act.dataset.id;
+        if (act.dataset.act === "approve") {
+          const { error } = await db.from("learning_materials").update({ status: "approved", reviewer_id: me.id, reviewed_at: new Date().toISOString() }).eq("id", id);
+          if (error) return say("Could not approve: " + error.message, true);
+          say("Approved.");
+        } else {
+          const note = prompt("Reason for rejecting (at least 5 characters):");
+          if (!note || note.trim().length < 5) return say("Rejection cancelled. A reason is required.", true);
+          const { error } = await db.from("learning_materials").update({ status: "rejected", reviewer_id: me.id, reviewed_at: new Date().toISOString(), reviewer_notes: note.trim() }).eq("id", id);
+          if (error) return say("Could not reject: " + error.message, true);
+          say("Rejected.");
+        }
+        loadReview(); load();
+      }
+    });
+
+    $("m-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      if (!me) return say("Please log in to share a material.", true);
+      if (busy) return;
+      const link = $("m-link").value.trim(), file = $("m-file").files[0];
+      if (!link && !file) return say("Please add a link or upload a PDF.", true);
+      if (link && !/^https:\/\//i.test(link)) return say("The link must start with https://", true);
+      if (file && (file.type !== "application/pdf" || file.size > 10 * 1024 * 1024)) return say("The file must be a PDF up to 10 MB.", true);
+      busy = true; $("m-send").disabled = true;
+      try {
+        let filePath = null, fileName = null;
+        if (file) {
+          const sig = new Uint8Array(await file.slice(0, 4).arrayBuffer());
+          if (String.fromCharCode(...sig) !== "%PDF") throw new Error("This file is not a valid PDF.");
+          filePath = me.id + "/" + crypto.randomUUID() + ".pdf";
+          fileName = file.name.slice(0, 200);
+          const up = await db.storage.from("learning-files").upload(filePath, file, { contentType: "application/pdf", upsert: false });
+          if (up.error) throw up.error;
+        }
+        const { error } = await db.from("learning_materials").insert({
+          title: $("m-title").value.trim(), author: $("m-author").value.trim() || null,
+          topic: $("m-topic").value, level: $("m-level").value, language: $("m-language").value.trim() || "English",
+          description: $("m-desc").value.trim() || null, link_url: link || null, file_path: filePath, file_name: fileName,
+          license: $("m-license").value, submitted_by: me.id, status: staff ? "approved" : "pending"
+        });
+        if (error) { if (filePath) await db.storage.from("learning-files").remove([filePath]); throw error; }
+        $("m-form").reset(); $("m-language").value = "English";
+        say(staff ? "Shared. It is now listed." : "Thank you. The material will appear after a moderator checks it.");
+        if (staff) load(); else loadReview();
+      } catch (err) {
+        say("Could not share: " + (err.message || err), true);
+      } finally { busy = false; $("m-send").disabled = false; }
+    });
+
+    async function refresh() {
+      const { data: s } = await db.auth.getSession();
+      me = s.session ? s.session.user : null;
+      staff = false;
+      if (me) {
+        const { data: p } = await db.from("profiles").select("role").eq("id", me.id).maybeSingle();
+        staff = !!p && ["admin", "moderator"].indexOf(p.role) !== -1;
+      }
+      await load(); await loadReview();
+    }
+    db.auth.onAuthStateChange(() => setTimeout(refresh, 0));
+    refresh();
+  })();
+  </script>
+  <script src="language.js"></script>
+  <script src="welcome-tip.js"></script>
+  <script src="consent.js"></script>
+  <script src="error-log.js"></script>
+</body>
+</html>
