@@ -279,3 +279,10 @@ html[data-theme="dark"] .navbar .nav-links.open a { color: #E8EDF5 !important; b
 html[data-theme="dark"] h1, html[data-theme="dark"] h2, html[data-theme="dark"] h3, html[data-theme="dark"] h4 { color: #E8EDF5 !important; }
 html[data-theme="dark"] a { color: #9CC6F0; }
 html[data-theme="dark"] a:hover { color: #E6B75A; }
+
+/* Research Hub: matching hero buttons, stacked on the same left edge */
+#submitOpen, #booksLinkBtn {
+  display: flex !important; justify-content: center; align-items: center;
+  width: min(100%, 340px) !important; box-sizing: border-box;
+}
+#booksLinkBtn { margin: 10px 0 0 0 !important; font-weight: 800; }
