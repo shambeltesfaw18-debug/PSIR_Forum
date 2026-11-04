@@ -98,7 +98,7 @@
       <p class="eyebrow">Research &amp; Academia</p>
       <h1>Research &amp; Academia Hub</h1>
       <p>Share knowledge. Publish research. Connect ideas. Advance understanding.</p>
-      <button class="btn" type="button" id="submitOpen">Submit Research</button> <a class="psir-btn psir-navy psir-lg" href="/books.html" style="margin:8px 0 0 0;">Get books and materials</a>
+      <button class="btn" type="button" id="submitOpen">Submit Research</button> 
       <span id="loginHint" class="hint" style="color:#dfe5ee;margin-left:12px;font-size:.9rem;"></span>
     </div>
   </section>
@@ -110,7 +110,7 @@
       <div id="formPanel" class="panel" hidden>
         <h2 id="formTitle">Submit research</h2>
         <p class="lead">Drafts stay private. A submitted piece is reviewed by a moderator before it appears in the library.</p>
-        <form id="pubForm" novalidate>
+        <form id="pubForm" novalidate><div style="border:1px dashed #2855A6;border-radius:8px;padding:12px;margin:0 0 12px;"><label style="display:grid;gap:4px;font-weight:700;">Fill in from a link (optional)<input id="rlf-url" type="url" placeholder="https://..." style="padding:10px;border:1px solid #CBD5E1;border-radius:6px;"></label><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;"><button type="button" class="btn" data-lf="fill" data-lf-url="rlf-url" data-lf-title="f_title" data-lf-desc="f_abstract">Fill title and abstract from link</button><button type="button" class="btn" data-lf="pdf" data-lf-url="rlf-url" data-lf-file="f_pdf">Import PDF from link</button></div></div>
           <div class="field"><label for="f_title">Title</label><input id="f_title" maxlength="200" required></div>
           <div class="field"><label for="f_type">Publication type</label>
             <select id="f_type">
@@ -642,5 +642,6 @@
 <script src="error-log.js"></script>
 <script src="consent.js"></script>
 <script src="books-link.js"></script>
+<script src="link-fill.js"></script>
 </body>
 </html>

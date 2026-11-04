@@ -148,7 +148,8 @@
         <div class="field"><label for="nf_source_name">Source name</label>
           <input id="nf_source_name" maxlength="150" placeholder="e.g. the outlet or agency that reported it"></div>
         <div class="field"><label for="nf_source_url">Source web address</label>
-          <input id="nf_source_url" maxlength="500" placeholder="https://..."></div>
+          <input id="nf_source_url" maxlength="500" placeholder="https://...">
+<button type="button" class="btn" data-lf="fill" data-lf-url="nf_source_url" data-lf-title="nf_title" data-lf-desc="auto">Fill title and description from this link</button></div>
       </div>
       <label style="display:flex;gap:10px;align-items:flex-start;font-weight:600;">
         <input type="checkbox" id="nf_declare" style="margin-top:4px;">
@@ -624,5 +625,6 @@
 <script src="badges.js"></script>
 <script src="error-log.js"></script>
 <script src="consent.js"></script>
+<script src="link-fill.js"></script>
 </body>
 </html>
