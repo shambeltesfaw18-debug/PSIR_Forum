@@ -286,3 +286,18 @@ html[data-theme="dark"] a:hover { color: #E6B75A; }
   width: min(100%, 340px) !important; box-sizing: border-box;
 }
 #booksLinkBtn { margin: 10px 0 0 0 !important; font-weight: 800; }
+
+/* Home page: explore cards, scrolled sideways */
+.hrow { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 2px 16px; -webkit-overflow-scrolling: touch; }
+.hcard { flex: 0 0 min(78vw, 300px); scroll-snap-align: start; background: #FFFFFF; border: 1px solid #DCE3EE; border-radius: 12px; overflow: hidden; text-decoration: none; color: #263238; display: flex; flex-direction: column; box-shadow: 0 6px 18px rgba(16,43,70,.08); }
+.hcard img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
+.hcard-body { padding: 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.hcard h3 { margin: 0; color: #1E3F82; font-size: 1.05rem; }
+.hcard p { margin: 0; font-size: .92rem; line-height: 1.4; color: #475569; }
+.hcard-btn { margin-top: auto; font-weight: 800; color: #2855A6; font-size: .92rem; }
+.hcard:focus-visible, .hrow:focus-visible { outline: 3px solid #E6B75A; outline-offset: 3px; }
+.hrow-hint { color: #64748B; font-size: .85rem; margin: 0 0 8px; }
+html[data-theme="dark"] .hcard { background: #16243A; border-color: #2A3B52; color: #E8EDF5; }
+html[data-theme="dark"] .hcard h3 { color: #9CC6F0; }
+html[data-theme="dark"] .hcard p { color: #CBD5E1; }
+html[data-theme="dark"] .hcard-btn { color: #E6B75A; }

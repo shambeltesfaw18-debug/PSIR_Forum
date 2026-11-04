@@ -1871,7 +1871,77 @@
       </div>
     </section>
 
-        <!-- IDEAS WORTH EXPLORING (home page only) -->
+        <!-- EXPLORE CARDS (home page only) -->
+    <section class="section" id="explore" aria-labelledby="explore-title" style="padding-bottom:0;">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <h2 id="explore-title">Explore PSIR Forum</h2>
+            <p class="hrow-hint">Swipe sideways to see every section.</p>
+          </div>
+        </div>
+        <div class="hrow" role="list" tabindex="0" aria-label="PSIR Forum sections">
+          <a class="hcard" role="listitem" href="/discussions">
+            <img src="images/general-discussion.jpg" alt="" loading="lazy" onerror="this.onerror=null;this.src='images/general-discussion.jpg';">
+            <div class="hcard-body">
+              <h3>Discussions</h3>
+              <p>Ask questions and debate ideas with the community.</p>
+              <span class="hcard-btn">Open</span>
+            </div>
+          </a>
+          <a class="hcard" role="listitem" href="/research.html">
+            <img src="images/research-academia.jpg" alt="" loading="lazy" onerror="this.onerror=null;this.src='images/general-discussion.jpg';">
+            <div class="hcard-body">
+              <h3>Research Hub</h3>
+              <p>Publish and read moderated research papers.</p>
+              <span class="hcard-btn">Open</span>
+            </div>
+          </a>
+          <a class="hcard" role="listitem" href="/books.html">
+            <img src="images/books.jpg" alt="" loading="lazy" onerror="this.onerror=null;this.src='images/general-discussion.jpg';">
+            <div class="hcard-body">
+              <h3>Books and Materials</h3>
+              <p>Books, lecture notes and reading lists, checked before they appear.</p>
+              <span class="hcard-btn">Open</span>
+            </div>
+          </a>
+          <a class="hcard" role="listitem" href="/news.html">
+            <img src="images/news-journal.jpg" alt="" loading="lazy" onerror="this.onerror=null;this.src='images/general-discussion.jpg';">
+            <div class="hcard-body">
+              <h3>News &amp; Journal</h3>
+              <p>Sourced news, analysis and student essays.</p>
+              <span class="hcard-btn">Open</span>
+            </div>
+          </a>
+          <a class="hcard" role="listitem" href="/career.html">
+            <img src="images/career.jpg" alt="" loading="lazy" onerror="this.onerror=null;this.src='images/general-discussion.jpg';">
+            <div class="hcard-body">
+              <h3>Career</h3>
+              <p>Free courses, scholarships and jobs, checked before listing.</p>
+              <span class="hcard-btn">Open</span>
+            </div>
+          </a>
+          <a class="hcard" role="listitem" href="/live">
+            <img src="images/live-room.jpg" alt="" loading="lazy" onerror="this.onerror=null;this.src='images/general-discussion.jpg';">
+            <div class="hcard-body">
+              <h3>Live Room</h3>
+              <p>Seminars, research talks and debates, held online.</p>
+              <span class="hcard-btn">Open</span>
+            </div>
+          </a>
+          <a class="hcard" role="listitem" href="/profile.html" data-members-only>
+            <img src="images/logo.jpg" alt="" loading="lazy" onerror="this.onerror=null;this.src='images/general-discussion.jpg';">
+            <div class="hcard-body">
+              <h3>My profile</h3>
+              <p>Your profile, posts and saved items.</p>
+              <span class="hcard-btn">Open</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- IDEAS WORTH EXPLORING (home page only) -->
     <section class="section" id="ideas" style="padding-bottom:0;">
       <div class="container">
         <div class="section-heading">
@@ -3208,5 +3278,11 @@
 <script src="error-log.js"></script>
 <script src="google-auth.js"></script>
 <script src="consent.js"></script>
+<script>
+(function () {
+  var signedIn = Object.keys(localStorage).some(function (k) { return /^sb-.*-auth-token$/.test(k); });
+  if (!signedIn) document.querySelectorAll('[data-members-only]').forEach(function (el) { el.hidden = true; });
+})();
+</script>
 </body>
 </html>
