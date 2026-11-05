@@ -43,6 +43,23 @@
     return key ? document.getElementById(key) : null;
   }
 
+  // News: the description goes into the Full text editor (that is what a news item saves).
+  // It also goes into the Summary box, which journal and research items use.
+  function fillDescription(key, text) {
+    if (!text) return;
+    if (key === "auto") {
+      const area = document.querySelector("#nf_body .rt-area, #nf_body [contenteditable='true']");
+      if (area && !area.textContent.trim()) {
+        area.textContent = text;
+        area.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+      const summary = document.getElementById("nf_summary");
+      if (summary && !summary.value.trim()) summary.value = text;
+      return;
+    }
+    fillIfEmpty(descriptionField(key), text);
+  }
+
   document.addEventListener("click", async e => {
     const btn = e.target.closest("[data-lf]");
     if (!btn) return;
@@ -55,8 +72,8 @@
       if (btn.dataset.lf === "fill") {
         const d = await details(url);
         fillIfEmpty(document.getElementById(btn.dataset.lfTitle), d.title);
-        fillIfEmpty(descriptionField(btn.dataset.lfDesc), d.description);
-        note(btn, "Details filled in. Please check them before sending.");
+        fillDescription(btn.dataset.lfDesc, d.description);
+        note(btn, d.description ? "Details filled in. Please check them before sending." : "The title was filled in. This page did not give a description, so please write one.");
       } else if (btn.dataset.lf === "pdf") {
         const file = await pdfFile(url);
         const dt = new DataTransfer();
