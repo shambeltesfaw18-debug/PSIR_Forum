@@ -170,6 +170,13 @@ function imageOf(v) {
   return typeof v === "object" ? (v.url || v.contentUrl || "") : "";
 }
 
+// Fallback when a page has no summary tag: the first one or two real paragraphs of text
+function firstParagraphs(html) {
+  const body = html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ");
+  const paras = (body.match(/<p\b[^>]*>[\s\S]*?<\/p>/gi) || []).map(p => clean(p, 1000)).filter(t => t.length >= 60);
+  return paras.slice(0, 2).join(" ").slice(0, 600);
+}
+
 function extract(html, base) {
   const meta = {};
   (html.match(/<meta\b[^>]*>/gi) || []).forEach(tag => {
@@ -195,7 +202,7 @@ function extract(html, base) {
   const ldProvider = course ? textOf(course.provider || course.publisher || course.creator) : (org ? textOf(org.name) : "");
 
   const title = clean(ldTitle || pick("og:title", "twitter:title") || titleTag, 200);
-  const description = clean(ldDesc || pick("og:description", "twitter:description", "description"), 1000);
+  const description = clean(ldDesc || pick("og:description", "twitter:description", "description") || firstParagraphs(html), 1000);
   const provider = clean(ldProvider || pick("og:site_name", "application-name"), 150) || base.hostname.replace(/^www\./, "");
   const imageCandidates = [ldImage, pick("og:image", "og:image:secure_url", "og:image:url", "twitter:image", "twitter:image:src"), linkImage].filter(Boolean);
   return {
