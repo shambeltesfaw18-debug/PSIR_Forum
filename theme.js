@@ -232,7 +232,7 @@
   function applyTheme() {
     const dark = choice === "dark" || (choice === "system" && media && media.matches);
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
-    buttons.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.value === choice)));
+    buttons.forEach(b => { b.textContent = dark ? "\u2600\uFE0F" : "\uD83C\uDF19"; const t = dark ? "Switch to light mode" : "Switch to dark mode"; b.setAttribute("aria-label", t); b.title = t; });
   }
 
   const group = document.createElement("div");
@@ -240,21 +240,19 @@
   group.setAttribute("role", "group");
   group.setAttribute("aria-label", "Appearance");
 
-  const options = [["light", "Light"], ["dark", "Dark"], ["system", "System"]];
-  const buttons = options.map(([value, label]) => {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "psir-mode-btn";
-    b.textContent = label;
-    b.dataset.value = value;
-    b.addEventListener("click", () => {
-      choice = value;
-      saveChoice(value);
-      applyTheme();
-    });
-    group.appendChild(b);
-    return b;
+  const themeButton = document.createElement("button");
+  themeButton.type = "button";
+  themeButton.className = "psir-mode-btn";
+  themeButton.id = "psirThemeToggle";
+  themeButton.style.cssText = "width:44px;height:44px;border-radius:50%;font-size:1.15rem;line-height:1;padding:0;display:inline-flex;align-items:center;justify-content:center;";
+  themeButton.addEventListener("click", () => {
+    const nowDark = choice === "dark" || (choice === "system" && media && media.matches);
+    choice = nowDark ? "light" : "dark";
+    saveChoice(choice);
+    applyTheme();
   });
+  group.appendChild(themeButton);
+  const buttons = [themeButton];
 
   document.body.appendChild(group);
 

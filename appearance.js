@@ -156,19 +156,19 @@
   group.setAttribute("role", "group");
   group.setAttribute("aria-label", "Appearance and language");
 
-  const themeButtons = [["light", "Light"], ["dark", "Dark"], ["system", "System"]].map(([value, label]) => {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.dataset.theme = value;
-    b.textContent = label;
-    b.addEventListener("click", () => {
-      theme = value;
-      try { localStorage.setItem(THEME_KEY, value); } catch (e) {}
-      applyTheme();
-    });
-    group.appendChild(b);
-    return b;
+  const themeButton = document.createElement("button");
+  themeButton.type = "button";
+  themeButton.id = "psirThemeToggle";
+  themeButton.style.cssText = "width:44px;height:44px;border-radius:50%;font-size:1.15rem;line-height:1;padding:0;display:inline-flex;align-items:center;justify-content:center;";
+  themeButton.addEventListener("click", () => {
+    const nowDark = theme === "dark" || (theme === "system" && media && media.matches);
+    theme = nowDark ? "light" : "dark";
+    try { localStorage.setItem(THEME_KEY, theme); } catch (e) {}
+    applyTheme();
+    paint();
   });
+  group.appendChild(themeButton);
+  const themeButtons = [themeButton];
 
   const langButton = document.createElement("button");
   langButton.type = "button";
@@ -181,7 +181,8 @@
   group.appendChild(langButton);
 
   function paint() {
-    themeButtons.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.theme === theme)));
+    const isDarkNow = theme === "dark" || (theme === "system" && media && media.matches);
+    themeButtons.forEach(b => { b.textContent = isDarkNow ? "\u2600\uFE0F" : "\uD83C\uDF19"; const t = isDarkNow ? "Switch to light mode" : "Switch to dark mode"; b.setAttribute("aria-label", t); b.title = t; });
     langButton.textContent = lang === "am" ? "English" : "አማርኛ";
     langButton.setAttribute("aria-label", lang === "am" ? "Switch to English" : "ወደ አማርኛ ቀይር");
   }
