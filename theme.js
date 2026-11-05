@@ -143,7 +143,7 @@
     html body .hero {
       background:
         linear-gradient(120deg, rgba(16, 43, 70, 0.55), rgba(24, 62, 96, 0.45)),
-        url("/images/world_map_hero.jpg") center / cover no-repeat !important;
+        url("/images/world-map-hero.jpg") center / cover no-repeat !important;
     }
 
     /* Hero text shadow keeps the text readable over the lighter image */
