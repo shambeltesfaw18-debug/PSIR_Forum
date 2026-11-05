@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Members | PSIR Forum</title>
+  <link rel="icon" type="image/jpeg" href="/images/logo.jpg">
+  <link rel="stylesheet" href="buttons.css">
+  <link rel="stylesheet" href="design.css">
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+    [hidden] { display: none !important; }
+    .mb-wrap { width: min(1100px, calc(100% - 36px)); margin: 0 auto; padding: 24px 0 40px; }
+    .mb-box { background: #FFFFFF; border: 1px solid #DCE3EE; border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+    .mb-filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .mb-filters input, .mb-filters select { border: 1px solid #CBD5E1; border-radius: 6px; padding: 10px 12px; font: inherit; min-height: 42px; background: #fff; color: #263238; }
+    .mb-filters input { flex: 1; min-width: 200px; }
+    .mb-table-wrap { overflow-x: auto; }
+    table.mb { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    table.mb th, table.mb td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #E5EAF2; vertical-align: top; }
+    table.mb th { color: #1E3F82; background: #F4F7FC; position: sticky; top: 0; }
+    table.mb select { border: 1px solid #CBD5E1; border-radius: 6px; padding: 6px; font: inherit; }
+    .mb-msg { font-weight: 600; min-height: 22px; margin: 8px 0; }
+    .mb-count { color: #475569; font-weight: 700; }
+    html[data-theme="dark"] .mb-box { background: #16243A; border-color: #2A3B52; color: #E8EDF5; }
+    html[data-theme="dark"] table.mb th { background: #1B2D47; color: #9CC6F0; }
+    html[data-theme="dark"] table.mb td { color: #E8EDF5; border-bottom-color: #2A3B52; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="container top-inner">
+      <a class="brand" href="/">PSIR FORUM</a>
+      <nav class="top-links" aria-label="Main navigation">
+        <a href="/">Home</a>
+        <a href="/categories">Categories</a>
+        <a href="/discussions">Discussions</a>
+        <a href="/research.html">Research Hub</a>
+        <a href="/news.html">News &amp; Journal</a>
+        <a href="/career.html">Career</a>
+        <a href="/saved.html">Saved papers</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="mb-wrap">
+    <h1 style="color:#1E3F82;margin:6px 0 12px;">Members</h1>
+    <div id="mbDenied" class="mb-box" hidden>
+      <p>Only administrators and moderators can see the member list. Please sign in with a staff account.</p>
+    </div>
+    <div id="mbArea" hidden>
+      <div class="mb-box">
+        <div class="mb-filters">
+          <input id="mbSearch" type="search" placeholder="Search by name, university or email" aria-label="Search members">
+          <select id="mbType" aria-label="Filter by member type">
+            <option value="">All types</option><option value="student">Student</option><option value="lecturer">Lecturer</option><option value="researcher">Researcher</option><option value="other">Other</option><option value="unset">Not set</option>
+          </select>
+          <button class="psir-btn psir-outline" type="button" id="mbExport" hidden>Download CSV</button>
+        </div>
+        <p class="mb-count" id="mbCount"></p>
+        <p class="mb-msg" id="mbMsg" role="status"></p>
+        <div class="mb-table-wrap">
+          <table class="mb">
+            <thead><tr><th>Name</th><th>Type</th><th>University</th><th>Role</th><th>Verified</th><th>Joined</th><th id="mbEmailHead" hidden>Email</th></tr></thead>
+            <tbody id="mbRows"><tr><td colspan="7">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer><div class="container"><a href="/">PSIR Forum</a> · <a href="/policy.html">Academic publishing policy</a> · <a href="/info.html?page=guidelines">Community Guidelines</a> · <a href="/info.html?page=contact">Contact</a></div></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (() => {
+    "use strict";
+    const db = window.supabase.createClient("https://updxillknwufqekfzkur.supabase.co", "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5");
+    const $ = id => document.getElementById(id);
+    const TYPES = ["student", "lecturer", "researcher", "other"];
+    let rows = [], isAdmin = false;
+
+    function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]); }
+    function say(text, bad) { const m = $("mbMsg"); m.textContent = text || ""; m.style.color = bad ? "#B42318" : "#237A57"; }
+    function label(t) { return t ? t.charAt(0).toUpperCase() + t.slice(1) : "Not set"; }
+
+    function filtered() {
+      const q = $("mbSearch").value.trim().toLowerCase(), t = $("mbType").value;
+      return rows.filter(r =>
+        (!t || (t === "unset" ? !r.member_type : r.member_type === t)) &&
+        (!q || [r.full_name, r.university, r.email].join(" ").toLowerCase().indexOf(q) !== -1));
+    }
+    function render() {
+      const list = filtered();
+      $("mbCount").textContent = list.length + " of " + rows.length + " members";
+      $("mbRows").innerHTML = list.length ? list.map(r => `
+        <tr data-id="${esc(r.id)}">
+          <td>${esc(r.full_name || "(no name)")}</td>
+          <td><select class="mbSet" aria-label="Member type for ${esc(r.full_name || "member")}">
+            <option value="">Not set</option>${TYPES.map(t => `<option value="${t}"${r.member_type === t ? " selected" : ""}>${label(t)}</option>`).join("")}
+          </select></td>
+          <td>${esc(r.university || "")}</td>
+          <td>${esc(label(r.role))}</td>
+          <td>${r.is_verified ? "Yes" : "No"}</td>
+          <td>${r.created_at ? esc(String(r.created_at).slice(0, 10)) : ""}</td>
+          ${isAdmin ? `<td>${esc(r.email || "")}</td>` : ""}
+        </tr>`).join("") : `<tr><td colspan="${isAdmin ? 7 : 6}">No members match these filters.</td></tr>`;
+    }
+    async function load() {
+      const { data, error } = await db.rpc("list_members_for_staff");
+      if (error) { say("The member list could not be loaded: " + error.message, true); return; }
+      rows = data || [];
+      render();
+    }
+    function csv() {
+      const head = ["Name", "Type", "University", "Role", "Verified", "Joined", "Email"];
+      const lines = [head].concat(filtered().map(r => [r.full_name, r.member_type || "", r.university || "", r.role, r.is_verified ? "Yes" : "No", String(r.created_at || "").slice(0, 10), r.email || ""]));
+      const text = lines.map(l => l.map(v => '"' + String(v ?? "").replace(/"/g, '""') + '"').join(",")).join("\r\n");
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob(["\uFEFF" + text], { type: "text/csv;charset=utf-8" }));
+      a.download = "psir-members-" + new Date().toISOString().slice(0, 10) + ".csv";
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+
+    document.addEventListener("change", async e => {
+      if (!e.target.classList.contains("mbSet")) return;
+      const id = e.target.closest("tr").dataset.id;
+      const value = e.target.value || null;
+      const { data, error } = await db.from("profiles").update({ member_type: value }).eq("id", id).select("id");
+      if (error || !data || !data.length) { say("Could not save the type. Please try again.", true); render(); return; }
+      const row = rows.find(r => r.id === id); if (row) row.member_type = value;
+      say("Saved.");
+    });
+    $("mbSearch").addEventListener("input", render);
+    $("mbType").addEventListener("change", render);
+    $("mbExport").addEventListener("click", csv);
+
+    (async () => {
+      const { data: sess } = await db.auth.getSession();
+      const user = sess.session ? sess.session.user : null;
+      if (!user) { $("mbDenied").hidden = false; return; }
+      const { data: p } = await db.from("profiles").select("role").eq("id", user.id).maybeSingle();
+      const staff = !!p && (p.role === "admin" || p.role === "moderator");
+      if (!staff) { $("mbDenied").hidden = false; return; }
+      isAdmin = p.role === "admin";
+      $("mbArea").hidden = false;
+      $("mbExport").hidden = !isAdmin;
+      $("mbEmailHead").hidden = !isAdmin;
+      await load();
+    })();
+  })();
+  </script>
+  <script src="welcome-tip.js"></script>
+  <script src="language.js"></script>
+  <script src="error-log.js"></script>
+  <script src="consent.js"></script>
+</body>
+</html>
