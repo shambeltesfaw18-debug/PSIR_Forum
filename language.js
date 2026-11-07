@@ -227,6 +227,19 @@
     "No jobs match your filters yet.": { am: "ከማጣሪያዎችዎ ጋር የሚዛመድ ስራ ገና የለም።", ti: "ምስ ማጣርያታትካ ዝሳማማዕ ስራሕ ገና የለን።", om: "Filannoo kee waliin wal simu hojiin hin jiru.", so: "Shaqo la mid ah shaandhadaada weli ma jiro." },
     "No scholarships match your filters yet.": { am: "ከማጣሪያዎችዎ ጋር የሚዛመድ የትምህርት ዕድል ገና የለም።", ti: "ምስ ማጣርያታትካ ዝሳማማዕ ዕድል ትምህርቲ ገና የለን።", om: "Filannoo kee waliin wal simu diraagaan hin jiru.", so: "Abaal-marin la mid ah shaandhadaada weli ma jiro." },
     // Career page text: drafts for Tigrinya, Afaan Oromo and Af Somali pending native-speaker review.
+    "General Live Room": { am: "አጠቃላይ የቀጥታ ክፍል" },
+    "Join live seminars, research talks, debates and open discussions with members of the PSIR community.": { am: "በPSIR ማህበረሰብ አባላት የቀጥታ ሴሚናሮችን፣ የምርምር ንግግሮችን፣ ክርክሮችንና ክፍት ውይይቶችን ይቀላቀሉ።" },
+    "Join the General Room": { am: "አጠቃላይ ክፍሉን ይቀላቀሉ" },
+    "Live session": { am: "የቀጥታ ውይይት" },
+    "Before you join": { am: "ከመቀላቀልዎ በፊት" },
+    "Topic rooms": { am: "የርዕስ ክፍሎች" },
+    "Go to Categories": { am: "ምድቦችን ይመልከቱ" },
+    "Books and Materials": { am: "መጻሕፍትና ቁሳቁሶች" },
+    "Get books and materials": { am: "መጻሕፍትና ቁሳቁሶችን ያግኙ" },
+    "Share a material": { am: "ቁሳቁስ ያጋሩ" },
+    "Get this material": { am: "ቁሳቁሱን ያግኙ" },
+    "Search by title, author or topic": { am: "በርዕስ፣ በደራሲ ወይም በርዕሰ ጉዳይ ይፈልጉ" },
+    // New pages (Books, Live Room): Amharic drafts pending native-speaker review.
   };
 
   const LANGS = [["en", "English"], ["am", "አማርኛ"], ["ti", "ትግርኛ"], ["om", "Afaan Oromoo"], ["so", "Af Soomaali"]];

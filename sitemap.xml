@@ -26,6 +26,18 @@
   </url>
 
   <url>
+    <loc>https://psirforum.vercel.app/books.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://psirforum.vercel.app/live.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
     <loc>https://psirforum.vercel.app/news.html</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
