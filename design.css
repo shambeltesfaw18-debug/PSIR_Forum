@@ -301,3 +301,17 @@ html[data-theme="dark"] .hcard { background: #16243A; border-color: #2A3B52; col
 html[data-theme="dark"] .hcard h3 { color: #9CC6F0; }
 html[data-theme="dark"] .hcard p { color: #CBD5E1; }
 html[data-theme="dark"] .hcard-btn { color: #E6B75A; }
+
+/* Home hero: faint academic grid over the photo (static, no animation) */
+html body .hero { position: relative; isolation: isolate; overflow: hidden; }
+html body .hero::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+html body .hero > * { position: relative; z-index: 1; }
+/* Anyone with reduced motion turned on sees no movement at all */
+@media (prefers-reduced-motion: reduce) {
+  html body .hero * { animation: none !important; transition: none !important; }
+}
