@@ -358,3 +358,12 @@ html:not([data-theme="dark"]) main > section > .container > .section-heading h2,
 html:not([data-theme="dark"]) main > section > .container > .section-heading p {
   color: #FFFFFF !important;
 }
+
+/* About section text on the blue: white heading and paragraphs, gold label */
+html:not([data-theme="dark"]) #about .about-copy h2,
+html:not([data-theme="dark"]) #about .about-copy p {
+  color: #FFFFFF !important;
+}
+html:not([data-theme="dark"]) #about .about-copy .eyebrow {
+  color: #E6B75A !important;
+}
