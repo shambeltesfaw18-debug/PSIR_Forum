@@ -395,3 +395,21 @@ html:not([data-theme="dark"]) body section.lr-hero .lr-kicker,
 html:not([data-theme="dark"]) body section.bk-hero p:first-child {
   color: #E6B75A !important;
 }
+
+/* More gold: section underlines, card top edges, header and footer rules, blue-section labels */
+html:not([data-theme="dark"]) body main > section > .container > .section-heading h2 {
+  display: inline-block; padding-bottom: 6px; border-bottom: 3px solid #E6B75A;
+}
+html:not([data-theme="dark"]) body .hcard {
+  border-top: 4px solid #E6B75A !important;
+}
+html:not([data-theme="dark"]) body header.top {
+  border-bottom: 2px solid #E6B75A !important;
+}
+html:not([data-theme="dark"]) body footer {
+  border-top: 3px solid #E6B75A !important;
+}
+html:not([data-theme="dark"]) body main > section > .container > .eyebrow,
+html:not([data-theme="dark"]) body #about .about-copy .eyebrow {
+  color: #E6B75A !important;
+}
