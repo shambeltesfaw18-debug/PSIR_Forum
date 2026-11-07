@@ -304,7 +304,14 @@ html[data-theme="dark"] .hcard-btn { color: #E6B75A; }
 
 /* Home hero: faint academic grid over the photo (static, no animation) */
 html body .hero { position: relative; isolation: isolate; overflow: hidden; }
+/* Globe behind the hero text, on the right; the grid sits above it */
 html body .hero::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url("/images/hero-globe.jpg");
+  background-repeat: no-repeat; background-position: 92% 45%; background-size: 60% auto;
+  opacity: 0.4;
+}
+html body .hero::after {
   content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
   background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
                     linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
