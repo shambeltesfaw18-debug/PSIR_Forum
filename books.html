@@ -173,7 +173,7 @@
           <h3>${esc(m.title)}</h3>
           <div class="muted">${esc(m.author || "")}</div>
           ${m.description ? "<p>" + esc(m.description) + "</p>" : ""}
-          <div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="psir-btn psir-navy" type="button" data-open="${esc(m.id)}">Get this material</button></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="psir-btn psir-navy" type="button" data-open="${esc(m.id)}">Get this material</button>${staff ? '<button class="psir-btn psir-outline-red" type="button" data-del="' + esc(m.id) + '" data-path="' + esc(m.file_path || "") + '">Delete</button>' : ""}</div>
         </article>`).join("") : '<p class="muted">No materials match your search yet.</p>';
     }
 
@@ -207,6 +207,18 @@
     }
 
     document.addEventListener("click", async e => {
+      const del = e.target.closest("[data-del]");
+      if (del) {
+        if (!staff) return;
+        if (!window.confirm("Delete this material? This cannot be undone.")) return;
+        const id = del.dataset.del, path = del.dataset.path || null;
+        const { data, error } = await db.from("materials").delete().eq("id", id).select("id");
+        if (error || !data || !data.length) { say("Could not delete: " + (error ? error.message : "permission denied"), true); return; }
+        if (path) await db.storage.from("materials").remove([path]);
+        say("Material deleted.");
+        load();
+        return;
+      }
       const o = e.target.closest("[data-open]");
       if (o) { openMaterial(o.dataset.open); return; }
       const a = e.target.closest("[data-act]");
