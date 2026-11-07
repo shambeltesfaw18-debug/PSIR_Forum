@@ -352,10 +352,10 @@ html:not([data-theme="dark"]) body {
 }
 
 /* Section headings and intro text sit on the blue, so they are white (cards keep dark text) */
-html:not([data-theme="dark"]) main > section > .container > h2,
-html:not([data-theme="dark"]) main > section > .container > p,
-html:not([data-theme="dark"]) main > section > .container > .section-heading h2,
-html:not([data-theme="dark"]) main > section > .container > .section-heading p {
+html:not([data-theme="dark"]) body:has(#explore) main > section > .container > h2,
+html:not([data-theme="dark"]) body:has(#explore) main > section > .container > p,
+html:not([data-theme="dark"]) body:has(#explore) main > section > .container > .section-heading h2,
+html:not([data-theme="dark"]) body:has(#explore) main > section > .container > .section-heading p {
   color: #FFFFFF !important;
 }
 
@@ -412,4 +412,15 @@ html:not([data-theme="dark"]) body footer {
 html:not([data-theme="dark"]) body main > section > .container > .eyebrow,
 html:not([data-theme="dark"]) body #about .about-copy .eyebrow {
   color: #E6B75A !important;
+}
+
+/* Inner pages: light, clean background that matches the white cards and posts */
+html:not([data-theme="dark"]) body:not(:has(#explore)) {
+  background-color: #F3F7FC !important;
+  background-image:
+    radial-gradient(circle at 94% 6%, rgba(230, 183, 90, 0.14) 0%, rgba(230, 183, 90, 0) 34%),
+    linear-gradient(rgba(22, 55, 102, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(22, 55, 102, 0.035) 1px, transparent 1px),
+    linear-gradient(180deg, #FFFFFF 0%, #E9F1FB 100%) !important;
+  background-size: auto, 48px 48px, 48px 48px, auto !important;
 }
