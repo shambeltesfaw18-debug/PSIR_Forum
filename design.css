@@ -329,7 +329,11 @@ html[data-theme="dark"] body {
 /* Blue gradient background for every page. This rule comes last and is at least as specific as the older
    white rule, so it takes priority. */
 html:not([data-theme="dark"]) body {
-  background: linear-gradient(180deg, #B4D2F0 0%, #8BB4E4 50%, #6896D2 100%) !important;
+  background: radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 38%),
+    radial-gradient(circle at 92% 12%, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 30%),
+    radial-gradient(circle at 88% 84%, rgba(230, 183, 90, 0.30) 0%, rgba(230, 183, 90, 0) 42%),
+    radial-gradient(circle at 8% 92%, rgba(230, 183, 90, 0.16) 0%, rgba(230, 183, 90, 0) 34%),
+    linear-gradient(180deg, #A9CBEF 0%, #7FA9DD 100%) !important;
 }
 html[data-theme="dark"] body {
   background: linear-gradient(180deg, #0B1624 0%, #102B46 60%, #16375C 100%) !important;
