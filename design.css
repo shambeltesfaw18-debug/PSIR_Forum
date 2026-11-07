@@ -323,25 +323,11 @@ html body .hero > * { position: relative; z-index: 1; }
   html body .hero * { animation: none !important; transition: none !important; }
 }
 
-/* Home: globe background from Explore PSIR Forum down to the footer */
-.globe-zone, footer.globe-footer { position: relative; isolation: isolate; }
-.globe-zone {
-  background-color: #F4F8FD;
-  background-image: linear-gradient(rgba(244, 248, 253, 0.82), rgba(244, 248, 253, 0.82)), url("/images/hero-globe.jpg");
-  background-repeat: no-repeat, no-repeat;
-  background-position: center, center 18%;
-  background-size: cover, 100% auto;
+/* Blue gradient background for every page */
+html body {
+  background: linear-gradient(180deg, #EEF5FD 0%, #DCEAF9 45%, #C5DCF3 100%) !important;
+  min-height: 100vh;
 }
-.globe-zone > section { background: transparent !important; }
-footer.globe-footer {
-  background-color: #1E3F82;
-  background-image: linear-gradient(rgba(16, 43, 70, 0.9), rgba(16, 43, 70, 0.9)), url("/images/hero-globe.jpg");
-  background-repeat: no-repeat, no-repeat;
-  background-position: center, center 30%;
-  background-size: cover, 100% auto;
+html[data-theme="dark"] body {
+  background: linear-gradient(180deg, #0B1624 0%, #102B46 60%, #16375C 100%) !important;
 }
-html[data-theme="dark"] .globe-zone {
-  background-color: #0B1624;
-  background-image: linear-gradient(rgba(11, 22, 36, 0.9), rgba(11, 22, 36, 0.9)), url("/images/hero-globe.jpg");
-}
-html[data-theme="dark"] .globe-zone > section { background: transparent !important; }
