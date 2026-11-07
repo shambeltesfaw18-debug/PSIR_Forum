@@ -367,3 +367,17 @@ html:not([data-theme="dark"]) #about .about-copy p {
 html:not([data-theme="dark"]) #about .about-copy .eyebrow {
   color: #E6B75A !important;
 }
+
+/* Harmonise the hero, cards and background (one blue palette) */
+html body .hero::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(40, 85, 166, 0.38) 0%, rgba(22, 55, 102, 0.62) 100%);
+}
+html:not([data-theme="dark"]) body .card,
+html:not([data-theme="dark"]) body .hcard {
+  border-color: #BCD3EE !important;
+  box-shadow: 0 10px 26px rgba(10, 30, 70, 0.24) !important;
+}
+html body .hcard img {
+  filter: saturate(0.85) brightness(0.96);
+}
