@@ -304,13 +304,7 @@ html[data-theme="dark"] .hcard-btn { color: #E6B75A; }
 
 /* Home hero: faint academic grid over the photo (static, no animation) */
 html body .hero { position: relative; isolation: isolate; overflow: hidden; }
-/* Globe behind the hero text, on the right; the grid sits above it */
-html body .hero::before {
-  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
-  background-image: url("/images/hero-globe.jpg");
-  background-repeat: no-repeat; background-position: 92% 45%; background-size: 60% auto;
-  opacity: 0.4;
-}
+/* Faint grid over the hero photo */
 html body .hero::after {
   content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
   background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
@@ -327,6 +321,15 @@ html body .hero > * { position: relative; z-index: 1; }
 html body {
   background: linear-gradient(180deg, #EEF5FD 0%, #DCEAF9 45%, #C5DCF3 100%) !important;
   min-height: 100vh;
+}
+html[data-theme="dark"] body {
+  background: linear-gradient(180deg, #0B1624 0%, #102B46 60%, #16375C 100%) !important;
+}
+
+/* Blue gradient background for every page. This rule comes last and is at least as specific as the older
+   white rule, so it takes priority. */
+html:not([data-theme="dark"]) body {
+  background: linear-gradient(180deg, #EEF5FD 0%, #DCEAF9 45%, #C5DCF3 100%) !important;
 }
 html[data-theme="dark"] body {
   background: linear-gradient(180deg, #0B1624 0%, #102B46 60%, #16375C 100%) !important;
