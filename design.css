@@ -381,3 +381,17 @@ html:not([data-theme="dark"]) body .hcard {
 html body .hcard img {
   filter: saturate(0.85) brightness(0.96);
 }
+
+/* Dark hero bands: white title and text, gold label */
+html:not([data-theme="dark"]) body section.lr-hero h1,
+html:not([data-theme="dark"]) body section.bk-hero h1 {
+  color: #FFFFFF !important;
+}
+html:not([data-theme="dark"]) body section.lr-hero p,
+html:not([data-theme="dark"]) body section.bk-hero p {
+  color: #E2E8F0 !important;
+}
+html:not([data-theme="dark"]) body section.lr-hero .lr-kicker,
+html:not([data-theme="dark"]) body section.bk-hero p:first-child {
+  color: #E6B75A !important;
+}
