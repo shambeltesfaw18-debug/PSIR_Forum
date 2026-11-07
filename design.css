@@ -254,7 +254,7 @@ html:not([data-theme="dark"]) body {
   background: linear-gradient(170deg, #FFFFFF 0%, #EEF5FF 38%, #E3EEFD 70%, #FFF8E8 100%) fixed !important;
   min-height: 100vh;
 }
-html:not([data-theme="dark"]) body section:not(.hero):not(footer),
+html:not([data-theme="dark"]) body section:not(.hero):not(footer):not(.lr-box):not(.lr-hero):not(.bk-hero):not(.career-hero),
 html:not([data-theme="dark"]) body main,
 html:not([data-theme="dark"]) body .section,
 html:not([data-theme="dark"]) body .section-white,
