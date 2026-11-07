@@ -329,7 +329,7 @@ html[data-theme="dark"] body {
 /* Blue gradient background for every page. This rule comes last and is at least as specific as the older
    white rule, so it takes priority. */
 html:not([data-theme="dark"]) body {
-  background: linear-gradient(180deg, #EEF5FD 0%, #DCEAF9 45%, #C5DCF3 100%) !important;
+  background: linear-gradient(180deg, #B4D2F0 0%, #8BB4E4 50%, #6896D2 100%) !important;
 }
 html[data-theme="dark"] body {
   background: linear-gradient(180deg, #0B1624 0%, #102B46 60%, #16375C 100%) !important;
