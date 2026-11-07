@@ -338,3 +338,23 @@ html:not([data-theme="dark"]) body {
 html[data-theme="dark"] body {
   background: linear-gradient(180deg, #0B1624 0%, #102B46 60%, #16375C 100%) !important;
 }
+
+/* Deep royal blue page, gold glows and a fine square grid */
+html:not([data-theme="dark"]) body {
+  background-color: #163766 !important;
+  background-image:
+    radial-gradient(circle at 88% 86%, rgba(230, 183, 90, 0.30) 0%, rgba(230, 183, 90, 0) 40%),
+    radial-gradient(circle at 6% 10%, rgba(230, 183, 90, 0.18) 0%, rgba(230, 183, 90, 0) 34%),
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(180deg, #2855A6 0%, #163766 100%) !important;
+  background-size: auto, auto, 48px 48px, 48px 48px, auto !important;
+}
+
+/* Section headings and intro text sit on the blue, so they are white (cards keep dark text) */
+html:not([data-theme="dark"]) main > section > .container > h2,
+html:not([data-theme="dark"]) main > section > .container > p,
+html:not([data-theme="dark"]) main > section > .container > .section-heading h2,
+html:not([data-theme="dark"]) main > section > .container > .section-heading p {
+  color: #FFFFFF !important;
+}
