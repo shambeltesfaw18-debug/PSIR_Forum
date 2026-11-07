@@ -72,13 +72,14 @@
     <details class="box"><summary>Share a material</summary>
       <p class="muted" style="margin:8px 0;">Share a link to a legal, free source, or upload a PDF that you own or that is free to share. Every submission is checked by a moderator before it appears. Admin submissions appear straight away.</p>
       <form id="bk-form" class="form">
+        <input id="bk-thumb" type="hidden">
         <label>Title<input id="bk-title" required minlength="5" maxlength="200"></label>
         <label>Author (optional)<input id="bk-author" maxlength="150"></label>
         <label>Type<select id="bk-ntype" required><option>Book</option><option>Lecture notes</option><option>Reading list</option><option>Article</option><option>Course material</option><option>Other</option></select></label>
         <label>Topic<input id="bk-ntopic" required minlength="2" maxlength="80" placeholder="For example Diplomacy or Research methods"></label>
         <label>Short description (optional)<textarea id="bk-desc" maxlength="1500" rows="3"></textarea></label>
         <label>Link to the free source (must start with https://)<input id="bk-link" type="url" placeholder="https://..."></label>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;"><button type="button" class="btn" data-lf="fill" data-lf-url="bk-link" data-lf-title="bk-title" data-lf-desc="bk-desc">Fill in from this link</button></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;"><button type="button" class="btn" data-lf="fill" data-lf-url="bk-link" data-lf-title="bk-title" data-lf-desc="bk-desc" data-lf-image="bk-thumb">Fill in from this link</button></div>
         <label>or upload a PDF (up to 10 MB)<input id="bk-file" type="file" accept="application/pdf"></label>
         <div style="display:flex;gap:8px;flex-wrap:wrap;"><button type="button" class="btn" data-lf="pdf" data-lf-url="bk-link" data-lf-file="bk-file">Import the PDF from the link above</button></div>
         <label style="grid-template-columns:auto 1fr;align-items:center;"><input id="bk-rights" type="checkbox" required> I confirm that I own this material, or that it is free to share (public domain, open access, or licensed for sharing).</label>
@@ -152,7 +153,7 @@
 
     async function load() {
       const { data, error } = await db.from("materials")
-        .select("id, title, author, material_type, topic, description, source_url, file_path, created_at")
+        .select("id, title, author, material_type, topic, description, source_url, file_path, created_at, thumbnail_url")
         .eq("status", "approved").order("created_at", { ascending: false }).limit(300);
       all = error ? [] : (data || []);
       render();
@@ -167,6 +168,7 @@
         (!q || [m.title, m.author, m.description, m.topic].join(" ").toLowerCase().indexOf(q) !== -1));
       $("bk-list").innerHTML = rows.length ? rows.map(m => `
         <article class="card">
+          ${m.thumbnail_url ? '<img src="' + esc(m.thumbnail_url) + '" alt="" loading="lazy" referrerpolicy="no-referrer" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:6px;">' : ""}
           <span class="pill">${esc(m.material_type)} · ${esc(m.topic)}</span>
           <h3>${esc(m.title)}</h3>
           <div class="muted">${esc(m.author || "")}</div>
@@ -185,11 +187,12 @@
     }
 
     async function loadReview() {
-      const { data } = await db.from("materials").select("id, title, author, material_type, topic, description, source_url, file_path")
+      const { data } = await db.from("materials").select("id, title, author, material_type, topic, description, source_url, file_path, thumbnail_url")
         .eq("status", "pending").order("created_at");
       const rows = data || [];
       $("bk-review").innerHTML = rows.length ? rows.map(m => `
         <article class="card" data-id="${esc(m.id)}">
+          ${m.thumbnail_url ? '<img src="' + esc(m.thumbnail_url) + '" alt="" loading="lazy" referrerpolicy="no-referrer" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:6px;">' : ""}
           <span class="pill">${esc(m.material_type)} · ${esc(m.topic)}</span>
           <h3>${esc(m.title)}</h3>
           <div class="muted">${esc(m.author || "")}</div>
@@ -243,7 +246,7 @@
         const { error } = await db.from("materials").insert({
           title: $("bk-title").value.trim(), author: $("bk-author").value.trim() || null,
           material_type: $("bk-ntype").value, topic: $("bk-ntopic").value.trim(),
-          description: $("bk-desc").value.trim() || null, source_url: link || null, file_path: path,
+          description: $("bk-desc").value.trim() || null, source_url: link || null, file_path: path, thumbnail_url: $("bk-thumb").value || null,
           rights: RIGHTS, status: staff ? "approved" : "pending", submitted_by: me.id
         });
         if (error) { if (path) await db.storage.from("materials").remove([path]); throw error; }

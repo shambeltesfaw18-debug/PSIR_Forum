@@ -16,7 +16,7 @@
     });
     const d = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(d.error || "Could not read this link. Please enter the details yourself.");
-    return { title: d.title || "", description: d.description || "" };
+    return { title: d.title || "", description: d.description || "", image: d.image_url || "" };
   }
   async function pdfFile(url) {
     const r = await fetch("/api/document-fetch", {
@@ -73,6 +73,7 @@
         const d = await details(url);
         fillIfEmpty(document.getElementById(btn.dataset.lfTitle), d.title);
         fillDescription(btn.dataset.lfDesc, d.description);
+        if (btn.dataset.lfImage && d.image) { const img = document.getElementById(btn.dataset.lfImage); if (img) img.value = d.image; }
         note(btn, d.description ? "Details filled in. Please check them before sending." : "The title was filled in. This page did not give a description, so please write one.");
       } else if (btn.dataset.lf === "pdf") {
         const file = await pdfFile(url);
