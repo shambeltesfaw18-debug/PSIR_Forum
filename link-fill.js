@@ -73,7 +73,7 @@
         const d = await details(url);
         fillIfEmpty(document.getElementById(btn.dataset.lfTitle), d.title);
         fillDescription(btn.dataset.lfDesc, d.description);
-        if (btn.dataset.lfImage && d.image) { const img = document.getElementById(btn.dataset.lfImage); if (img) img.value = d.image; }
+        if (btn.dataset.lfImage && d.image) { const img = document.getElementById(btn.dataset.lfImage); if (img && !img.value) img.value = d.image; }
         note(btn, d.description ? "Details filled in. Please check them before sending." : "The title was filled in. This page did not give a description, so please write one.");
       } else if (btn.dataset.lf === "pdf") {
         const file = await pdfFile(url);

@@ -73,6 +73,7 @@
       <p class="muted" style="margin:8px 0;">Share a link to a legal, free source, or upload a PDF that you own or that is free to share. Every submission is checked by a moderator before it appears. Admin submissions appear straight away.</p>
       <form id="bk-form" class="form">
         <input id="bk-thumb" type="hidden">
+        <label>Thumbnail image (optional, JPG, PNG or WebP, up to 5 MB)<input id="bk-thumb-file" type="file" accept="image/jpeg,image/png,image/webp"></label>
         <label>Title<input id="bk-title" required minlength="5" maxlength="200"></label>
         <label>Author (optional)<input id="bk-author" maxlength="150"></label>
         <label>Type<select id="bk-ntype" required><option>Book</option><option>Lecture notes</option><option>Reading list</option><option>Article</option><option>Course material</option><option>Other</option></select></label>
@@ -272,6 +273,26 @@
       }
     });
 
+    document.addEventListener("change", async e => {
+      if (!e.target || e.target.id !== "bk-thumb-file") return;
+      const f = e.target.files[0];
+      if (!f) return;
+      if (!me) { say("Please log in first.", true); e.target.value = ""; return; }
+      if (!/^image\/(jpeg|png|webp)$/.test(f.type) || f.size > 5 * 1024 * 1024) {
+        say("The thumbnail must be a JPG, PNG or WebP image up to 5 MB.", true);
+        e.target.value = ""; return;
+      }
+      say("Uploading the thumbnail…");
+      try {
+        const token = (await db.auth.getSession()).data.session.access_token;
+        const up = await window.PSIRImageKit.upload(f, { purpose: "material-thumb", token: token });
+        $("bk-thumb").value = up.url;
+        say("Thumbnail uploaded. It will show on the card.");
+      } catch (err) {
+        $("bk-thumb").value = "";
+        say("Could not upload the thumbnail: " + (err.message || err), true);
+      }
+    });
     ["bk-q", "bk-type", "bk-topic"].forEach(id => $(id).addEventListener("input", render));
 
     db.auth.onAuthStateChange(() => setTimeout(async () => { await session(); load(); }, 0));
@@ -287,5 +308,6 @@
 <script src="notifications.js"></script>
 <script src="profile-link.js"></script>
 <script src="badges.js"></script>
+<script src="imagekit.js"></script>
 </body>
 </html>
