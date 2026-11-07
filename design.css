@@ -459,3 +459,27 @@ footer.site-footer .sf-bottom { padding-left: 18px; padding-right: 18px; }
   footer.site-footer .sf-brand { grid-column: 1 / -1; }
   footer.site-footer a { font-size: .9rem; word-break: break-word; }
 }
+
+/* Home page: bright white and gold, navy headings */
+html:not([data-theme="dark"]) body:has(#explore) {
+  background-color: #FFFDF7 !important;
+  background-image:
+    radial-gradient(circle at 92% 90%, rgba(230, 183, 90, 0.30) 0%, rgba(230, 183, 90, 0) 40%),
+    radial-gradient(circle at 6% 12%, rgba(230, 183, 90, 0.16) 0%, rgba(230, 183, 90, 0) 34%),
+    linear-gradient(rgba(22, 55, 102, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(22, 55, 102, 0.035) 1px, transparent 1px),
+    linear-gradient(180deg, #FFFFFF 0%, #FFF8E8 100%) !important;
+  background-size: auto, auto, 48px 48px, 48px 48px, auto !important;
+}
+html:not([data-theme="dark"]) body:has(#explore) main > section > .container > h2,
+html:not([data-theme="dark"]) body:has(#explore) main > section > .container > p,
+html:not([data-theme="dark"]) body:has(#explore) main > section > .container > .section-heading h2,
+html:not([data-theme="dark"]) body:has(#explore) main > section > .container > .section-heading p,
+html:not([data-theme="dark"]) body:has(#explore) #about .about-copy h2,
+html:not([data-theme="dark"]) body:has(#explore) #about .about-copy p {
+  color: #1E3F82 !important;
+}
+html:not([data-theme="dark"]) body:has(#explore) #about .about-copy .eyebrow,
+html:not([data-theme="dark"]) body:has(#explore) main > section > .container > .eyebrow {
+  color: #B07D1A !important;
+}
