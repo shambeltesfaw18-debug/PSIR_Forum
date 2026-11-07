@@ -327,18 +327,18 @@ html body .hero > * { position: relative; z-index: 1; }
 .globe-zone, footer.globe-footer { position: relative; isolation: isolate; }
 .globe-zone {
   background-color: #F4F8FD;
-  background-image: linear-gradient(rgba(244, 248, 253, 0.86), rgba(244, 248, 253, 0.86)), url("/images/hero-globe.jpg");
+  background-image: linear-gradient(rgba(244, 248, 253, 0.82), rgba(244, 248, 253, 0.82)), url("/images/hero-globe.jpg");
   background-repeat: no-repeat, no-repeat;
-  background-position: center, 88% 35%;
-  background-size: cover, 72% auto;
+  background-position: center, center 18%;
+  background-size: cover, 100% auto;
 }
 .globe-zone > section { background: transparent !important; }
 footer.globe-footer {
   background-color: #1E3F82;
   background-image: linear-gradient(rgba(16, 43, 70, 0.9), rgba(16, 43, 70, 0.9)), url("/images/hero-globe.jpg");
   background-repeat: no-repeat, no-repeat;
-  background-position: center, 88% 40%;
-  background-size: cover, 60% auto;
+  background-position: center, center 30%;
+  background-size: cover, 100% auto;
 }
 html[data-theme="dark"] .globe-zone {
   background-color: #0B1624;
