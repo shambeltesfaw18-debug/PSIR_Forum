@@ -341,13 +341,13 @@ html[data-theme="dark"] body {
 
 /* Deep royal blue page, gold glows and a fine square grid */
 html:not([data-theme="dark"]) body {
-  background-color: #163766 !important;
+  background-color: #2F62B8 !important;
   background-image:
-    radial-gradient(circle at 88% 86%, rgba(230, 183, 90, 0.30) 0%, rgba(230, 183, 90, 0) 40%),
+    radial-gradient(circle at 88% 86%, rgba(230, 183, 90, 0.42) 0%, rgba(230, 183, 90, 0) 42%),
     radial-gradient(circle at 6% 10%, rgba(230, 183, 90, 0.18) 0%, rgba(230, 183, 90, 0) 34%),
     linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(180deg, #2855A6 0%, #163766 100%) !important;
+    linear-gradient(180deg, #6A9EE0 0%, #2F62B8 100%) !important;
   background-size: auto, auto, 48px 48px, 48px 48px, auto !important;
 }
 
