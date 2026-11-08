@@ -508,3 +508,24 @@ html:not([data-theme="dark"]) body #discussions .section-heading h2 {
 html:not([data-theme="dark"]) body #discussions .section-heading p {
   color: #E2E8F0 !important;
 }
+
+/* Discussions list and messages: always visible on light pages */
+html:not([data-theme="dark"]) body #discussionList,
+html:not([data-theme="dark"]) body #discussionList * {
+  color: #263238;
+}
+html:not([data-theme="dark"]) body #discussionList .side-card,
+html:not([data-theme="dark"]) body .side-card,
+html:not([data-theme="dark"]) body #emptyState {
+  background: #FFFFFF !important;
+  color: #263238 !important;
+  border: 1px solid #DCE3EE !important;
+  border-radius: 12px !important;
+  padding: 16px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+html:not([data-theme="dark"]) body #discussions .section-heading h2,
+html:not([data-theme="dark"]) body #discussionHeading {
+  color: #FFFFFF !important;
+}
