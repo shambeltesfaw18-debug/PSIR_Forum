@@ -19,11 +19,38 @@
     '<label>Link (optional, must start with https://)<input id="ad-link" type="url" placeholder="https://..."></label>' +
     '<label>Video file (MP4 or WebM, up to 10 MB, up to 15 seconds)<input id="ad-video" type="file" accept="video/mp4,video/webm" required></label>' +
     '<label style="display:flex;gap:8px;align-items:center;"><input id="ad-live" type="checkbox"> Show on the home page now (this replaces the current live ad)</label>' +
+    '<div id="ad-preview"></div>' +
     '<button type="submit" id="ad-send" class="btn">Upload</button>' +
     '</form>' +
     '<p id="ads-msg" role="status"></p>' +
     '<h3>All ads</h3>' +
     '<div id="ads-list"></div>';
+
+  $("ad-video").addEventListener("change", function () {
+    var f = this.files[0];
+    var box = $("ad-preview");
+    box.innerHTML = "";
+    if (!f) return;
+    var url = URL.createObjectURL(f);
+    var v = document.createElement("video");
+    v.controls = true;
+    v.preload = "metadata";
+    v.style.cssText = "width:100%;max-width:360px;border-radius:8px;background:#000;margin:6px 0;display:block;";
+    var note = document.createElement("p");
+    note.className = "muted";
+    note.style.margin = "4px 0";
+    v.onloadedmetadata = function () {
+      note.textContent = "Length: " + Math.round(v.duration) + " seconds. Check that the preview plays before you upload.";
+      note.style.color = "";
+    };
+    v.onerror = function () {
+      note.textContent = "This browser cannot play this video. Export it again as MP4 (H.264 video, AAC audio), then choose it again.";
+      note.style.color = "#B42318";
+    };
+    box.appendChild(v);
+    box.appendChild(note);
+    v.src = url;
+  });
 
   function videoSeconds(file) {
     return new Promise(function (resolve, reject) {
@@ -31,7 +58,7 @@
       var v = document.createElement("video");
       v.preload = "metadata";
       v.onloadedmetadata = function () { var d = v.duration; URL.revokeObjectURL(url); resolve(d); };
-      v.onerror = function () { URL.revokeObjectURL(url); reject(new Error("This video could not be read.")); };
+      v.onerror = function () { URL.revokeObjectURL(url); reject(new Error("This browser cannot read this video. Export it again as MP4 (H.264 video, AAC audio), then choose it again.")); };
       v.src = url;
     });
   }
