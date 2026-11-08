@@ -483,3 +483,28 @@ html:not([data-theme="dark"]) body:has(#explore) #about .about-copy .eyebrow,
 html:not([data-theme="dark"]) body:has(#explore) main > section > .container > .eyebrow {
   color: #B07D1A !important;
 }
+
+/* Discussions: readable cards (white, dark text) and a white heading on the dark band */
+html:not([data-theme="dark"]) body .discussion-card {
+  background: #FFFFFF !important;
+  color: #263238 !important;
+  border: 1px solid #DCE3EE !important;
+  border-radius: 12px !important;
+  opacity: 1 !important;
+}
+html:not([data-theme="dark"]) body .discussion-card .post-title {
+  color: #1E3F82 !important;
+}
+html:not([data-theme="dark"]) body .discussion-card .post-body,
+html:not([data-theme="dark"]) body .discussion-card .post-date,
+html:not([data-theme="dark"]) body .discussion-card .author-name,
+html:not([data-theme="dark"]) body .discussion-card .author-role,
+html:not([data-theme="dark"]) body .discussion-card .text-action {
+  color: #3F4F5F !important;
+}
+html:not([data-theme="dark"]) body #discussions .section-heading h2 {
+  color: #FFFFFF !important;
+}
+html:not([data-theme="dark"]) body #discussions .section-heading p {
+  color: #E2E8F0 !important;
+}
