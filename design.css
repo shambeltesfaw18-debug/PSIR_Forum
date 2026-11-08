@@ -542,3 +542,18 @@ html:not([data-theme="dark"]) body #discussions .section-heading p {
   color: #E2E8F0 !important;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
 }
+
+/* Category photo bands: all text inside white, whatever the band */
+html:not([data-theme="dark"]) body .section-heading[style*="background-image"] h1,
+html:not([data-theme="dark"]) body .section-heading[style*="background-image"] h2,
+html:not([data-theme="dark"]) body .section-heading[style*="background-image"] h3,
+html:not([data-theme="dark"]) body .section-heading[style*="background-image"] p,
+html:not([data-theme="dark"]) body .section-heading[style*="background-image"] span,
+html:not([data-theme="dark"]) body .section-heading:has(#discussionHeading) h2,
+html:not([data-theme="dark"]) body .section-heading:has(#discussionHeading) p {
+  color: #FFFFFF !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6) !important;
+}
+html:not([data-theme="dark"]) body .section-heading[style*="background-image"] {
+  background-color: rgba(16, 43, 70, 0.55) !important;
+}
