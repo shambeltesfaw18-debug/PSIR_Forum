@@ -529,3 +529,16 @@ html:not([data-theme="dark"]) body #discussions .section-heading h2,
 html:not([data-theme="dark"]) body #discussionHeading {
   color: #FFFFFF !important;
 }
+
+/* Discussion category bands: all heading text white over the photo */
+html:not([data-theme="dark"]) body #discussions .section-heading,
+html:not([data-theme="dark"]) body #discussions .section-heading h1,
+html:not([data-theme="dark"]) body #discussions .section-heading h2,
+html:not([data-theme="dark"]) body #discussionHeading {
+  color: #FFFFFF !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+html:not([data-theme="dark"]) body #discussions .section-heading p {
+  color: #E2E8F0 !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
