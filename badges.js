@@ -34,6 +34,9 @@
         a.insertBefore(img, a.firstChild);
       }
       const tag = tagFor(p.role);
+      // Only one badge per author: skip photo-only links and any author that already has a badge next to it.
+      if (!a.textContent.trim()) return;
+      if (a.parentElement && a.parentElement.querySelector(".psir-badge")) return;
       if (tag) a.insertAdjacentHTML("afterend", tag);
     });
   }
