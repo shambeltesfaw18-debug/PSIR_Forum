@@ -167,7 +167,11 @@
     });
     $("mbSearch").addEventListener("input", render);
     $("mbType").addEventListener("change", render);
-    $("mbExport").addEventListener("click", csv);
+    $("mbExport").addEventListener("click", async function () {
+      var s = await db.auth.getSession();
+      if (s.data.session) await db.from("access_log").insert({ actor_id: s.data.session.user.id, action: "member_csv_exported" });
+      csv();
+    });
 
     (async () => {
       const { data: sess } = await db.auth.getSession();
