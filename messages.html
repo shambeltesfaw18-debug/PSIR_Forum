@@ -100,8 +100,9 @@
         return;
       }
       me = s.data.session.user;
-      const p = await db.from("profiles").select("full_name, university, accepts_messages").eq("id", me.id).maybeSingle();
-      const complete = !!(p.data && (p.data.full_name || "").trim() && (p.data.university || "").trim());
+      const p = await db.from("profiles").select("accepts_messages").eq("id", me.id).maybeSingle();
+      const cr = await db.rpc("is_profile_complete", { p_id: me.id });
+      const complete = cr.data === true;
       $("ms-gate").hidden = complete;
       $("ms-accept").checked = !!(p.data && p.data.accepts_messages);
       await loadList();
