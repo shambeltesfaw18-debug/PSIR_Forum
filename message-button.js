@@ -8,10 +8,11 @@
   db.auth.getSession().then(function (s) {
     var me = s.data.session ? s.data.session.user.id : null;
     if (!me || me === id) return;
-    var host = document.querySelector("main") || document.body;
     var box = document.createElement("div");
     box.style.cssText = "max-width:900px;margin:12px auto;padding:0 12px;box-sizing:border-box;";
     box.innerHTML = '<a href="/messages.html?to=' + encodeURIComponent(id) + '" style="display:inline-block;background:#2855A6;color:#fff;border-radius:8px;padding:12px 18px;font-weight:700;text-decoration:none;">Send message</a>';
-    host.insertBefore(box, host.firstChild);
+    var anchor = document.querySelector("main h1, h1");
+    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(box, anchor.nextSibling);
+    else (document.querySelector("main") || document.body).appendChild(box);
   });
 })();
