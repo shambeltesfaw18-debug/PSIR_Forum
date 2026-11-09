@@ -6,7 +6,9 @@
   function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function say(t, bad) { var m = document.getElementById("pc-msg"); if (m) { m.textContent = t || ""; m.style.color = bad ? "#B42318" : "#237A57"; } }
 
+  var runId = 0;
   async function render() {
+    var run = ++runId;
     var s = await db.auth.getSession();
     var user = s.data.session ? s.data.session.user : null;
     var host = document.querySelector("main") || document.body;
@@ -34,6 +36,9 @@
         '<button type="button" id="pc-delete" class="psir-btn psir-outline-red" style="margin-top:8px;">Request account deletion</button>') +
       '<p id="pc-msg" role="status" style="font-weight:600;margin:10px 0 0;"></p>' +
       '<p style="margin:10px 0 0;font-size:.88rem;color:#475569;">Deleting an account removes it from the live site. Copies in encrypted backups are removed as the backups rotate. Other requests: psirforum@gmail.com.</p>';
+    if (run !== runId) return;
+    var stale = document.getElementById("privacy-controls");
+    if (stale) stale.remove();
     host.appendChild(box);
 
     document.getElementById("pc-photo").addEventListener("click", async function () {

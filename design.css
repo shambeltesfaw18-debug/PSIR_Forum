@@ -557,3 +557,11 @@ html:not([data-theme="dark"]) body .section-heading:has(#discussionHeading) p {
 html:not([data-theme="dark"]) body .section-heading[style*="background-image"] {
   background-color: rgba(16, 43, 70, 0.55) !important;
 }
+
+/* Footer: full width without offsets (fixes cut-off text on some pages) */
+footer.site-footer {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
