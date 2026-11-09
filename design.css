@@ -565,3 +565,20 @@ footer.site-footer {
   width: 100% !important;
   max-width: 100% !important;
 }
+
+/* Footer: content uses the full page width (no centred column) */
+footer.site-footer .site-footer-inner {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding-left: 5vw !important;
+  padding-right: 5vw !important;
+  box-sizing: border-box;
+}
+footer.site-footer .sf-bottom .container {
+  max-width: none !important;
+  width: 100% !important;
+  padding-left: 5vw !important;
+  padding-right: 5vw !important;
+  box-sizing: border-box;
+}
