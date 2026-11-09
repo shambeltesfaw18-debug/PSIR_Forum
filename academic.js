@@ -112,13 +112,16 @@
     return p;
   }
 
+  let editorRun = 0;
   async function renderEditor() {
+    const run = ++editorRun;
     const { data } = await db.auth.getSession();
     const user = data.session ? data.session.user : null;
     box.innerHTML = "";
     if (!user) return;
 
     const { data: row, error } = await db.from("academic_profiles").select("*").eq("user_id", user.id).maybeSingle();
+    if (run !== editorRun) return;
     if (error) { box.appendChild(note("Could not load your academic profile: " + error.message, true)); return; }
 
     const card = document.createElement("div");
