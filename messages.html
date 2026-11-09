@@ -11,21 +11,32 @@
   <style>
     body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
     [hidden] { display: none !important; }
-    .ms-wrap { width: min(1100px, calc(100% - 24px)); margin: 0 auto; padding: 18px 0 30px; display: grid; grid-template-columns: 300px 1fr; gap: 14px; }
-    .ms-box { background: #FFFFFF; border: 1px solid #DCE3EE; border-radius: 12px; padding: 14px; }
-    .ms-list button { display: block; width: 100%; text-align: left; background: #fff; border: 1px solid #DCE3EE; border-radius: 10px; padding: 10px; margin-bottom: 8px; cursor: pointer; font: inherit; }
+    .ms-wrap { width: min(1100px, calc(100% - 24px)); margin: 0 auto; padding: 16px 0 30px; }
+    .ms-settings { background: #FFFFFF; border: 1px solid #DCE3EE; border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .ms-grid { display: grid; grid-template-columns: 300px 1fr; gap: 14px; }
+    .ms-box { background: #FFFFFF; border: 1px solid #DCE3EE; border-radius: 12px; padding: 14px; min-width: 0; }
+    .ms-list button.conv { display: block; width: 100%; text-align: left; background: #fff; border: 1px solid #DCE3EE; border-radius: 10px; padding: 10px; margin-bottom: 8px; cursor: pointer; font: inherit; }
     .ms-list button.on { border-color: #2855A6; background: #EEF4FD; }
     .ms-badge { background: #B42318; color: #fff; border-radius: 999px; padding: 1px 8px; font-size: .75rem; font-weight: 700; margin-left: 6px; }
-    .ms-thread { display: flex; flex-direction: column; gap: 8px; max-height: 52vh; overflow-y: auto; padding: 6px; background: #F8FAFD; border-radius: 10px; }
-    .ms-msg { max-width: 78%; padding: 8px 10px; border-radius: 10px; font-size: .95rem; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .ms-thread { display: flex; flex-direction: column; gap: 8px; max-height: 52vh; overflow-y: auto; padding: 8px; background: #F8FAFD; border-radius: 10px; }
+    .ms-msg { max-width: 80%; padding: 8px 10px; border-radius: 10px; font-size: .95rem; line-height: 1.45; overflow-wrap: anywhere; }
     .ms-msg.mine { align-self: flex-end; background: #2855A6; color: #fff; }
     .ms-msg.theirs { align-self: flex-start; background: #FFFFFF; border: 1px solid #DCE3EE; color: #263238; }
-    .ms-meta { font-size: .75rem; color: #64748B; margin-top: 2px; }
-    .ms-small { font-size: .82rem; background: none; border: none; color: #2855A6; font-weight: 700; cursor: pointer; padding: 4px 0; }
-    .ms-form { display: grid; gap: 8px; margin-top: 10px; }
-    .ms-form textarea { border: 1px solid #CBD5E1; border-radius: 8px; padding: 10px; font: inherit; min-height: 70px; }
+    .ms-msg .txt { white-space: pre-wrap; }
+    .ms-msg img, .ms-msg video { display: block; max-width: 100%; border-radius: 8px; margin-top: 6px; background: #000; }
+    .ms-msg a.file { display: inline-block; margin-top: 6px; color: inherit; font-weight: 700; text-decoration: underline; }
+    .ms-meta { font-size: .75rem; opacity: .8; margin-top: 4px; }
+    .ms-link { background: none; border: none; color: inherit; font-weight: 700; cursor: pointer; padding: 0 0 0 8px; font-size: .75rem; text-decoration: underline; }
+    .ms-theirs .ms-link { color: #2855A6; }
+    .ms-composer { display: flex; gap: 8px; align-items: flex-end; margin-top: 10px; }
+    .ms-composer textarea { flex: 1; border: 1px solid #CBD5E1; border-radius: 10px; padding: 10px; font: inherit; min-height: 48px; max-height: 140px; resize: vertical; }
+    .ms-icon { width: 44px; height: 44px; border-radius: 50%; border: 1px solid #2855A6; background: #FFFFFF; color: #2855A6; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex: 0 0 auto; }
+    .ms-icon.send { background: #2855A6; color: #FFFFFF; }
+    .ms-icon:disabled { opacity: .5; cursor: default; }
+    .ms-pending { margin-top: 8px; font-size: .9rem; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .ms-msgline { font-weight: 600; min-height: 20px; margin: 8px 0 0; }
-    @media (max-width: 760px) { .ms-wrap { grid-template-columns: 1fr; } }
+    .ms-small { background: none; border: none; color: #2855A6; font-weight: 700; cursor: pointer; padding: 4px 0; }
+    @media (max-width: 760px) { .ms-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -45,30 +56,41 @@
   </header>
 
   <main class="ms-wrap">
-    <section class="ms-box" aria-labelledby="ms-list-title">
-      <h2 id="ms-list-title" style="margin:0 0 8px;color:#1E3F82;font-size:1.1rem;">Messages</h2>
-      <p id="ms-gate" class="ms-msgline" style="color:#B42318;" hidden>Complete your profile (name and university) to send and receive messages. <a href="/profile.html" style="color:#2855A6;font-weight:700;">Complete my profile</a></p>
-      <div id="ms-list" class="ms-list"><p style="color:#64748B;">Loading…</p></div>
-      <details style="margin-top:12px;">
-        <summary style="cursor:pointer;color:#2855A6;font-weight:700;">Message settings</summary>
-        <label style="display:flex;gap:8px;align-items:flex-start;margin:10px 0;"><input id="ms-accept" type="checkbox"> <span>Allow other members to message me</span></label>
-        <p style="font-size:.88rem;color:#475569;margin:0;">You can block a member from inside a conversation. Messages are removed automatically after 12 months.</p>
-      </details>
+    <section class="ms-settings" aria-label="Message settings">
+      <label style="display:flex;gap:8px;align-items:center;font-weight:700;color:#1E3F82;">
+        <input id="ms-accept" type="checkbox"> Allow messages from other members
+      </label>
+      <span style="font-size:.88rem;color:#475569;">Messages are removed automatically after 12 months.</span>
     </section>
+    <p id="ms-gate" class="ms-msgline" style="color:#B42318;" hidden>Complete your profile (name and university) to send and receive messages. <a href="/profile.html" style="color:#2855A6;font-weight:700;">Complete my profile</a></p>
 
-    <section class="ms-box" aria-labelledby="ms-thread-title">
-      <h2 id="ms-thread-title" style="margin:0 0 4px;color:#1E3F82;font-size:1.1rem;">Choose a conversation</h2>
-      <p id="ms-who" style="margin:0 0 10px;color:#475569;font-size:.92rem;"></p>
-      <div id="ms-thread" class="ms-thread" hidden></div>
-      <form id="ms-form" class="ms-form" hidden>
-        <textarea id="ms-body" maxlength="1000" placeholder="Write your message (up to 1000 characters)" required></textarea>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <button type="submit" id="ms-send" class="psir-btn psir-navy">Send</button>
-          <button type="button" id="ms-block" class="ms-small">Block this member</button>
-        </div>
-      </form>
-      <p id="ms-msg" class="ms-msgline" role="status"></p>
-    </section>
+    <div class="ms-grid">
+      <section class="ms-box" aria-labelledby="ms-list-title">
+        <h2 id="ms-list-title" style="margin:0 0 8px;color:#1E3F82;font-size:1.1rem;">Messages</h2>
+        <div id="ms-list" class="ms-list"><p style="color:#64748B;">Loading…</p></div>
+      </section>
+
+      <section class="ms-box" aria-labelledby="ms-thread-title">
+        <h2 id="ms-thread-title" style="margin:0 0 4px;color:#1E3F82;font-size:1.1rem;">Choose a conversation</h2>
+        <p id="ms-who" style="margin:0 0 10px;color:#475569;font-size:.92rem;"></p>
+        <div id="ms-thread" class="ms-thread" hidden></div>
+        <form id="ms-form" hidden>
+          <div class="ms-composer">
+            <button type="button" id="ms-attach" class="ms-icon" aria-label="Attach a photo, video or PDF" title="Attach">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            </button>
+            <textarea id="ms-body" maxlength="1000" placeholder="Write a message"></textarea>
+            <button type="submit" id="ms-send" class="ms-icon send" aria-label="Send message" title="Send">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+            </button>
+          </div>
+          <input id="ms-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,application/pdf" hidden>
+          <div id="ms-pending" class="ms-pending" hidden></div>
+          <div style="margin-top:8px;"><button type="button" id="ms-block" class="ms-small">Block this member</button></div>
+        </form>
+        <p id="ms-msg" class="ms-msgline" role="status"></p>
+      </section>
+    </div>
   </main>
 
   <footer class="site-footer">
@@ -88,10 +110,17 @@
     const db = window.supabase.createClient("https://updxillknwufqekfzkur.supabase.co", "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5");
     const $ = id => document.getElementById(id);
     const qs = new URLSearchParams(location.search);
-    let me = null, convs = [], active = null, newTo = null;
+    const MAX_FILE = 10 * 1024 * 1024;
+    let me = null, convs = [], active = null, newTo = null, pendingFile = null;
 
     function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]); }
     function say(t, bad) { const m = $("ms-msg"); m.textContent = t || ""; m.style.color = bad ? "#B42318" : "#237A57"; }
+    function kindOf(file) {
+      if (/^image\/(jpeg|png|webp|gif)$/.test(file.type)) return "image";
+      if (/^video\/(mp4|webm)$/.test(file.type)) return "video";
+      if (file.type === "application/pdf") return "file";
+      return null;
+    }
 
     async function init() {
       const s = await db.auth.getSession();
@@ -101,10 +130,9 @@
       }
       me = s.data.session.user;
       const p = await db.from("profiles").select("accepts_messages").eq("id", me.id).maybeSingle();
-      const cr = await db.rpc("is_profile_complete", { p_id: me.id });
-      const complete = cr.data === true;
-      $("ms-gate").hidden = complete;
       $("ms-accept").checked = !!(p.data && p.data.accepts_messages);
+      const cr = await db.rpc("is_profile_complete", { p_id: me.id });
+      $("ms-gate").hidden = cr.data === true;
       await loadList();
       const to = qs.get("to"), c = qs.get("c");
       if (c) { const hit = convs.find(x => x.id === c); if (hit) openConv(hit); }
@@ -117,7 +145,7 @@
       convs = r.data || [];
       if (!convs.length) { $("ms-list").innerHTML = '<p style="color:#64748B;">No conversations yet. Message a member from their profile.</p>'; return; }
       $("ms-list").innerHTML = convs.map(c =>
-        '<button type="button" data-id="' + esc(c.id) + '" class="' + (active && active.id === c.id ? "on" : "") + '">' +
+        '<button type="button" class="conv' + (active && active.id === c.id ? ' on' : '') + '" data-id="' + esc(c.id) + '">' +
         '<strong>' + esc(c.other_name || "Member") + '</strong>' + (c.unread > 0 ? '<span class="ms-badge">' + c.unread + '</span>' : '') +
         '<div style="font-size:.82rem;color:#64748B;">' + esc(c.other_university || "") + '</div>' +
         '<div style="font-size:.88rem;color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(c.last_body || "") + '</div></button>').join("");
@@ -130,11 +158,16 @@
       if (c) openConv(c);
     });
 
+    function showThread(title, uni) {
+      $("ms-thread-title").textContent = title;
+      $("ms-who").textContent = uni || "";
+      $("ms-thread").hidden = false;
+      $("ms-form").hidden = false;
+    }
+
     async function openConv(c) {
       active = c; newTo = null;
-      $("ms-thread-title").textContent = c.other_name || "Member";
-      $("ms-who").textContent = c.other_university || "";
-      $("ms-thread").hidden = false; $("ms-form").hidden = false;
+      showThread(c.other_name || "Member", c.other_university);
       await loadThread();
       await loadList();
     }
@@ -143,54 +176,127 @@
       const p = await db.from("profiles").select("full_name, university").eq("id", toId).maybeSingle();
       if (!p.data) { say("This member was not found.", true); return; }
       active = null; newTo = toId;
-      $("ms-thread-title").textContent = p.data.full_name || "Member";
-      $("ms-who").textContent = p.data.university || "";
+      showThread(p.data.full_name || "Member", p.data.university);
       $("ms-thread").innerHTML = '<p style="color:#64748B;">Start the conversation below.</p>';
-      $("ms-thread").hidden = false; $("ms-form").hidden = false;
     }
 
     async function loadThread() {
       if (!active) return;
-      const r = await db.from("messages").select("id, sender_id, body, created_at").eq("conversation_id", active.id).order("created_at", { ascending: true }).limit(300);
+      const r = await db.from("messages").select("id, sender_id, body, created_at, media_path, media_type, media_name")
+        .eq("conversation_id", active.id).order("created_at", { ascending: true }).limit(300);
       const rows = r.data || [];
-      $("ms-thread").innerHTML = rows.length ? rows.map(m =>
-        '<div class="ms-msg ' + (m.sender_id === me.id ? "mine" : "theirs") + '">' + esc(m.body) +
-        '<div class="ms-meta">' + esc(String(m.created_at).slice(0, 16).replace("T", " ")) + (m.sender_id !== me.id ? ' · <button type="button" class="ms-small" data-report="' + esc(m.id) + '">Report</button>' : '') + '</div></div>').join("")
-        : '<p style="color:#64748B;">No messages yet.</p>';
+      $("ms-thread").innerHTML = rows.length ? rows.map(m => {
+        const mine = m.sender_id === me.id;
+        let media = "";
+        if (m.media_path) {
+          if (m.media_type === "image") media = '<img data-path="' + esc(m.media_path) + '" alt="Shared image">';
+          else if (m.media_type === "video") media = '<video data-path="' + esc(m.media_path) + '" controls playsinline preload="metadata"></video>';
+          else media = '<a class="file" data-path="' + esc(m.media_path) + '" target="_blank" rel="noopener noreferrer">📄 ' + esc(m.media_name || "Open file") + '</a>';
+        }
+        return '<div class="ms-msg ' + (mine ? "mine" : "theirs") + '">' +
+          (m.body ? '<div class="txt">' + esc(m.body) + '</div>' : '') + media +
+          '<div class="ms-meta">' + esc(String(m.created_at).slice(0, 16).replace("T", " ")) +
+          (mine
+            ? ' · <button type="button" class="ms-link" data-delete="' + esc(m.id) + '" data-path="' + esc(m.media_path || "") + '">Delete</button>'
+            : ' · <button type="button" class="ms-link" data-report="' + esc(m.id) + '">Report</button>') +
+          '</div></div>';
+      }).join("") : '<p style="color:#64748B;">No messages yet.</p>';
+      await resolveMedia();
       $("ms-thread").scrollTop = $("ms-thread").scrollHeight;
       await db.from("messages").update({ read_at: new Date().toISOString() }).eq("conversation_id", active.id).neq("sender_id", me.id).is("read_at", null);
     }
 
+    async function resolveMedia() {
+      const els = document.querySelectorAll("#ms-thread [data-path]");
+      await Promise.all(Array.from(els).map(async el => {
+        const path = el.dataset.path;
+        if (!path) return;
+        const s = await db.storage.from("message-media").createSignedUrl(path, 3600);
+        if (!s.data) return;
+        if (el.tagName === "A") el.href = s.data.signedUrl;
+        else el.src = s.data.signedUrl;
+      }));
+    }
+
+    $("ms-attach").addEventListener("click", () => $("ms-file").click());
+    $("ms-file").addEventListener("change", () => {
+      const f = $("ms-file").files[0];
+      pendingFile = null;
+      const box = $("ms-pending");
+      box.innerHTML = "";
+      if (!f) { box.hidden = true; return; }
+      const kind = kindOf(f);
+      if (!kind) { say("Please choose a photo (JPG, PNG, WebP or GIF), a short video (MP4 or WebM), or a PDF.", true); $("ms-file").value = ""; box.hidden = true; return; }
+      if (f.size > MAX_FILE) { say("The file must be 10 MB or smaller.", true); $("ms-file").value = ""; box.hidden = true; return; }
+      pendingFile = f;
+      box.hidden = false;
+      box.innerHTML = '<span>Ready to send: <strong>' + esc(f.name) + '</strong></span><button type="button" class="ms-small" id="ms-remove-file">Remove</button>';
+      say("");
+    });
+    $("ms-pending").addEventListener("click", e => {
+      if (e.target.id !== "ms-remove-file") return;
+      pendingFile = null;
+      $("ms-file").value = "";
+      $("ms-pending").hidden = true;
+    });
+
     $("ms-form").addEventListener("submit", async e => {
       e.preventDefault();
       const body = $("ms-body").value.trim();
-      if (!body) return say("Please write a message.", true);
-      const to = active ? (active.other_id) : newTo;
+      if (!body && !pendingFile) return say("Write a message or attach a file.", true);
+      const to = active ? active.other_id : newTo;
       if (!to) return say("Choose a conversation first.", true);
       $("ms-send").disabled = true;
-      const r = await db.rpc("send_message", { p_to: to, p_body: body });
-      $("ms-send").disabled = false;
-      if (r.error) return say(r.error.message, true);
-      $("ms-body").value = "";
-      say("Sent.");
-      if (!active) {
-        await loadList();
-        const hit = convs.find(x => x.other_id === to);
-        if (hit) { newTo = null; openConv(hit); }
-      } else {
-        await loadThread();
-        await loadList();
+      let path = null, mtype = null, mname = null;
+      try {
+        if (pendingFile) {
+          const kind = kindOf(pendingFile);
+          const ext = (pendingFile.name.split(".").pop() || "bin").replace(/[^a-z0-9]/gi, "").toLowerCase().slice(0, 5) || "bin";
+          path = me.id + "/" + crypto.randomUUID() + "." + ext;
+          const up = await db.storage.from("message-media").upload(path, pendingFile, { contentType: pendingFile.type, upsert: false });
+          if (up.error) throw up.error;
+          mtype = kind; mname = pendingFile.name;
+        }
+        const r = await db.rpc("send_message", { p_to: to, p_body: body, p_media_path: path, p_media_type: mtype, p_media_name: mname });
+        if (r.error) { if (path) await db.storage.from("message-media").remove([path]); throw r.error; }
+        $("ms-body").value = "";
+        pendingFile = null; $("ms-file").value = ""; $("ms-pending").hidden = true;
+        say("Sent.");
+        if (!active) {
+          await loadList();
+          const hit = convs.find(x => x.other_id === to);
+          if (hit) { newTo = null; openConv(hit); }
+        } else {
+          await loadThread();
+          await loadList();
+        }
+      } catch (err) {
+        say(err.message || "Could not send.", true);
+      } finally {
+        $("ms-send").disabled = false;
       }
     });
 
     $("ms-thread").addEventListener("click", async e => {
-      const b = e.target.closest("[data-report]");
-      if (!b) return;
-      const reason = window.prompt("Why are you reporting this message? (at least 5 characters)");
-      if (!reason || reason.trim().length < 5) return say("A reason of at least 5 characters is needed.", true);
-      const r = await db.from("message_reports").insert({ message_id: b.dataset.report, reporter_id: me.id, reason: reason.trim() }).select("id");
-      if (r.error) return say("Could not send the report: " + r.error.message, true);
-      say("Thank you. Our moderators will review it.");
+      const del = e.target.closest("[data-delete]");
+      if (del) {
+        if (!window.confirm("Delete this message? This cannot be undone.")) return;
+        const r = await db.from("messages").delete().eq("id", del.dataset.delete).eq("sender_id", me.id).select("id");
+        if (r.error || !r.data || !r.data.length) return say("Could not delete the message.", true);
+        if (del.dataset.path) await db.storage.from("message-media").remove([del.dataset.path]);
+        say("Message deleted.");
+        await loadThread();
+        await loadList();
+        return;
+      }
+      const rep = e.target.closest("[data-report]");
+      if (rep) {
+        const reason = window.prompt("Why are you reporting this message? (at least 5 characters)");
+        if (!reason || reason.trim().length < 5) return say("A reason of at least 5 characters is needed.", true);
+        const r = await db.from("message_reports").insert({ message_id: rep.dataset.report, reporter_id: me.id, reason: reason.trim() }).select("id");
+        if (r.error) return say("Could not send the report: " + r.error.message, true);
+        say("Thank you. Our moderators will review it.");
+      }
     });
 
     $("ms-block").addEventListener("click", async () => {
@@ -203,7 +309,8 @@
 
     $("ms-accept").addEventListener("change", async e => {
       const r = await db.from("profiles").update({ accepts_messages: e.target.checked }).eq("id", me.id).select("id");
-      say(r.error || !r.data || !r.data.length ? "Could not save the setting." : (e.target.checked ? "Members can message you." : "Members cannot message you now."), !!(r.error || !r.data || !r.data.length));
+      const bad = !!(r.error || !r.data || !r.data.length);
+      say(bad ? "Could not save the setting." : (e.target.checked ? "Members can message you." : "Members cannot message you now."), bad);
     });
 
     init();
