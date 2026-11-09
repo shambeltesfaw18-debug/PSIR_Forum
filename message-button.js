@@ -1,0 +1,17 @@
+// Public profile: a "Send message" button for signed-in members viewing someone else's profile.
+(function () {
+  "use strict";
+  if (!window.supabase) return;
+  var db = window.supabase.createClient("https://updxillknwufqekfzkur.supabase.co", "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5");
+  var id = new URLSearchParams(window.location.search).get("id");
+  if (!id) return;
+  db.auth.getSession().then(function (s) {
+    var me = s.data.session ? s.data.session.user.id : null;
+    if (!me || me === id) return;
+    var host = document.querySelector("main") || document.body;
+    var box = document.createElement("div");
+    box.style.cssText = "max-width:900px;margin:12px auto;padding:0 12px;box-sizing:border-box;";
+    box.innerHTML = '<a href="/messages.html?to=' + encodeURIComponent(id) + '" style="display:inline-block;background:#2855A6;color:#fff;border-radius:8px;padding:12px 18px;font-weight:700;text-decoration:none;">Send message</a>';
+    host.insertBefore(box, host.firstChild);
+  });
+})();

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Messages | PSIR Forum</title>
+  <link rel="icon" type="image/jpeg" href="/images/logo.jpg">
+  <link rel="stylesheet" href="buttons.css">
+  <link rel="stylesheet" href="design.css">
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+    [hidden] { display: none !important; }
+    .ms-wrap { width: min(1100px, calc(100% - 24px)); margin: 0 auto; padding: 18px 0 30px; display: grid; grid-template-columns: 300px 1fr; gap: 14px; }
+    .ms-box { background: #FFFFFF; border: 1px solid #DCE3EE; border-radius: 12px; padding: 14px; }
+    .ms-list button { display: block; width: 100%; text-align: left; background: #fff; border: 1px solid #DCE3EE; border-radius: 10px; padding: 10px; margin-bottom: 8px; cursor: pointer; font: inherit; }
+    .ms-list button.on { border-color: #2855A6; background: #EEF4FD; }
+    .ms-badge { background: #B42318; color: #fff; border-radius: 999px; padding: 1px 8px; font-size: .75rem; font-weight: 700; margin-left: 6px; }
+    .ms-thread { display: flex; flex-direction: column; gap: 8px; max-height: 52vh; overflow-y: auto; padding: 6px; background: #F8FAFD; border-radius: 10px; }
+    .ms-msg { max-width: 78%; padding: 8px 10px; border-radius: 10px; font-size: .95rem; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .ms-msg.mine { align-self: flex-end; background: #2855A6; color: #fff; }
+    .ms-msg.theirs { align-self: flex-start; background: #FFFFFF; border: 1px solid #DCE3EE; color: #263238; }
+    .ms-meta { font-size: .75rem; color: #64748B; margin-top: 2px; }
+    .ms-small { font-size: .82rem; background: none; border: none; color: #2855A6; font-weight: 700; cursor: pointer; padding: 4px 0; }
+    .ms-form { display: grid; gap: 8px; margin-top: 10px; }
+    .ms-form textarea { border: 1px solid #CBD5E1; border-radius: 8px; padding: 10px; font: inherit; min-height: 70px; }
+    .ms-msgline { font-weight: 600; min-height: 20px; margin: 8px 0 0; }
+    @media (max-width: 760px) { .ms-wrap { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="container top-inner">
+      <a class="brand" href="/">PSIR FORUM</a>
+      <nav class="top-links" aria-label="Main navigation">
+        <a href="/">Home</a>
+        <a href="/categories">Categories</a>
+        <a href="/discussions">Discussions</a>
+        <a href="/research.html">Research Hub</a>
+        <a href="/news.html">News &amp; Journal</a>
+        <a href="/career.html">Career</a>
+        <a href="/saved.html">Saved papers</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="ms-wrap">
+    <section class="ms-box" aria-labelledby="ms-list-title">
+      <h2 id="ms-list-title" style="margin:0 0 8px;color:#1E3F82;font-size:1.1rem;">Messages</h2>
+      <p id="ms-gate" class="ms-msgline" style="color:#B42318;" hidden>Complete your profile (name and university) to send and receive messages. <a href="/profile.html" style="color:#2855A6;font-weight:700;">Complete my profile</a></p>
+      <div id="ms-list" class="ms-list"><p style="color:#64748B;">Loading…</p></div>
+      <details style="margin-top:12px;">
+        <summary style="cursor:pointer;color:#2855A6;font-weight:700;">Message settings</summary>
+        <label style="display:flex;gap:8px;align-items:flex-start;margin:10px 0;"><input id="ms-accept" type="checkbox"> <span>Allow other members to message me</span></label>
+        <p style="font-size:.88rem;color:#475569;margin:0;">You can block a member from inside a conversation. Messages are removed automatically after 12 months.</p>
+      </details>
+    </section>
+
+    <section class="ms-box" aria-labelledby="ms-thread-title">
+      <h2 id="ms-thread-title" style="margin:0 0 4px;color:#1E3F82;font-size:1.1rem;">Choose a conversation</h2>
+      <p id="ms-who" style="margin:0 0 10px;color:#475569;font-size:.92rem;"></p>
+      <div id="ms-thread" class="ms-thread" hidden></div>
+      <form id="ms-form" class="ms-form" hidden>
+        <textarea id="ms-body" maxlength="1000" placeholder="Write your message (up to 1000 characters)" required></textarea>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button type="submit" id="ms-send" class="psir-btn psir-navy">Send</button>
+          <button type="button" id="ms-block" class="ms-small">Block this member</button>
+        </div>
+      </form>
+      <p id="ms-msg" class="ms-msgline" role="status"></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer-inner">
+      <div class="sf-brand"><strong>PSIR Forum</strong><p>An academic community for political science and international relations. Founded by Shambel Tesfaw Kibret, Kombolcha, Ethiopia.</p></div>
+      <nav class="sf-col" aria-label="Explore the forum"><h3>Explore</h3><a href="/discussions">Discussions</a><a href="/research.html">Research Hub</a><a href="/books.html">Books and Materials</a><a href="/news.html">News &amp; Journal</a><a href="/career.html">Career</a><a href="/live.html">Live Room</a></nav>
+      <div class="sf-col"><h3>Community</h3><a href="https://t.me/psir_forumchannel" target="_blank" rel="noopener noreferrer">Telegram channel</a><a href="https://www.facebook.com/share/19ppJG3tkp/" target="_blank" rel="noopener noreferrer">Facebook page</a><a href="mailto:psirforum@gmail.com">psirforum@gmail.com</a></div>
+      <nav class="sf-col" aria-label="Policies and help"><h3>Policies</h3><a href="/info.html?page=terms">Terms of Use</a><a href="/info.html?page=privacy">Privacy Policy</a><a href="/info.html?page=guidelines">Community Guidelines</a><a href="/policy.html">Academic publishing policy</a><a href="/info.html?page=contact">Contact</a></nav>
+    </div>
+    <div class="sf-bottom"><div class="container">© 2026 PSIR Forum · Beta · Kombolcha, Ethiopia</div></div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (() => {
+    "use strict";
+    const db = window.supabase.createClient("https://updxillknwufqekfzkur.supabase.co", "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5");
+    const $ = id => document.getElementById(id);
+    const qs = new URLSearchParams(location.search);
+    let me = null, convs = [], active = null, newTo = null;
+
+    function esc(v) { return String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]); }
+    function say(t, bad) { const m = $("ms-msg"); m.textContent = t || ""; m.style.color = bad ? "#B42318" : "#237A57"; }
+
+    async function init() {
+      const s = await db.auth.getSession();
+      if (!s.data.session) {
+        $("ms-list").innerHTML = '<p>Please <a href="/" style="color:#2855A6;font-weight:700;">sign in</a> to use messages.</p>';
+        return;
+      }
+      me = s.data.session.user;
+      const p = await db.from("profiles").select("full_name, university, accepts_messages").eq("id", me.id).maybeSingle();
+      const complete = !!(p.data && (p.data.full_name || "").trim() && (p.data.university || "").trim());
+      $("ms-gate").hidden = complete;
+      $("ms-accept").checked = !!(p.data && p.data.accepts_messages);
+      await loadList();
+      const to = qs.get("to"), c = qs.get("c");
+      if (c) { const hit = convs.find(x => x.id === c); if (hit) openConv(hit); }
+      else if (to && to !== me.id) openNew(to);
+    }
+
+    async function loadList() {
+      const r = await db.rpc("list_my_conversations");
+      if (r.error) { $("ms-list").textContent = "Could not load messages: " + r.error.message; return; }
+      convs = r.data || [];
+      if (!convs.length) { $("ms-list").innerHTML = '<p style="color:#64748B;">No conversations yet. Message a member from their profile.</p>'; return; }
+      $("ms-list").innerHTML = convs.map(c =>
+        '<button type="button" data-id="' + esc(c.id) + '" class="' + (active && active.id === c.id ? "on" : "") + '">' +
+        '<strong>' + esc(c.other_name || "Member") + '</strong>' + (c.unread > 0 ? '<span class="ms-badge">' + c.unread + '</span>' : '') +
+        '<div style="font-size:.82rem;color:#64748B;">' + esc(c.other_university || "") + '</div>' +
+        '<div style="font-size:.88rem;color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(c.last_body || "") + '</div></button>').join("");
+    }
+
+    $("ms-list").addEventListener("click", e => {
+      const b = e.target.closest("[data-id]");
+      if (!b) return;
+      const c = convs.find(x => x.id === b.dataset.id);
+      if (c) openConv(c);
+    });
+
+    async function openConv(c) {
+      active = c; newTo = null;
+      $("ms-thread-title").textContent = c.other_name || "Member";
+      $("ms-who").textContent = c.other_university || "";
+      $("ms-thread").hidden = false; $("ms-form").hidden = false;
+      await loadThread();
+      await loadList();
+    }
+
+    async function openNew(toId) {
+      const p = await db.from("profiles").select("full_name, university").eq("id", toId).maybeSingle();
+      if (!p.data) { say("This member was not found.", true); return; }
+      active = null; newTo = toId;
+      $("ms-thread-title").textContent = p.data.full_name || "Member";
+      $("ms-who").textContent = p.data.university || "";
+      $("ms-thread").innerHTML = '<p style="color:#64748B;">Start the conversation below.</p>';
+      $("ms-thread").hidden = false; $("ms-form").hidden = false;
+    }
+
+    async function loadThread() {
+      if (!active) return;
+      const r = await db.from("messages").select("id, sender_id, body, created_at").eq("conversation_id", active.id).order("created_at", { ascending: true }).limit(300);
+      const rows = r.data || [];
+      $("ms-thread").innerHTML = rows.length ? rows.map(m =>
+        '<div class="ms-msg ' + (m.sender_id === me.id ? "mine" : "theirs") + '">' + esc(m.body) +
+        '<div class="ms-meta">' + esc(String(m.created_at).slice(0, 16).replace("T", " ")) + (m.sender_id !== me.id ? ' · <button type="button" class="ms-small" data-report="' + esc(m.id) + '">Report</button>' : '') + '</div></div>').join("")
+        : '<p style="color:#64748B;">No messages yet.</p>';
+      $("ms-thread").scrollTop = $("ms-thread").scrollHeight;
+      await db.from("messages").update({ read_at: new Date().toISOString() }).eq("conversation_id", active.id).neq("sender_id", me.id).is("read_at", null);
+    }
+
+    $("ms-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      const body = $("ms-body").value.trim();
+      if (!body) return say("Please write a message.", true);
+      const to = active ? (active.other_id) : newTo;
+      if (!to) return say("Choose a conversation first.", true);
+      $("ms-send").disabled = true;
+      const r = await db.rpc("send_message", { p_to: to, p_body: body });
+      $("ms-send").disabled = false;
+      if (r.error) return say(r.error.message, true);
+      $("ms-body").value = "";
+      say("Sent.");
+      if (!active) {
+        await loadList();
+        const hit = convs.find(x => x.other_id === to);
+        if (hit) { newTo = null; openConv(hit); }
+      } else {
+        await loadThread();
+        await loadList();
+      }
+    });
+
+    $("ms-thread").addEventListener("click", async e => {
+      const b = e.target.closest("[data-report]");
+      if (!b) return;
+      const reason = window.prompt("Why are you reporting this message? (at least 5 characters)");
+      if (!reason || reason.trim().length < 5) return say("A reason of at least 5 characters is needed.", true);
+      const r = await db.from("message_reports").insert({ message_id: b.dataset.report, reporter_id: me.id, reason: reason.trim() }).select("id");
+      if (r.error) return say("Could not send the report: " + r.error.message, true);
+      say("Thank you. Our moderators will review it.");
+    });
+
+    $("ms-block").addEventListener("click", async () => {
+      if (!active) return;
+      if (!window.confirm("Block this member? You will no longer receive messages from each other.")) return;
+      const r = await db.from("message_blocks").insert({ blocker_id: me.id, blocked_id: active.other_id }).select("blocker_id");
+      if (r.error) return say("Could not block: " + r.error.message, true);
+      say("Member blocked.");
+    });
+
+    $("ms-accept").addEventListener("change", async e => {
+      const r = await db.from("profiles").update({ accepts_messages: e.target.checked }).eq("id", me.id).select("id");
+      say(r.error || !r.data || !r.data.length ? "Could not save the setting." : (e.target.checked ? "Members can message you." : "Members cannot message you now."), !!(r.error || !r.data || !r.data.length));
+    });
+
+    init();
+  })();
+  </script>
+  <script src="welcome-tip.js"></script>
+  <script src="language.js"></script>
+  <script src="error-log.js"></script>
+  <script src="consent.js"></script>
+</body>
+</html>
