@@ -623,3 +623,7 @@ body > main:last-of-type, main {
   min-height: 0 !important;
 }
 footer.site-footer { margin-bottom: 0 !important; }
+
+/* Exam header band: white title and text */
+html body .ex-hero h2, html body .ex-hero p { color: #FFFFFF !important; text-shadow: 0 1px 3px rgba(0,0,0,.3); }
+html body .ex-hero p { opacity: .95; }
