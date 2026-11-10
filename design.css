@@ -788,3 +788,23 @@ html body footer.site-footer { margin-top: var(--footer-gap, 40px) !important; }
   justify-content: center !important;
   box-shadow: 0 6px 14px rgba(10, 30, 70, 0.2) !important;
 }
+
+/* Round 7: footer columns on phones, Research Hub buttons per screen size */
+html body footer.site-footer .sf-col h3 { white-space: nowrap; }
+@media (max-width: 760px) {
+  html body footer.site-footer .site-footer-inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 22px 16px !important;
+  }
+  html body footer.site-footer .sf-col { min-width: 0; }
+  html body footer.site-footer .sf-col:last-child { grid-column: 1 / -1; }
+  html body footer.site-footer .sf-col:nth-child(2) { align-items: flex-start; }
+}
+@media (max-width: 760px) {
+  .rh-actions { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
+  .rh-actions > #submitOpen, .rh-actions > #booksLinkBtn { width: 100% !important; min-width: 0 !important; }
+}
+@media (min-width: 761px) {
+  .rh-actions { flex-direction: row !important; gap: 24px !important; }
+  .rh-actions > #submitOpen, .rh-actions > #booksLinkBtn { width: 260px !important; min-width: 260px !important; }
+}
