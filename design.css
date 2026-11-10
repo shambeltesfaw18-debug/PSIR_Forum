@@ -627,3 +627,41 @@ footer.site-footer { margin-bottom: 0 !important; }
 /* Exam header band: white title and text */
 html body .ex-hero h2, html body .ex-hero p { color: #FFFFFF !important; text-shadow: 0 1px 3px rgba(0,0,0,.3); }
 html body .ex-hero p { opacity: .95; }
+
+/* Footer on desktop: full-width, no centred column (final rule) */
+html body footer.site-footer {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  left: auto !important;
+  right: auto !important;
+  box-sizing: border-box;
+}
+html body footer.site-footer > .site-footer-inner.container,
+html body footer.site-footer .site-footer-inner {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 5vw !important;
+  padding-right: 5vw !important;
+  box-sizing: border-box;
+  display: grid !important;
+  grid-template-columns: minmax(220px, 1.6fr) repeat(3, minmax(0, 1fr)) !important;
+}
+html body footer.site-footer .sf-bottom,
+html body footer.site-footer .sf-bottom > .container {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 5vw !important;
+  padding-right: 5vw !important;
+  box-sizing: border-box;
+}
+@media (max-width: 860px) {
+  html body footer.site-footer .site-footer-inner { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 520px) {
+  html body footer.site-footer .site-footer-inner { grid-template-columns: 1fr !important; }
+}
