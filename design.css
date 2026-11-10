@@ -739,3 +739,33 @@ html body footer.site-footer .sf-bottom { text-align: center; padding: 14px 5vw;
   html body footer.site-footer .sf-col:last-child { grid-column: 1 / -1; }
   html body footer.site-footer a { font-size: .92rem; }
 }
+
+/* Round 5: social icons, bottom footer, matching Research Hub buttons */
+footer.site-footer .sf-social { display: inline-flex !important; align-items: center; gap: 8px; }
+footer.site-footer .sf-social svg { flex: 0 0 auto; }
+footer.site-footer .sf-social:hover span { text-decoration: underline; }
+
+div:has(> #submitOpen), div:has(> #booksLinkBtn) {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  align-items: center !important;
+}
+#submitOpen, #booksLinkBtn {
+  background: #2855A6 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #2855A6 !important;
+  border-radius: 10px !important;
+  min-height: 48px !important;
+  min-width: 230px !important;
+  padding: 0 18px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 6px 14px rgba(10, 30, 70, 0.2) !important;
+  width: auto !important;
+}
+#submitOpen:hover, #booksLinkBtn:hover { background: #1E3F82 !important; }
