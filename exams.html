@@ -73,6 +73,24 @@
     .ex-navbtn { min-height: 44px; padding: 0 16px; border-radius: 8px; font-weight: 700; cursor: pointer; border: 1.5px solid #2855A6; background: #fff; color: #2855A6; }
     .ex-navbtn.primary { background: #2855A6; color: #fff; }
     .ex-navbtn:disabled { opacity: .45; cursor: default; }
+    @media (max-width: 760px) {
+      .ex-wrap { width: calc(100% - 16px); }
+      .ex-box { padding: 12px; border-radius: 12px; }
+      .ex-hero { padding: 12px; margin-bottom: 10px; }
+      .ex-hero h2 { font-size: 1.1rem; }
+      .ex-hero p { font-size: .9rem; }
+      .ex-q { padding: 10px; margin-bottom: 10px; }
+      .ex-q-head { margin-bottom: 8px; }
+      .ex-q-head p { font-size: .98rem; }
+      .ex-opts { gap: 6px; }
+      .ex-opt { padding: 8px 10px; font-size: .95rem; }
+      .ex-nav { flex-wrap: nowrap; overflow-x: auto; gap: 5px; padding-bottom: 4px; margin-bottom: 8px; -webkit-overflow-scrolling: touch; }
+      .ex-jump { flex: 0 0 auto; width: 34px; height: 34px; font-size: .85rem; }
+      .ex-controls { position: sticky; bottom: 0; z-index: 5; background: #FFFFFF; margin: 10px -12px 0; padding: 10px 76px 12px 12px; box-shadow: 0 -6px 14px rgba(10,30,70,.10); border-top: 1px solid #DCE3EE; }
+      .ex-pager { gap: 6px; }
+      .ex-navbtn, .ex-flagbtn { min-height: 40px; padding: 0 10px; font-size: .88rem; }
+      #psirChatButton { bottom: 92px !important; }
+    }
     @media (prefers-reduced-motion: reduce) { .ex-progress > div, .ex-opt { transition: none; } }
   </style>
 </head>
