@@ -205,11 +205,49 @@
       return { title: title, description: "", timeLimit: timeLimit, pass: 50, questions: questions, answers: answers, problems: problems };
     }
 
+    // A numbered quiz: "1. Question text" in a paragraph, then its options in a list.
+    // The bold option is the correct answer. Only the text is read.
+    function readNumberedQuiz(doc) {
+      const root = doc.querySelector("[data-exam]") || doc.body;
+      const kids = Array.from(root.children);
+      const h1 = root.querySelector("h1");
+      const problems = [], questions = [], answers = [];
+      let description = "";
+      kids.forEach((node, idx) => {
+        if (node.tagName !== "P") return;
+        const t = node.textContent.trim();
+        const m = t.match(/^(\d+)[.)]\s+(.*)$/);
+        if (!m) {
+          if (!description && h1 && idx > 0 && questions.length === 0) description = clip(t, 1000);
+          return;
+        }
+        const prompt = clip(m[2], 500);
+        const list = node.nextElementSibling;
+        if (!list || (list.tagName !== "UL" && list.tagName !== "OL")) { problems.push("Question " + m[1] + " has no list of options after it."); return; }
+        const items = Array.from(list.children).filter(li => li.tagName === "LI");
+        const options = items.map(li => clip(li.textContent, 300)).filter(Boolean);
+        const correct = [];
+        items.forEach((li, i) => { if (li.querySelector("strong, b")) correct.push(i); });
+        if (!prompt || options.length < 2 || options.length > 8) { problems.push("Question " + m[1] + " needs 2 to 8 options."); return; }
+        if (correct.length < 1) { problems.push("Question " + m[1] + " has no correct answer marked in bold."); return; }
+        questions.push({ prompt: prompt, type: correct.length > 1 ? "multi" : "single", options: options });
+        answers.push({ correct: correct, explanation: "" });
+      });
+      if (questions.length < 1) return null;
+      const title = clip(h1 ? h1.textContent : (doc.title || ""), 150);
+      const tm = ((doc.body && doc.body.textContent) || "").match(/(\d+)\s*-?\s*minute/i);
+      const timeLimit = tm ? Math.min(300, parseInt(tm[1], 10)) : 0;
+      if (!title) problems.push("The file needs a title in its <h1>.");
+      if (questions.length > 100) problems.push("An exam can have up to 100 questions.");
+      return { title: title, description: description, timeLimit: timeLimit, pass: 50, questions: questions, answers: answers, problems: problems };
+    }
+
     // The sample format: <div class="question" data-type="single|multi"> with <li data-correct="true">.
     function parseExam(text) {
       const doc = new DOMParser().parseFromString(text, "text/html");
       const scripted = readScriptQuiz(doc, text);
       if (scripted) return scripted;
+      if (!doc.querySelector(".question")) { const numbered = readNumberedQuiz(doc); if (numbered) return numbered; }
       const root = doc.querySelector("[data-exam]") || doc.body;
       const h1 = root.querySelector("h1");
       const title = clip(h1 ? h1.textContent : (doc.title || ""), 150);
