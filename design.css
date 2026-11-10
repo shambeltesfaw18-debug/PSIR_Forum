@@ -665,3 +665,55 @@ html body footer.site-footer .sf-bottom > .container {
 @media (max-width: 520px) {
   html body footer.site-footer .site-footer-inner { grid-template-columns: 1fr !important; }
 }
+
+/* Round 4: footer at the bottom, dark-mode cards, live room frames */
+html body { display: flex !important; flex-direction: column !important; min-height: 100vh !important; }
+html body > footer.site-footer { margin-top: auto !important; }
+
+html[data-theme="dark"] section.cta > *,
+html[data-theme="dark"] section.cta .container > * {
+  background: #16243A !important;
+  border-color: #2A3B55 !important;
+}
+html[data-theme="dark"] section.cta h2,
+html[data-theme="dark"] section.cta h3,
+html[data-theme="dark"] section.cta p { color: #E6EDF7 !important; }
+
+html[data-theme="dark"] .discussion-card {
+  background: #16243A !important;
+  color: #E6EDF7 !important;
+  border-color: #2A3B55 !important;
+}
+html[data-theme="dark"] .discussion-card .post-title { color: #F5C96B !important; }
+html[data-theme="dark"] .discussion-card p { color: #C9D5E6 !important; }
+
+@media (max-width: 760px) {
+  .lr-frame {
+    position: relative !important;
+    border: 10px solid #0F172A !important;
+    border-radius: 30px !important;
+    background: #0F172A !important;
+    padding: 18px 0 14px !important;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  .lr-frame::before {
+    content: ""; display: block; width: 72px; height: 6px; border-radius: 6px;
+    background: #334155; margin: 0 auto 8px;
+  }
+}
+@media (min-width: 761px) {
+  .lr-frame {
+    position: relative !important;
+    border: 14px solid #1E293B !important;
+    border-bottom-width: 16px !important;
+    border-radius: 16px 16px 6px 6px !important;
+    background: #1E293B !important;
+    margin-bottom: 30px;
+  }
+  .lr-frame::after {
+    content: ""; position: absolute; left: -7%; right: -7%; bottom: -26px; height: 14px;
+    background: linear-gradient(#E2E8F0, #94A3B8); border-radius: 0 0 14px 14px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.18);
+  }
+}
