@@ -1,5 +1,5 @@
-// Public profile: "Send message" beside the member's name (under the photo if the name cannot be found).
-// Shown to signed-in members viewing someone else's profile.
+// Public profile: a "Send message" button for signed-in members viewing someone else's profile.
+// It sits in the header row, beside the member's name and photo.
 (function () {
   "use strict";
   if (!window.supabase) return;
@@ -7,56 +7,40 @@
   var id = new URLSearchParams(window.location.search).get("id");
   if (!id) return;
 
-  function buttonEl() {
-    var a = document.createElement("a");
-    a.href = "/messages.html?to=" + encodeURIComponent(id);
-    a.id = "psirSendMessage";
-    a.textContent = "Send message";
-    a.style.cssText = "display:inline-block;vertical-align:middle;margin-left:12px;background:#2855A6;color:#fff;border-radius:8px;padding:8px 14px;font-size:.92rem;font-weight:700;text-decoration:none;white-space:nowrap;";
-    return a;
-  }
-
-  function findNameEl(name) {
-    var els = document.querySelectorAll("h1, h2, h3, a, strong, span, div, p");
-    for (var i = 0; i < els.length; i++) {
-      var el = els[i];
-      if (el.children.length > 2) continue;
-      if ((el.textContent || "").trim() === name) return el;
+  function findByText(prefix) {
+    var all = document.querySelectorAll("p, div, span, small");
+    for (var i = 0; i < all.length; i++) {
+      var el = all[i];
+      if (el.children.length === 0 && (el.textContent || "").trim().indexOf(prefix) === 0) return el;
     }
     return null;
   }
 
-  function findPhoto() {
-    var img = document.querySelector("img");
-    return img ? (img.closest("a, div, section") || img) : null;
-  }
-
-  async function place() {
-    var s = await db.auth.getSession();
+  db.auth.getSession().then(function (s) {
     var me = s.data.session ? s.data.session.user.id : null;
     if (!me || me === id) return;
-    if (document.getElementById("psirSendMessage")) return;
-    var p = await db.from("profiles").select("full_name").eq("id", id).maybeSingle();
-    var name = p.data && p.data.full_name ? String(p.data.full_name).trim() : "";
-    var btn = buttonEl();
-    var nameEl = name ? findNameEl(name) : null;
-    if (nameEl && nameEl.parentNode) {
-      nameEl.insertAdjacentElement("afterend", btn);
+    var btn = document.createElement("a");
+    btn.href = "/messages.html?to=" + encodeURIComponent(id);
+    btn.textContent = "Send message";
+    btn.style.cssText = "display:inline-block;background:#2855A6;color:#fff;border-radius:8px;padding:9px 14px;font-weight:700;text-decoration:none;font-size:.92rem;margin-left:12px;vertical-align:middle;white-space:nowrap;";
+
+    var note = findByText("Member of PSIR Forum");
+    if (note && note.previousElementSibling) {
+      // The row above the note holds the photo and the name: put the button at the end of that row.
+      note.previousElementSibling.appendChild(btn);
       return;
     }
-    var photo = findPhoto();
-    if (photo && photo.parentNode) {
-      btn.style.marginLeft = "0";
-      btn.style.display = "inline-block";
-      btn.style.marginTop = "8px";
-      photo.insertAdjacentElement("afterend", btn);
+    if (note && note.parentNode) {
+      var wrap = document.createElement("div");
+      wrap.style.cssText = "margin:8px 0;";
+      wrap.appendChild(btn);
+      note.parentNode.insertBefore(wrap, note);
+      return;
     }
-  }
-
-  var tries = 0;
-  var t = setInterval(function () {
-    tries++;
-    if (document.getElementById("psirSendMessage") || tries > 30) { clearInterval(t); return; }
-    place();
-  }, 500);
+    var host = document.querySelector("main") || document.body;
+    var box = document.createElement("div");
+    box.style.cssText = "max-width:900px;margin:12px auto;padding:0 12px;box-sizing:border-box;";
+    box.appendChild(btn);
+    host.insertBefore(box, host.firstChild);
+  });
 })();
