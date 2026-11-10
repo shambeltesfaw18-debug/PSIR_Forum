@@ -98,9 +98,48 @@
     function say(el, text, bad) { el.textContent = text || ""; el.style.color = bad ? "#B42318" : "#237A57"; }
     function clip(s, n) { return String(s || "").replace(/\s+/g, " ").trim().slice(0, n); }
 
+    // Reads a quiz that keeps its questions in a script list: [prompt, [options], correctIndex, explanation].
+    // The list is read as plain data (JSON). Nothing in the file is run.
+    function readScriptQuiz(doc, text) {
+      const m = text.match(/(?:const|let|var)\s+Q\s*=\s*\[/);
+      if (!m) return null;
+      const start = m.index + m[0].length - 1;
+      let depth = 0, instr = null, i = start;
+      for (; i < text.length; i++) {
+        const ch = text[i];
+        if (instr) { if (ch === "\\") { i++; continue; } if (ch === instr) instr = null; continue; }
+        if (ch === '"' || ch === "'" || ch === "`") { instr = ch; continue; }
+        if (ch === "[") depth++;
+        else if (ch === "]") { depth--; if (depth === 0) break; }
+      }
+      let data;
+      try { data = JSON.parse(text.slice(start, i + 1)); } catch (e) { return null; }
+      if (!Array.isArray(data) || data.length < 1) return null;
+      const problems = [], questions = [], answers = [];
+      data.forEach((row, idx) => {
+        const prompt = clip(row && row[0], 500);
+        const opts = Array.isArray(row && row[1]) ? row[1].map(o => clip(o, 300)).filter(Boolean) : [];
+        const c = row ? row[2] : undefined;
+        if (!prompt || opts.length < 2 || opts.length > 8) { problems.push("Question " + (idx + 1) + " needs a question and 2 to 8 options."); return; }
+        if (!Number.isInteger(c) || c < 0 || c >= opts.length) { problems.push("Question " + (idx + 1) + " has no valid correct answer."); return; }
+        questions.push({ prompt: prompt, type: "single", options: opts });
+        answers.push({ correct: [c] });
+      });
+      const h1 = doc.querySelector("h1");
+      const title = clip(h1 ? h1.textContent : (doc.title || ""), 150);
+      const tm = ((doc.body && doc.body.textContent) || "").match(/(\d+)\s*-?\s*minute/i);
+      const timeLimit = tm ? Math.min(300, parseInt(tm[1], 10)) : 0;
+      if (!title) problems.push("The file needs a title in its <h1>.");
+      if (questions.length < 1) problems.push("No valid questions were found in this file.");
+      if (questions.length > 100) problems.push("An exam can have up to 100 questions.");
+      return { title: title, description: "", timeLimit: timeLimit, pass: 50, questions: questions, answers: answers, problems: problems };
+    }
+
     // Reads an exam file as plain text. Scripts, links and images are not run or loaded.
     function parseExam(text) {
       const doc = new DOMParser().parseFromString(text, "text/html");
+      const scripted = readScriptQuiz(doc, text);
+      if (scripted) return scripted;
       const root = doc.querySelector("[data-exam]") || doc.body;
       const h1 = root.querySelector("h1");
       const title = clip(h1 ? h1.textContent : (doc.title || ""), 150);
