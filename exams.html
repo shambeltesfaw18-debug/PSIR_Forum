@@ -526,7 +526,18 @@
         const b = el("button", "psir-btn psir-outline", "Results");
         b.type = "button";
         b.addEventListener("click", () => showResults(ex));
-        row.append(t, b);
+        const d = el("button", "psir-btn psir-outline", "Delete");
+        d.type = "button";
+        d.style.color = "#B42318";
+        d.addEventListener("click", async () => {
+          if (!window.confirm("Delete \"" + ex.title + "\"? This also deletes its answer key and all of its results. This cannot be undone.")) return;
+          const r = await db.rpc("admin_delete_exam", { p_exam: ex.id });
+          if (r.error) { alert("Could not delete: " + r.error.message); return; }
+          await loadList();
+          await loadAll();
+          const res = $("ex-results"); if (res) res.innerHTML = "";
+        });
+        row.append(t, b, d);
         box.appendChild(row);
       });
     }
