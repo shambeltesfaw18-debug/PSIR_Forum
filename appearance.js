@@ -61,7 +61,7 @@
     html[data-theme="dark"] .pill { background:#24344d !important; color:#bcd4ee !important; }
     html[data-theme="dark"] .note { background:#2a2410 !important; color:#f0dca0 !important; border-color:#5a4a1a !important; }
     html[data-theme="dark"] .hero, html[data-theme="dark"] .section-heading { color:#e8edf5; }
-    #psirAppearance { display:inline-flex; gap:4px; align-items:center; flex-wrap:wrap; margin-left:8px; }
+    #psirAppearance { position:fixed; right:12px; bottom:12px; z-index:60; display:inline-flex; gap:4px; align-items:center; flex-wrap:wrap; padding:4px; border-radius:999px; background:rgba(255,255,255,.96); box-shadow:0 6px 16px rgba(10,30,70,.2); }
     #psirAppearance button { border:1px solid #cfd9e4; background:#fff; color:#102b46; border-radius:999px; padding:5px 10px; font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
     #psirAppearance button[aria-pressed="true"] { background:#102b46; color:#fff; border-color:#102b46; }
     #psirAppearance button:focus-visible { outline:3px solid #e7b451; outline-offset:2px; }
@@ -187,7 +187,7 @@
     langButton.setAttribute("aria-label", lang === "am" ? "Switch to English" : "ወደ አማርኛ ቀይር");
   }
 
-  if (host) host.appendChild(group);
+  document.body.appendChild(group);
 
   if (media && media.addEventListener) {
     media.addEventListener("change", () => { if (theme === "system") applyTheme(); });

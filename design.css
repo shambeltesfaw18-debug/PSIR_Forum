@@ -582,3 +582,8 @@ footer.site-footer .sf-bottom .container {
   padding-right: 5vw !important;
   box-sizing: border-box;
 }
+
+/* Consistent page length: no extra space under the footer */
+html body, html:not([data-theme="dark"]) body, html[data-theme="dark"] body {
+  min-height: 0 !important;
+}
