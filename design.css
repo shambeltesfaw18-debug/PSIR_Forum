@@ -613,3 +613,13 @@ html body, html:not([data-theme="dark"]) body, html[data-theme="dark"] body {
 @media (max-width: 760px) {
   footer.site-footer .site-footer-inner { padding-bottom: 96px !important; }
 }
+
+/* Page height: no empty space after the footer on any page */
+html, body {
+  height: auto !important;
+  min-height: 0 !important;
+}
+body > main:last-of-type, main {
+  min-height: 0 !important;
+}
+footer.site-footer { margin-bottom: 0 !important; }
