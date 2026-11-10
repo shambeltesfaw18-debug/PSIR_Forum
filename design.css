@@ -769,3 +769,22 @@ div:has(> #submitOpen), div:has(> #booksLinkBtn) {
   width: auto !important;
 }
 #submitOpen:hover, #booksLinkBtn:hover { background: #1E3F82 !important; }
+
+/* Round 6: footer gap from script, Research Hub row */
+html body footer.site-footer { margin-top: var(--footer-gap, 40px) !important; }
+.rh-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 14px 0; }
+.rh-actions > #submitOpen, .rh-actions > #booksLinkBtn {
+  flex: 0 0 auto !important;
+  min-width: 230px !important;
+  min-height: 48px !important;
+  background: #2855A6 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #2855A6 !important;
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 6px 14px rgba(10, 30, 70, 0.2) !important;
+}
