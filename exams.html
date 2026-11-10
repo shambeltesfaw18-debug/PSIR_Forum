@@ -11,16 +11,55 @@
     body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
     [hidden] { display: none !important; }
     .ex-wrap { width: min(1000px, calc(100% - 24px)); margin: 0 auto; padding: 18px 0 30px; }
-    .ex-box { background: #FFFFFF; border: 1px solid #DCE3EE; border-radius: 12px; padding: 16px; margin-bottom: 14px; }
-    .ex-box h2 { margin: 0 0 6px; color: #1E3F82; font-size: 1.2rem; }
-    .ex-q { border: 1px solid #DCE3EE; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
-    .ex-q p { margin: 0 0 8px; font-weight: 700; color: #263238; }
-    .ex-q label { display: flex; gap: 8px; align-items: flex-start; padding: 6px 0; line-height: 1.4; }
-    .ex-timer { font-weight: 800; color: #B42318; }
+    .ex-box { background: #FFFFFF; border: 1px solid #DCE3EE; border-radius: 14px; padding: 18px; margin-bottom: 16px; box-shadow: 0 8px 22px rgba(10,30,70,.08); }
+    .ex-box h2 { margin: 0 0 6px; color: #1E3F82; font-size: 1.25rem; }
+    .ex-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+    .ex-card { border: 1px solid #DCE3EE; border-radius: 12px; padding: 16px; background: linear-gradient(180deg, #FFFFFF, #F6F9FE); display: flex; flex-direction: column; gap: 8px; }
+    .ex-card h3 { margin: 0; color: #1E3F82; font-size: 1.05rem; }
+    .ex-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .ex-chip { font-size: .78rem; font-weight: 700; color: #1E3F82; background: #EEF4FD; border: 1px solid #D5E3F7; border-radius: 999px; padding: 3px 9px; }
+    .ex-chip.gold { background: #FFF6E0; border-color: #F1D58A; color: #7A5A00; }
+    .ex-hero { background: linear-gradient(135deg, #1E3F82, #2855A6); color: #fff; border-radius: 14px; padding: 18px; margin-bottom: 14px; }
+    .ex-hero h2 { color: #fff; margin: 0 0 4px; }
+    .ex-hero p { margin: 0; opacity: .92; }
+    .ex-progress { height: 10px; background: #E2E8F0; border-radius: 999px; overflow: hidden; margin: 12px 0 4px; }
+    .ex-progress > div { height: 100%; width: 0; background: linear-gradient(90deg, #E6B75A, #F5D27A); border-radius: 999px; transition: width .35s ease; }
+    .ex-meta { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: .9rem; color: #475569; }
+    .ex-timer { font-weight: 800; color: #B42318; font-variant-numeric: tabular-nums; }
+    .ex-q { border: 1px solid #DCE3EE; border-radius: 12px; padding: 14px; margin-bottom: 12px; background: #FFFFFF; }
+    .ex-q-head { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+    .ex-num { flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%; background: #1E3F82; color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: .9rem; }
+    .ex-q-head p { margin: 2px 0 0; font-weight: 700; color: #263238; line-height: 1.4; }
+    .ex-opts { display: grid; gap: 8px; }
+    .ex-opt { display: flex; gap: 10px; align-items: center; border: 1.5px solid #CBD5E1; border-radius: 10px; padding: 10px 12px; cursor: pointer; background: #FFFFFF; transition: border-color .2s, background .2s; line-height: 1.4; }
+    .ex-opt:hover { border-color: #2855A6; background: #F5F9FF; }
+    .ex-opt input { position: absolute; opacity: 0; pointer-events: none; }
+    .ex-opt .dot { flex: 0 0 auto; width: 18px; height: 18px; border-radius: 50%; border: 2px solid #94A3B8; background: #fff; }
+    .ex-opt.on { border-color: #2855A6; background: #EEF4FD; }
+    .ex-opt.on .dot { border-color: #2855A6; background: radial-gradient(circle, #2855A6 45%, #fff 50%); }
+    .ex-opt.right { border-color: #237A57; background: #E8F7EF; }
+    .ex-opt.wrong { border-color: #B42318; background: #FDECEA; }
+    .ex-opt.missed { border-style: dashed; border-color: #237A57; }
+    .ex-tag { margin-left: auto; font-size: .75rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+    .ex-tag.right { background: #237A57; color: #fff; }
+    .ex-tag.wrong { background: #B42318; color: #fff; }
+    .ex-tag.yours { background: #1E3F82; color: #fff; }
+    .ex-expl { margin-top: 10px; background: #FFF9EC; border-left: 4px solid #E6B75A; border-radius: 8px; padding: 10px 12px; font-size: .92rem; color: #3D3520; line-height: 1.5; }
+    .ex-expl strong { color: #7A5A00; }
+    .ex-score { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+    .ex-ring { width: 130px; height: 130px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+    .ex-ring > div { width: 100px; height: 100px; border-radius: 50%; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .ex-ring b { font-size: 1.7rem; color: #1E3F82; line-height: 1; }
+    .ex-ring small { font-size: .75rem; color: #64748B; }
+    .ex-verdict { font-size: 1.15rem; font-weight: 800; }
+    .ex-verdict.pass { color: #237A57; }
+    .ex-verdict.fail { color: #B42318; }
+    .ex-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
     .ex-msg { font-weight: 600; min-height: 20px; margin: 8px 0 0; }
-    .ex-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
     .ex-table { width: 100%; border-collapse: collapse; font-size: .92rem; }
     .ex-table th, .ex-table td { text-align: left; padding: 6px 4px; border-bottom: 1px solid #E2E8F0; }
+    .ex-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    @media (prefers-reduced-motion: reduce) { .ex-progress > div, .ex-opt { transition: none; } }
   </style>
 </head>
 <body>
@@ -42,27 +81,32 @@
   <main class="ex-wrap">
     <section class="ex-box" id="ex-list-box" aria-labelledby="ex-list-title">
       <h2 id="ex-list-title">Exams</h2>
-      <p style="margin:0 0 10px;color:#475569;">Take an exam right here. You have 3 attempts per exam each day. Your score is shown straight after you submit.</p>
-      <div id="ex-list"><p style="color:#64748B;">Loading…</p></div>
+      <p style="margin:0 0 12px;color:#475569;">Take an exam right here. You get 3 attempts per exam each day. Your score and the explanations appear as soon as you submit.</p>
+      <div id="ex-list" class="ex-cards"><p style="color:#64748B;">Loading…</p></div>
     </section>
 
     <section class="ex-box" id="ex-take" hidden aria-labelledby="ex-take-title">
-      <div class="ex-row" style="justify-content:space-between;">
+      <div class="ex-hero">
         <h2 id="ex-take-title"></h2>
+        <p id="ex-desc"></p>
+      </div>
+      <div class="ex-meta">
+        <span id="ex-counter"></span>
         <span id="ex-timer" class="ex-timer"></span>
       </div>
-      <p id="ex-desc" style="color:#475569;margin:0 0 12px;"></p>
-      <form id="ex-form"></form>
-      <div class="ex-row" style="margin-top:10px;">
+      <div class="ex-progress" aria-hidden="true"><div id="ex-bar"></div></div>
+      <form id="ex-form" style="margin-top:10px;"></form>
+      <div class="ex-btns">
         <button type="button" id="ex-submit" class="psir-btn psir-navy">Submit exam</button>
         <button type="button" id="ex-leave" class="psir-btn psir-outline">Back to exams</button>
       </div>
-      <div id="ex-result" class="ex-msg" role="status"></div>
+      <p id="ex-msg" class="ex-msg" role="status"></p>
+      <div id="ex-result" hidden></div>
     </section>
 
     <section class="ex-box" id="ex-admin" hidden aria-labelledby="ex-admin-title">
       <h2 id="ex-admin-title">Add an exam from an HTML file</h2>
-      <p style="margin:0 0 10px;color:#475569;">Upload an HTML file written in the format of the sample. Only the text of the file is read. Scripts and links in the file are ignored. <a href="/exam-template.html" target="_blank" rel="noopener noreferrer" style="color:#2855A6;font-weight:700;">Download the sample file</a>.</p>
+      <p style="margin:0 0 10px;color:#475569;">Upload an HTML file in the sample format, or a quiz file with its question list. Only the text of the file is read. Scripts and links are ignored. <a href="/exam-template.html" target="_blank" rel="noopener noreferrer" style="color:#2855A6;font-weight:700;">Download the sample file</a>.</p>
       <input id="ex-file" type="file" accept=".html,text/html">
       <div id="ex-preview" style="margin-top:10px;"></div>
       <div class="ex-row" style="margin-top:10px;">
@@ -92,13 +136,15 @@
     "use strict";
     const db = window.supabase.createClient("https://updxillknwufqekfzkur.supabase.co", "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5");
     const $ = id => document.getElementById(id);
+    const LETTERS = "ABCDEFGH";
     let me = null, role = null, current = null, timerId = null, endAt = 0, parsed = null;
     const MAX_BYTES = 512 * 1024;
 
     function say(el, text, bad) { el.textContent = text || ""; el.style.color = bad ? "#B42318" : "#237A57"; }
-    function clip(s, n) { return String(s || "").replace(/\s+/g, " ").trim().slice(0, n); }
+    function clip(s, n) { return String(s == null ? "" : s).replace(/\s+/g, " ").trim().slice(0, n); }
+    function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
 
-    // Reads a quiz that keeps its questions in a script list: [prompt, [options], correctIndex, explanation].
+    // A quiz that keeps its questions in a script list: [prompt, [options], correctIndex, explanation].
     // The list is read as plain data (JSON). Nothing in the file is run.
     function readScriptQuiz(doc, text) {
       const m = text.match(/(?:const|let|var)\s+Q\s*=\s*\[/);
@@ -120,10 +166,11 @@
         const prompt = clip(row && row[0], 500);
         const opts = Array.isArray(row && row[1]) ? row[1].map(o => clip(o, 300)).filter(Boolean) : [];
         const c = row ? row[2] : undefined;
+        const expl = clip(row && row[3], 600);
         if (!prompt || opts.length < 2 || opts.length > 8) { problems.push("Question " + (idx + 1) + " needs a question and 2 to 8 options."); return; }
         if (!Number.isInteger(c) || c < 0 || c >= opts.length) { problems.push("Question " + (idx + 1) + " has no valid correct answer."); return; }
         questions.push({ prompt: prompt, type: "single", options: opts });
-        answers.push({ correct: [c] });
+        answers.push({ correct: [c], explanation: expl });
       });
       const h1 = doc.querySelector("h1");
       const title = clip(h1 ? h1.textContent : (doc.title || ""), 150);
@@ -135,7 +182,7 @@
       return { title: title, description: "", timeLimit: timeLimit, pass: 50, questions: questions, answers: answers, problems: problems };
     }
 
-    // Reads an exam file as plain text. Scripts, links and images are not run or loaded.
+    // The sample format: <div class="question" data-type="single|multi"> with <li data-correct="true">.
     function parseExam(text) {
       const doc = new DOMParser().parseFromString(text, "text/html");
       const scripted = readScriptQuiz(doc, text);
@@ -145,10 +192,9 @@
       const title = clip(h1 ? h1.textContent : (doc.title || ""), 150);
       const timeLimit = Math.max(0, Math.min(300, parseInt(root.getAttribute("data-time-limit") || "0", 10) || 0));
       const pass = Math.max(1, Math.min(100, parseInt(root.getAttribute("data-pass") || "50", 10) || 50));
-      const introP = Array.from(root.children).find(el => el.tagName === "P");
+      const introP = Array.from(root.children).find(e => e.tagName === "P");
       const description = clip(introP ? introP.textContent : "", 1000);
-      const problems = [];
-      const questions = [], answers = [];
+      const problems = [], questions = [], answers = [];
       Array.from(root.querySelectorAll(".question")).forEach((q, idx) => {
         const p = q.querySelector("p");
         const prompt = clip(p ? p.textContent : "", 500);
@@ -157,16 +203,17 @@
         const correct = [];
         items.forEach((li, i) => { if (li.getAttribute("data-correct") === "true") correct.push(i); });
         const type = q.getAttribute("data-type") === "multi" ? "multi" : "single";
+        const expl = clip(q.getAttribute("data-explanation") || "", 600);
         if (!prompt || options.length < 2 || options.length > 8) { problems.push("Question " + (idx + 1) + " needs a question and 2 to 8 options."); return; }
         if (correct.length < 1) { problems.push("Question " + (idx + 1) + " has no correct answer marked."); return; }
         if (type === "single" && correct.length > 1) { problems.push("Question " + (idx + 1) + " is single-answer but has more than one correct option."); return; }
         questions.push({ prompt: prompt, type: type, options: options });
-        answers.push({ correct: correct });
+        answers.push({ correct: correct, explanation: expl });
       });
       if (!title) problems.push("The file needs a title in its <h1>.");
       if (questions.length < 1) problems.push("No valid questions were found in this file.");
       if (questions.length > 100) problems.push("An exam can have up to 100 questions.");
-      return { title, description, timeLimit, pass, questions, answers, problems };
+      return { title: title, description: description, timeLimit: timeLimit, pass: pass, questions: questions, answers: answers, problems: problems };
     }
 
     async function init() {
@@ -178,7 +225,7 @@
       }
       await loadList();
       const want = new URLSearchParams(location.search).get("exam");
-      if (want) { const btn = document.querySelector('[data-exam-id="' + want + '"] button'); if (btn) btn.click(); }
+      if (want) { const b = document.querySelector('[data-exam-id="' + want + '"] button'); if (b) b.click(); }
       if (role === "admin") { $("ex-admin").hidden = false; loadAll(); }
     }
 
@@ -190,18 +237,32 @@
       if (!rows.length) { box.innerHTML = '<p style="color:#64748B;">No exams are published yet.</p>'; return; }
       box.innerHTML = "";
       rows.forEach(ex => {
-        const card = document.createElement("div");
-        card.className = "ex-q";
+        const card = el("div", "ex-card");
         card.dataset.examId = ex.id;
-        const h = document.createElement("p"); h.textContent = ex.title;
-        const d = document.createElement("p"); d.style.fontWeight = "400"; d.style.color = "#475569"; d.textContent = (ex.description || "") ;
-        const meta = document.createElement("p"); meta.style.fontWeight = "400"; meta.style.color = "#64748B";
-        meta.textContent = ex.questions.length + " questions · " + (ex.time_limit_minutes ? ex.time_limit_minutes + " minutes" : "no time limit") + " · pass mark " + ex.pass_percent + "%";
-        const b = document.createElement("button"); b.type = "button"; b.className = "psir-btn psir-navy"; b.textContent = "Start exam";
+        card.append(el("h3", "", ex.title));
+        if (ex.description) card.append(el("p", "", ex.description));
+        const chips = el("div", "ex-chips");
+        chips.append(el("span", "ex-chip", ex.questions.length + " questions"));
+        chips.append(el("span", "ex-chip gold", ex.time_limit_minutes ? ex.time_limit_minutes + " minutes" : "No time limit"));
+        chips.append(el("span", "ex-chip", "Pass " + ex.pass_percent + "%"));
+        card.append(chips);
+        const b = el("button", "psir-btn psir-navy", "Start exam");
+        b.type = "button";
         b.addEventListener("click", () => start(ex));
-        card.append(h, d, meta, b);
+        card.append(b);
         box.appendChild(card);
       });
+    }
+
+    function updateProgress() {
+      if (!current) return;
+      const total = current.questions.length;
+      let answered = 0;
+      current.questions.forEach((q, i) => {
+        if (document.querySelectorAll('input[name="q' + i + '"]:checked').length) answered++;
+      });
+      $("ex-counter").textContent = answered + " of " + total + " answered";
+      $("ex-bar").style.width = Math.round(100 * answered / total) + "%";
     }
 
     function start(ex) {
@@ -209,25 +270,39 @@
       current = ex;
       $("ex-take").hidden = false;
       $("ex-take-title").textContent = ex.title;
-      $("ex-desc").textContent = ex.description || "";
-      $("ex-result").textContent = "";
+      $("ex-desc").textContent = ex.description || (ex.questions.length + " questions. Choose the best answer for each one.");
+      $("ex-msg").textContent = "";
+      $("ex-result").hidden = true;
+      $("ex-result").innerHTML = "";
+      $("ex-submit").hidden = false;
       const form = $("ex-form");
       form.innerHTML = "";
       ex.questions.forEach((q, i) => {
-        const box = document.createElement("div");
-        box.className = "ex-q";
-        const p = document.createElement("p"); p.textContent = (i + 1) + ". " + q.prompt;
-        box.appendChild(p);
+        const card = el("div", "ex-q");
+        const head = el("div", "ex-q-head");
+        head.append(el("span", "ex-num", String(i + 1)), el("p", "", q.prompt));
+        card.appendChild(head);
+        const opts = el("div", "ex-opts");
         q.options.forEach((opt, j) => {
-          const lab = document.createElement("label");
+          const lab = el("label", "ex-opt");
           const input = document.createElement("input");
           input.type = q.type === "multi" ? "checkbox" : "radio";
-          input.name = "q" + i; input.value = String(j);
-          const span = document.createElement("span"); span.textContent = opt;
-          lab.append(input, span);
-          box.appendChild(lab);
+          input.name = "q" + i;
+          input.value = String(j);
+          const dot = el("span", "dot");
+          const span = el("span", "", LETTERS[j] + ".  " + opt);
+          lab.append(input, dot, span);
+          input.addEventListener("change", () => {
+            if (input.type === "radio") {
+              opts.querySelectorAll(".ex-opt").forEach(o => o.classList.remove("on"));
+            }
+            lab.classList.toggle("on", input.checked);
+            updateProgress();
+          });
+          opts.appendChild(lab);
         });
-        form.appendChild(box);
+        card.appendChild(opts);
+        form.appendChild(card);
       });
       clearInterval(timerId);
       if (ex.time_limit_minutes > 0) {
@@ -243,27 +318,93 @@
       } else {
         $("ex-timer").textContent = "";
       }
+      updateProgress();
       $("ex-take").scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     async function submit(auto) {
       if (!current) return;
-      const answers = current.questions.map((q, i) => {
-        const picked = Array.from(document.querySelectorAll('input[name="q' + i + '"]:checked')).map(el => Number(el.value));
-        return picked;
-      });
-      if (!auto && answers.some(a => a.length === 0) && !window.confirm("Some questions are not answered. Submit anyway?")) return;
+      const answers = current.questions.map((q, i) =>
+        Array.from(document.querySelectorAll('input[name="q' + i + '"]:checked')).map(x => Number(x.value)));
+      const unanswered = answers.filter(a => a.length === 0).length;
+      if (!auto && unanswered && !window.confirm(unanswered + " question(s) are not answered. Submit anyway?")) return;
       $("ex-submit").disabled = true;
       const r = await db.rpc("submit_exam", { p_exam: current.id, p_answers: answers });
       $("ex-submit").disabled = false;
       clearInterval(timerId);
-      if (r.error) { say($("ex-result"), r.error.message, true); return; }
-      const res = r.data || {};
-      say($("ex-result"), (res.passed ? "Passed" : "Not passed") + ": " + res.right + " of " + res.total + " correct (" + res.score + "%). Pass mark " + current.pass_percent + "%.", !res.passed);
-      $("ex-form").querySelectorAll("input").forEach(el => el.disabled = true);
-      $("ex-submit").disabled = true;
+      if (r.error) { say($("ex-msg"), r.error.message, true); return; }
+      showResult(r.data || {});
       if (role === "admin") loadAll();
     }
+
+    function showResult(res) {
+      const ex = current;
+      $("ex-form").querySelectorAll("input").forEach(x => x.disabled = true);
+      $("ex-submit").hidden = true;
+      $("ex-timer").textContent = "";
+      const box = $("ex-result");
+      box.innerHTML = "";
+      box.hidden = false;
+
+      const top = el("div", "ex-box", null);
+      top.style.margin = "0 0 14px";
+      top.style.boxShadow = "none";
+      const score = el("div", "ex-score");
+      const ring = el("div", "ex-ring");
+      ring.style.background = "conic-gradient(" + (res.passed ? "#237A57" : "#B42318") + " " + (res.score * 3.6) + "deg, #E2E8F0 0)";
+      const inner = el("div");
+      inner.append(el("b", "", res.score + "%"), el("small", "", res.right + " of " + res.total));
+      ring.appendChild(inner);
+      const txt = el("div");
+      txt.append(el("div", "ex-verdict " + (res.passed ? "pass" : "fail"), res.passed ? "Passed" : "Not passed"));
+      txt.append(el("p", "", "Pass mark " + ex.pass_percent + "%. Read the explanations below to see what to review."));
+      score.append(ring, txt);
+      top.appendChild(score);
+      box.appendChild(top);
+
+      const review = Array.isArray(res.review) ? res.review : [];
+      ex.questions.forEach((q, i) => {
+        const rv = review[i] || { correct: [], chosen: [], ok: false, explanation: "" };
+        const card = el("div", "ex-q");
+        const head = el("div", "ex-q-head");
+        const num = el("span", "ex-num", String(i + 1));
+        num.style.background = rv.ok ? "#237A57" : "#B42318";
+        head.append(num, el("p", "", q.prompt));
+        card.appendChild(head);
+        const opts = el("div", "ex-opts");
+        q.options.forEach((opt, j) => {
+          const isCorrect = rv.correct.indexOf(j) !== -1;
+          const isChosen = rv.chosen.indexOf(j) !== -1;
+          const lab = el("div", "ex-opt");
+          if (isCorrect) lab.classList.add("right");
+          else if (isChosen) lab.classList.add("wrong");
+          if (isChosen) lab.classList.add("on");
+          if (isCorrect && !isChosen) lab.classList.add("missed");
+          lab.append(el("span", "dot"), el("span", "", LETTERS[j] + ".  " + opt));
+          if (isCorrect) lab.appendChild(el("span", "ex-tag right", "Correct"));
+          else if (isChosen) lab.appendChild(el("span", "ex-tag wrong", "Your answer"));
+          opts.appendChild(lab);
+        });
+        card.appendChild(opts);
+        if (rv.explanation) {
+          const ex2 = el("div", "ex-expl");
+          const s2 = document.createElement("strong"); s2.textContent = rv.ok ? "Well done. " : "Explanation: ";
+          ex2.append(s2, document.createTextNode(rv.explanation));
+          card.appendChild(ex2);
+        }
+        box.appendChild(card);
+      });
+
+      const btns = el("div", "ex-btns");
+      const back = el("button", "psir-btn psir-outline", "Back to exams");
+      back.type = "button";
+      back.addEventListener("click", () => { $("ex-take").hidden = true; current = null; window.scrollTo({ top: 0, behavior: "smooth" }); });
+      btns.appendChild(back);
+      box.appendChild(btns);
+      say($("ex-msg"), res.passed ? "Well done. You passed this exam." : "You can try again tomorrow (3 attempts a day).", !res.passed);
+      box.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
     $("ex-submit").addEventListener("click", () => submit(false));
     $("ex-leave").addEventListener("click", () => { clearInterval(timerId); $("ex-take").hidden = true; current = null; });
 
@@ -281,17 +422,15 @@
         const result = parseExam(String(reader.result || ""));
         parsed = result;
         const box = $("ex-preview");
-        const lines = [];
-        lines.push(result.title || "(no title)");
-        lines.push(result.questions.length + " questions · " + (result.timeLimit ? result.timeLimit + " minutes" : "no time limit") + " · pass mark " + result.pass + "%");
-        const pre = document.createElement("div");
-        lines.forEach(t => { const p = document.createElement("p"); p.style.margin = "2px 0"; p.textContent = t; pre.appendChild(p); });
-        box.appendChild(pre);
+        box.appendChild(el("p", "", result.title || "(no title)"));
+        box.lastChild.style.fontWeight = "700";
+        box.appendChild(el("p", "", result.questions.length + " questions · " + (result.timeLimit ? result.timeLimit + " minutes" : "no time limit") + " · pass mark " + result.pass + "%"));
         if (result.problems.length) {
-          result.problems.forEach(t => { const p = document.createElement("p"); p.style.color = "#B42318"; p.style.margin = "2px 0"; p.textContent = t; box.appendChild(p); });
+          result.problems.forEach(t => { const p = el("p", "", t); p.style.color = "#B42318"; box.appendChild(p); });
         } else {
           $("ex-save").disabled = false;
-          const ok = document.createElement("p"); ok.style.color = "#237A57"; ok.textContent = "The file is valid. Check the preview, then save.";
+          const ok = el("p", "", "The file is valid. Check the preview, then save.");
+          ok.style.color = "#237A57";
           box.appendChild(ok);
         }
       };
@@ -319,11 +458,11 @@
       const rows = r.data || [];
       box.innerHTML = rows.length ? "" : '<p style="color:#64748B;">No exams yet.</p>';
       rows.forEach(ex => {
-        const row = document.createElement("div");
-        row.className = "ex-row";
+        const row = el("div", "ex-row");
         row.style.cssText = "justify-content:space-between;border-bottom:1px solid #E2E8F0;padding:8px 0;";
-        const t = document.createElement("span"); t.textContent = ex.title + (ex.published ? "" : " (draft)");
-        const b = document.createElement("button"); b.type = "button"; b.className = "psir-btn psir-outline"; b.textContent = "Results";
+        const t = el("span", "", ex.title + (ex.published ? "" : " (draft)"));
+        const b = el("button", "psir-btn psir-outline", "Results");
+        b.type = "button";
         b.addEventListener("click", () => showResults(ex));
         row.append(t, b);
         box.appendChild(row);
@@ -334,11 +473,11 @@
       const r = await db.rpc("get_exam_attempts", { p_exam: ex.id });
       const box = $("ex-results");
       box.innerHTML = "";
-      const h = document.createElement("h3"); h.textContent = "Results: " + ex.title; box.appendChild(h);
-      if (r.error) { const p = document.createElement("p"); p.style.color = "#B42318"; p.textContent = r.error.message; box.appendChild(p); return; }
+      box.appendChild(el("h3", "", "Results: " + ex.title));
+      if (r.error) { const p = el("p", "", r.error.message); p.style.color = "#B42318"; box.appendChild(p); return; }
       const rows = r.data || [];
-      if (!rows.length) { const p = document.createElement("p"); p.textContent = "No attempts yet."; box.appendChild(p); return; }
-      const table = document.createElement("table"); table.className = "ex-table";
+      if (!rows.length) { box.appendChild(el("p", "", "No attempts yet.")); return; }
+      const table = el("table", "ex-table");
       table.innerHTML = "<thead><tr><th>Member</th><th>Score</th><th>Result</th><th>When</th></tr></thead>";
       const tb = document.createElement("tbody");
       rows.forEach(x => {
