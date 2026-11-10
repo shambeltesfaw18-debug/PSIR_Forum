@@ -826,3 +826,28 @@ html body footer.site-footer .sf-col h3 { white-space: nowrap; }
     flex: 0 0 260px !important;
   }
 }
+
+/* Round 9: Research Hub buttons in a two-column grid: same line, same size, wide gap */
+html body .rh-actions {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  gap: 32px !important;
+  align-items: stretch !important;
+  width: 100%;
+  max-width: 680px;
+  margin: 14px 0 !important;
+}
+html body .rh-actions > #submitOpen,
+html body .rh-actions > #booksLinkBtn {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 56px !important;
+  padding: 10px 14px !important;
+  text-align: center !important;
+  white-space: normal !important;
+  line-height: 1.25 !important;
+  flex: none !important;
+}
+@media (min-width: 761px) {
+  html body .rh-actions { gap: 80px !important; }
+}
