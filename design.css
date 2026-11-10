@@ -587,3 +587,29 @@ footer.site-footer .sf-bottom .container {
 html body, html:not([data-theme="dark"]) body, html[data-theme="dark"] body {
   min-height: 0 !important;
 }
+
+/* Floating controls: one clean round theme button; footer links clear of the floating buttons */
+#psirAppearance {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+#psirAppearance button {
+  width: 48px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  font-size: 1.2rem !important;
+  line-height: 1 !important;
+  background: #FFFFFF !important;
+  border: 1px solid #CBD5E1 !important;
+  box-shadow: 0 6px 16px rgba(10, 30, 70, 0.25) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (max-width: 760px) {
+  footer.site-footer .site-footer-inner { padding-bottom: 96px !important; }
+}
