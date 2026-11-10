@@ -37,7 +37,7 @@
     .ms-msgline { font-weight: 600; min-height: 20px; margin: 8px 0 0; }
     .ms-small { background: none; border: none; color: #2855A6; font-weight: 700; cursor: pointer; padding: 4px 0; }
     .ms-msg img { max-height: 320px; width: auto; max-width: 100%; object-fit: contain; }
-    @media (max-width: 760px) { .ms-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 760px) { .ms-grid { grid-template-columns: 1fr; } .ms-grid > section:nth-child(2) { order: -1; } }
   </style>
 </head>
 <body>
@@ -138,6 +138,7 @@
       const to = qs.get("to"), c = qs.get("c");
       if (c) { const hit = convs.find(x => x.id === c); if (hit) openConv(hit); }
       else if (to && to !== me.id) openNew(to);
+      else if (convs.length) openConv(convs[0]);
     }
 
     async function loadList() {
