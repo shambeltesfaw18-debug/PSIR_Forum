@@ -47,7 +47,14 @@
     }).join("");
     var hero = document.querySelector("section.hero");
     if (!hero || !hero.parentNode) return;
+    wrap.id = "psirHomeStats";
     hero.parentNode.insertBefore(wrap, hero.nextSibling);
+    // Hide the strip while the Discussions view is open, which already shows these numbers.
+    setInterval(function () {
+      var d = document.getElementById("discussions");
+      var discussionsOpen = !!(d && window.getComputedStyle(d).display !== "none");
+      wrap.style.display = discussionsOpen ? "none" : "";
+    }, 400);
     var cards = wrap.querySelectorAll(".psir-stat");
     var nums = wrap.querySelectorAll("strong[data-n]");
     requestAnimationFrame(function () {
