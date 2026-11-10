@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sample exam</title>
+</head>
+<body>
+<!--
+  HOW TO WRITE AN EXAM FILE
+  - Keep one <section data-exam> around everything.
+  - data-time-limit = minutes (0 for no limit). data-pass = pass mark in percent.
+  - Each question is a <div class="question">. data-type="single" (one correct answer)
+    or data-type="multi" (more than one correct answer).
+  - The first <p> inside a question is the question text.
+  - Each answer option is an <li>. Mark the correct one(s) with data-correct="true".
+  - Scripts and links are ignored; only plain text is used.
+  - Keep the file under 500 KB, with at most 100 questions and 8 options each.
+-->
+<section data-exam data-time-limit="10" data-pass="60">
+  <h1>Sample Exam: Introduction to Political Science</h1>
+  <p>Answer all questions. Each question has one correct answer unless it says otherwise.</p>
+
+  <div class="question" data-type="single">
+    <p>Which discipline studies the distribution and exercise of power in societies?</p>
+    <ul>
+      <li>Political science</li>
+      <li data-correct="true">Political science and governance</li>
+      <li>Economics only</li>
+      <li>Biology</li>
+    </ul>
+  </div>
+
+  <div class="question" data-type="multi">
+    <p>Select all forms of government that are commonly discussed in political science.</p>
+    <ul>
+      <li data-correct="true">Democracy</li>
+      <li>Weather</li>
+      <li data-correct="true">Federalism</li>
+      <li>Photography</li>
+    </ul>
+  </div>
+</section>
+</body>
+</html>

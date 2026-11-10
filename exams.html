@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exams | PSIR Forum</title>
+  <link rel="icon" type="image/jpeg" href="/images/logo.jpg">
+  <link rel="stylesheet" href="buttons.css">
+  <link rel="stylesheet" href="design.css">
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+    [hidden] { display: none !important; }
+    .ex-wrap { width: min(1000px, calc(100% - 24px)); margin: 0 auto; padding: 18px 0 30px; }
+    .ex-box { background: #FFFFFF; border: 1px solid #DCE3EE; border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+    .ex-box h2 { margin: 0 0 6px; color: #1E3F82; font-size: 1.2rem; }
+    .ex-q { border: 1px solid #DCE3EE; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+    .ex-q p { margin: 0 0 8px; font-weight: 700; color: #263238; }
+    .ex-q label { display: flex; gap: 8px; align-items: flex-start; padding: 6px 0; line-height: 1.4; }
+    .ex-timer { font-weight: 800; color: #B42318; }
+    .ex-msg { font-weight: 600; min-height: 20px; margin: 8px 0 0; }
+    .ex-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .ex-table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    .ex-table th, .ex-table td { text-align: left; padding: 6px 4px; border-bottom: 1px solid #E2E8F0; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="container top-inner">
+      <a class="brand" href="/">PSIR FORUM</a>
+      <nav class="top-links" aria-label="Main navigation">
+        <a href="/">Home</a>
+        <a href="/categories">Categories</a>
+        <a href="/discussions">Discussions</a>
+        <a href="/research.html">Research Hub</a>
+        <a href="/news.html">News &amp; Journal</a>
+        <a href="/career.html">Career</a>
+        <a href="/saved.html">Saved papers</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="ex-wrap">
+    <section class="ex-box" id="ex-list-box" aria-labelledby="ex-list-title">
+      <h2 id="ex-list-title">Exams</h2>
+      <p style="margin:0 0 10px;color:#475569;">Take an exam right here. You have 3 attempts per exam each day. Your score is shown straight after you submit.</p>
+      <div id="ex-list"><p style="color:#64748B;">Loading…</p></div>
+    </section>
+
+    <section class="ex-box" id="ex-take" hidden aria-labelledby="ex-take-title">
+      <div class="ex-row" style="justify-content:space-between;">
+        <h2 id="ex-take-title"></h2>
+        <span id="ex-timer" class="ex-timer"></span>
+      </div>
+      <p id="ex-desc" style="color:#475569;margin:0 0 12px;"></p>
+      <form id="ex-form"></form>
+      <div class="ex-row" style="margin-top:10px;">
+        <button type="button" id="ex-submit" class="psir-btn psir-navy">Submit exam</button>
+        <button type="button" id="ex-leave" class="psir-btn psir-outline">Back to exams</button>
+      </div>
+      <div id="ex-result" class="ex-msg" role="status"></div>
+    </section>
+
+    <section class="ex-box" id="ex-admin" hidden aria-labelledby="ex-admin-title">
+      <h2 id="ex-admin-title">Add an exam from an HTML file</h2>
+      <p style="margin:0 0 10px;color:#475569;">Upload an HTML file written in the format of the sample. Only the text of the file is read. Scripts and links in the file are ignored. <a href="/exam-template.html" target="_blank" rel="noopener noreferrer" style="color:#2855A6;font-weight:700;">Download the sample file</a>.</p>
+      <input id="ex-file" type="file" accept=".html,text/html">
+      <div id="ex-preview" style="margin-top:10px;"></div>
+      <div class="ex-row" style="margin-top:10px;">
+        <label style="display:flex;gap:6px;align-items:center;"><input id="ex-publish" type="checkbox"> Publish now</label>
+        <button type="button" id="ex-save" class="psir-btn psir-navy" disabled>Save exam</button>
+      </div>
+      <p id="ex-admin-msg" class="ex-msg" role="status"></p>
+      <h3 style="margin:16px 0 6px;">All exams and results</h3>
+      <div id="ex-all"></div>
+      <div id="ex-results"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer-inner">
+      <div class="sf-brand"><strong>PSIR Forum</strong><p>An academic community for political science and international relations. Founded by Shambel Tesfaw Kibret, Kombolcha, Ethiopia.</p></div>
+      <nav class="sf-col" aria-label="Explore the forum"><h3>Explore</h3><a href="/discussions">Discussions</a><a href="/research.html">Research Hub</a><a href="/books.html">Books and Materials</a><a href="/news.html">News &amp; Journal</a><a href="/career.html">Career</a><a href="/live.html">Live Room</a></nav>
+      <div class="sf-col"><h3>Community</h3><a href="https://t.me/psir_forumchannel" target="_blank" rel="noopener noreferrer">Telegram channel</a><a href="https://www.facebook.com/share/19ppJG3tkp/" target="_blank" rel="noopener noreferrer">Facebook page</a><a href="mailto:psirforum@gmail.com">psirforum@gmail.com</a></div>
+      <nav class="sf-col" aria-label="Policies and help"><h3>Policies</h3><a href="/info.html?page=terms">Terms of Use</a><a href="/info.html?page=privacy">Privacy Policy</a><a href="/info.html?page=guidelines">Community Guidelines</a><a href="/policy.html">Academic publishing policy</a><a href="/info.html?page=contact">Contact</a></nav>
+    </div>
+    <div class="sf-bottom"><div class="container">© 2026 PSIR Forum · Beta · Kombolcha, Ethiopia</div></div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (() => {
+    "use strict";
+    const db = window.supabase.createClient("https://updxillknwufqekfzkur.supabase.co", "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5");
+    const $ = id => document.getElementById(id);
+    let me = null, role = null, current = null, timerId = null, endAt = 0, parsed = null;
+    const MAX_BYTES = 512 * 1024;
+
+    function say(el, text, bad) { el.textContent = text || ""; el.style.color = bad ? "#B42318" : "#237A57"; }
+    function clip(s, n) { return String(s || "").replace(/\s+/g, " ").trim().slice(0, n); }
+
+    // Reads an exam file as plain text. Scripts, links and images are not run or loaded.
+    function parseExam(text) {
+      const doc = new DOMParser().parseFromString(text, "text/html");
+      const root = doc.querySelector("[data-exam]") || doc.body;
+      const h1 = root.querySelector("h1");
+      const title = clip(h1 ? h1.textContent : (doc.title || ""), 150);
+      const timeLimit = Math.max(0, Math.min(300, parseInt(root.getAttribute("data-time-limit") || "0", 10) || 0));
+      const pass = Math.max(1, Math.min(100, parseInt(root.getAttribute("data-pass") || "50", 10) || 50));
+      const introP = Array.from(root.children).find(el => el.tagName === "P");
+      const description = clip(introP ? introP.textContent : "", 1000);
+      const problems = [];
+      const questions = [], answers = [];
+      Array.from(root.querySelectorAll(".question")).forEach((q, idx) => {
+        const p = q.querySelector("p");
+        const prompt = clip(p ? p.textContent : "", 500);
+        const items = Array.from(q.querySelectorAll("li"));
+        const options = items.map(li => clip(li.textContent, 300)).filter(Boolean);
+        const correct = [];
+        items.forEach((li, i) => { if (li.getAttribute("data-correct") === "true") correct.push(i); });
+        const type = q.getAttribute("data-type") === "multi" ? "multi" : "single";
+        if (!prompt || options.length < 2 || options.length > 8) { problems.push("Question " + (idx + 1) + " needs a question and 2 to 8 options."); return; }
+        if (correct.length < 1) { problems.push("Question " + (idx + 1) + " has no correct answer marked."); return; }
+        if (type === "single" && correct.length > 1) { problems.push("Question " + (idx + 1) + " is single-answer but has more than one correct option."); return; }
+        questions.push({ prompt: prompt, type: type, options: options });
+        answers.push({ correct: correct });
+      });
+      if (!title) problems.push("The file needs a title in its <h1>.");
+      if (questions.length < 1) problems.push("No valid questions were found in this file.");
+      if (questions.length > 100) problems.push("An exam can have up to 100 questions.");
+      return { title, description, timeLimit, pass, questions, answers, problems };
+    }
+
+    async function init() {
+      const s = await db.auth.getSession();
+      if (s.data.session) {
+        me = s.data.session.user;
+        const p = await db.from("profiles").select("role").eq("id", me.id).maybeSingle();
+        role = p.data ? p.data.role : null;
+      }
+      await loadList();
+      if (role === "admin") { $("ex-admin").hidden = false; loadAll(); }
+    }
+
+    async function loadList() {
+      const r = await db.from("exams").select("id, title, description, time_limit_minutes, pass_percent, questions").eq("published", true).order("created_at", { ascending: false });
+      const box = $("ex-list");
+      if (r.error) { box.textContent = "Could not load exams: " + r.error.message; return; }
+      const rows = r.data || [];
+      if (!rows.length) { box.innerHTML = '<p style="color:#64748B;">No exams are published yet.</p>'; return; }
+      box.innerHTML = "";
+      rows.forEach(ex => {
+        const card = document.createElement("div");
+        card.className = "ex-q";
+        const h = document.createElement("p"); h.textContent = ex.title;
+        const d = document.createElement("p"); d.style.fontWeight = "400"; d.style.color = "#475569"; d.textContent = (ex.description || "") ;
+        const meta = document.createElement("p"); meta.style.fontWeight = "400"; meta.style.color = "#64748B";
+        meta.textContent = ex.questions.length + " questions · " + (ex.time_limit_minutes ? ex.time_limit_minutes + " minutes" : "no time limit") + " · pass mark " + ex.pass_percent + "%";
+        const b = document.createElement("button"); b.type = "button"; b.className = "psir-btn psir-navy"; b.textContent = "Start exam";
+        b.addEventListener("click", () => start(ex));
+        card.append(h, d, meta, b);
+        box.appendChild(card);
+      });
+    }
+
+    function start(ex) {
+      if (!me) { alert("Please sign in to take an exam."); return; }
+      current = ex;
+      $("ex-take").hidden = false;
+      $("ex-take-title").textContent = ex.title;
+      $("ex-desc").textContent = ex.description || "";
+      $("ex-result").textContent = "";
+      const form = $("ex-form");
+      form.innerHTML = "";
+      ex.questions.forEach((q, i) => {
+        const box = document.createElement("div");
+        box.className = "ex-q";
+        const p = document.createElement("p"); p.textContent = (i + 1) + ". " + q.prompt;
+        box.appendChild(p);
+        q.options.forEach((opt, j) => {
+          const lab = document.createElement("label");
+          const input = document.createElement("input");
+          input.type = q.type === "multi" ? "checkbox" : "radio";
+          input.name = "q" + i; input.value = String(j);
+          const span = document.createElement("span"); span.textContent = opt;
+          lab.append(input, span);
+          box.appendChild(lab);
+        });
+        form.appendChild(box);
+      });
+      clearInterval(timerId);
+      if (ex.time_limit_minutes > 0) {
+        endAt = Date.now() + ex.time_limit_minutes * 60000;
+        const tick = () => {
+          const left = Math.max(0, endAt - Date.now());
+          const m = Math.floor(left / 60000), sec = Math.floor((left % 60000) / 1000);
+          $("ex-timer").textContent = "Time left " + m + ":" + String(sec).padStart(2, "0");
+          if (left <= 0) { clearInterval(timerId); submit(true); }
+        };
+        tick();
+        timerId = setInterval(tick, 500);
+      } else {
+        $("ex-timer").textContent = "";
+      }
+      $("ex-take").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    async function submit(auto) {
+      if (!current) return;
+      const answers = current.questions.map((q, i) => {
+        const picked = Array.from(document.querySelectorAll('input[name="q' + i + '"]:checked')).map(el => Number(el.value));
+        return picked;
+      });
+      if (!auto && answers.some(a => a.length === 0) && !window.confirm("Some questions are not answered. Submit anyway?")) return;
+      $("ex-submit").disabled = true;
+      const r = await db.rpc("submit_exam", { p_exam: current.id, p_answers: answers });
+      $("ex-submit").disabled = false;
+      clearInterval(timerId);
+      if (r.error) { say($("ex-result"), r.error.message, true); return; }
+      const res = r.data || {};
+      say($("ex-result"), (res.passed ? "Passed" : "Not passed") + ": " + res.right + " of " + res.total + " correct (" + res.score + "%). Pass mark " + current.pass_percent + "%.", !res.passed);
+      $("ex-form").querySelectorAll("input").forEach(el => el.disabled = true);
+      $("ex-submit").disabled = true;
+      if (role === "admin") loadAll();
+    }
+    $("ex-submit").addEventListener("click", () => submit(false));
+    $("ex-leave").addEventListener("click", () => { clearInterval(timerId); $("ex-take").hidden = true; current = null; });
+
+    // Admin: read a file, check it, and save it.
+    $("ex-file").addEventListener("change", () => {
+      const f = $("ex-file").files[0];
+      parsed = null;
+      $("ex-save").disabled = true;
+      $("ex-preview").innerHTML = "";
+      $("ex-admin-msg").textContent = "";
+      if (!f) return;
+      if (!/\.html?$/i.test(f.name) || f.size > MAX_BYTES) { say($("ex-admin-msg"), "Please choose an HTML file of up to 500 KB.", true); return; }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = parseExam(String(reader.result || ""));
+        parsed = result;
+        const box = $("ex-preview");
+        const lines = [];
+        lines.push(result.title || "(no title)");
+        lines.push(result.questions.length + " questions · " + (result.timeLimit ? result.timeLimit + " minutes" : "no time limit") + " · pass mark " + result.pass + "%");
+        const pre = document.createElement("div");
+        lines.forEach(t => { const p = document.createElement("p"); p.style.margin = "2px 0"; p.textContent = t; pre.appendChild(p); });
+        box.appendChild(pre);
+        if (result.problems.length) {
+          result.problems.forEach(t => { const p = document.createElement("p"); p.style.color = "#B42318"; p.style.margin = "2px 0"; p.textContent = t; box.appendChild(p); });
+        } else {
+          $("ex-save").disabled = false;
+          const ok = document.createElement("p"); ok.style.color = "#237A57"; ok.textContent = "The file is valid. Check the preview, then save.";
+          box.appendChild(ok);
+        }
+      };
+      reader.readAsText(f);
+    });
+
+    $("ex-save").addEventListener("click", async () => {
+      if (!parsed || parsed.problems.length) return;
+      $("ex-save").disabled = true;
+      const r = await db.rpc("admin_create_exam", {
+        p_title: parsed.title, p_description: parsed.description || null, p_time: parsed.timeLimit,
+        p_pass: parsed.pass, p_questions: parsed.questions, p_answers: parsed.answers, p_publish: $("ex-publish").checked
+      });
+      $("ex-save").disabled = false;
+      if (r.error) { say($("ex-admin-msg"), "Could not save: " + r.error.message, true); return; }
+      say($("ex-admin-msg"), $("ex-publish").checked ? "Saved and published." : "Saved as a draft. Publish it when you are ready.");
+      $("ex-file").value = ""; $("ex-preview").innerHTML = ""; parsed = null;
+      await loadList(); await loadAll();
+    });
+
+    async function loadAll() {
+      const r = await db.from("exams").select("id, title, published, created_at").order("created_at", { ascending: false });
+      const box = $("ex-all");
+      if (r.error) { box.textContent = "Could not load: " + r.error.message; return; }
+      const rows = r.data || [];
+      box.innerHTML = rows.length ? "" : '<p style="color:#64748B;">No exams yet.</p>';
+      rows.forEach(ex => {
+        const row = document.createElement("div");
+        row.className = "ex-row";
+        row.style.cssText = "justify-content:space-between;border-bottom:1px solid #E2E8F0;padding:8px 0;";
+        const t = document.createElement("span"); t.textContent = ex.title + (ex.published ? "" : " (draft)");
+        const b = document.createElement("button"); b.type = "button"; b.className = "psir-btn psir-outline"; b.textContent = "Results";
+        b.addEventListener("click", () => showResults(ex));
+        row.append(t, b);
+        box.appendChild(row);
+      });
+    }
+
+    async function showResults(ex) {
+      const r = await db.rpc("get_exam_attempts", { p_exam: ex.id });
+      const box = $("ex-results");
+      box.innerHTML = "";
+      const h = document.createElement("h3"); h.textContent = "Results: " + ex.title; box.appendChild(h);
+      if (r.error) { const p = document.createElement("p"); p.style.color = "#B42318"; p.textContent = r.error.message; box.appendChild(p); return; }
+      const rows = r.data || [];
+      if (!rows.length) { const p = document.createElement("p"); p.textContent = "No attempts yet."; box.appendChild(p); return; }
+      const table = document.createElement("table"); table.className = "ex-table";
+      table.innerHTML = "<thead><tr><th>Member</th><th>Score</th><th>Result</th><th>When</th></tr></thead>";
+      const tb = document.createElement("tbody");
+      rows.forEach(x => {
+        const tr = document.createElement("tr");
+        [x.full_name || "Member", x.score + "%", x.passed ? "Passed" : "Not passed", String(x.created_at).slice(0, 16).replace("T", " ")].forEach(v => {
+          const td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
+        });
+        tb.appendChild(tr);
+      });
+      table.appendChild(tb);
+      box.appendChild(table);
+    }
+
+    init();
+  })();
+  </script>
+  <script src="welcome-tip.js"></script>
+  <script src="language.js"></script>
+  <script src="error-log.js"></script>
+  <script src="consent.js"></script>
+  <script src="chat-button.js"></script>
+</body>
+</html>
