@@ -59,6 +59,20 @@
     .ex-table { width: 100%; border-collapse: collapse; font-size: .92rem; }
     .ex-table th, .ex-table td { text-align: left; padding: 6px 4px; border-bottom: 1px solid #E2E8F0; }
     .ex-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .ex-controls { margin-top: 12px; }
+    .ex-pagecount { font-weight: 800; color: #1E3F82; margin-bottom: 8px; }
+    .ex-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .ex-jump { width: 36px; height: 36px; border-radius: 8px; border: 1.5px solid #CBD5E1; background: #fff; color: #263238; font-weight: 700; cursor: pointer; }
+    .ex-jump.done { background: #EEF4FD; border-color: #2855A6; color: #1E3F82; }
+    .ex-jump.flag { border-color: #E6B75A; background: #FFF6E0; }
+    .ex-jump.flag::after { content: " \2691"; color: #B7791F; font-size: .7rem; }
+    .ex-jump.cur { background: #1E3F82; color: #fff; border-color: #1E3F82; }
+    .ex-pager { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; margin-top: 6px; }
+    .ex-flagbtn { border: 1.5px solid #B7791F; background: #FFFBF0; color: #7A5A00; border-radius: 8px; padding: 10px 14px; font-weight: 700; cursor: pointer; min-height: 44px; }
+    .ex-flagbtn.on { background: #E6B75A; color: #1F1600; }
+    .ex-navbtn { min-height: 44px; padding: 0 16px; border-radius: 8px; font-weight: 700; cursor: pointer; border: 1.5px solid #2855A6; background: #fff; color: #2855A6; }
+    .ex-navbtn.primary { background: #2855A6; color: #fff; }
+    .ex-navbtn:disabled { opacity: .45; cursor: default; }
     @media (prefers-reduced-motion: reduce) { .ex-progress > div, .ex-opt { transition: none; } }
   </style>
 </head>
@@ -96,6 +110,15 @@
       </div>
       <div class="ex-progress" aria-hidden="true"><div id="ex-bar"></div></div>
       <form id="ex-form" style="margin-top:10px;"></form>
+      <div id="ex-controls" class="ex-controls" hidden>
+        <div id="ex-pagecount" class="ex-pagecount"></div>
+        <div id="ex-nav" class="ex-nav" aria-label="Jump to a question"></div>
+        <div class="ex-pager">
+          <button type="button" id="ex-prev" class="ex-navbtn">← Previous</button>
+          <button type="button" id="ex-flag" class="ex-flagbtn">Flag this question</button>
+          <button type="button" id="ex-next" class="ex-navbtn primary">Next →</button>
+        </div>
+      </div>
       <div class="ex-btns">
         <button type="button" id="ex-submit" class="psir-btn psir-navy">Submit exam</button>
         <button type="button" id="ex-leave" class="psir-btn psir-outline">Back to exams</button>
@@ -254,20 +277,57 @@
       });
     }
 
+    let page = 0, flags = new Set();
+    function answeredCount(i) { return document.querySelectorAll('input[name="q' + i + '"]:checked').length; }
     function updateProgress() {
       if (!current) return;
       const total = current.questions.length;
       let answered = 0;
-      current.questions.forEach((q, i) => {
-        if (document.querySelectorAll('input[name="q' + i + '"]:checked').length) answered++;
-      });
-      $("ex-counter").textContent = answered + " of " + total + " answered";
+      for (let i = 0; i < total; i++) if (answeredCount(i)) answered++;
+      $("ex-counter").textContent = answered + " of " + total + " answered" + (flags.size ? " · " + flags.size + " flagged" : "");
       $("ex-bar").style.width = Math.round(100 * answered / total) + "%";
+      renderNav();
     }
+    function renderNav() {
+      const nav = $("ex-nav");
+      if (!nav || !current) return;
+      nav.innerHTML = "";
+      current.questions.forEach((q, i) => {
+        const b = el("button", "ex-jump", String(i + 1));
+        b.type = "button";
+        b.setAttribute("aria-label", "Question " + (i + 1) + (answeredCount(i) ? ", answered" : ", not answered") + (flags.has(i) ? ", flagged" : ""));
+        if (answeredCount(i)) b.classList.add("done");
+        if (flags.has(i)) b.classList.add("flag");
+        if (i === page) b.classList.add("cur");
+        b.addEventListener("click", () => showPage(i));
+        nav.appendChild(b);
+      });
+    }
+    function showPage(i) {
+      if (!current) return;
+      page = Math.max(0, Math.min(current.questions.length - 1, i));
+      document.querySelectorAll("#ex-form .ex-page").forEach((p, k) => { p.hidden = k !== page; });
+      $("ex-prev").disabled = page === 0;
+      $("ex-next").disabled = page === current.questions.length - 1;
+      const on = flags.has(page);
+      $("ex-flag").textContent = on ? "Flagged ⚑ (tap to remove)" : "Flag this question";
+      $("ex-flag").classList.toggle("on", on);
+      $("ex-pagecount").textContent = "Question " + (page + 1) + " of " + current.questions.length;
+      renderNav();
+    }
+    $("ex-prev").addEventListener("click", () => showPage(page - 1));
+    $("ex-next").addEventListener("click", () => showPage(page + 1));
+    $("ex-flag").addEventListener("click", () => {
+      if (flags.has(page)) flags.delete(page); else flags.add(page);
+      showPage(page);
+      updateProgress();
+    });
 
     function start(ex) {
       if (!me) { alert("Please sign in to take an exam."); return; }
       current = ex;
+      page = 0;
+      flags = new Set();
       $("ex-take").hidden = false;
       $("ex-take-title").textContent = ex.title;
       $("ex-desc").textContent = ex.description || (ex.questions.length + " questions. Choose the best answer for each one.");
@@ -275,10 +335,12 @@
       $("ex-result").hidden = true;
       $("ex-result").innerHTML = "";
       $("ex-submit").hidden = false;
+      $("ex-controls").hidden = false;
       const form = $("ex-form");
       form.innerHTML = "";
       ex.questions.forEach((q, i) => {
-        const card = el("div", "ex-q");
+        const card = el("div", "ex-q ex-page");
+        card.hidden = true;
         const head = el("div", "ex-q-head");
         head.append(el("span", "ex-num", String(i + 1)), el("p", "", q.prompt));
         card.appendChild(head);
@@ -293,9 +355,7 @@
           const span = el("span", "", LETTERS[j] + ".  " + opt);
           lab.append(input, dot, span);
           input.addEventListener("change", () => {
-            if (input.type === "radio") {
-              opts.querySelectorAll(".ex-opt").forEach(o => o.classList.remove("on"));
-            }
+            if (input.type === "radio") opts.querySelectorAll(".ex-opt").forEach(o => o.classList.remove("on"));
             lab.classList.toggle("on", input.checked);
             updateProgress();
           });
@@ -318,6 +378,7 @@
       } else {
         $("ex-timer").textContent = "";
       }
+      showPage(0);
       updateProgress();
       $("ex-take").scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -327,7 +388,7 @@
       const answers = current.questions.map((q, i) =>
         Array.from(document.querySelectorAll('input[name="q' + i + '"]:checked')).map(x => Number(x.value)));
       const unanswered = answers.filter(a => a.length === 0).length;
-      if (!auto && unanswered && !window.confirm(unanswered + " question(s) are not answered. Submit anyway?")) return;
+      if (!auto && (unanswered || flags.size) && !window.confirm(unanswered + " question(s) not answered" + (flags.size ? ", " + flags.size + " flagged" : "") + ". Submit anyway?")) return;
       $("ex-submit").disabled = true;
       const r = await db.rpc("submit_exam", { p_exam: current.id, p_answers: answers });
       $("ex-submit").disabled = false;
@@ -341,6 +402,7 @@
       const ex = current;
       $("ex-form").querySelectorAll("input").forEach(x => x.disabled = true);
       $("ex-submit").hidden = true;
+      $("ex-controls").hidden = true;
       $("ex-timer").textContent = "";
       const box = $("ex-result");
       box.innerHTML = "";
