@@ -138,6 +138,8 @@
         role = p.data ? p.data.role : null;
       }
       await loadList();
+      const want = new URLSearchParams(location.search).get("exam");
+      if (want) { const btn = document.querySelector('[data-exam-id="' + want + '"] button'); if (btn) btn.click(); }
       if (role === "admin") { $("ex-admin").hidden = false; loadAll(); }
     }
 
@@ -151,6 +153,7 @@
       rows.forEach(ex => {
         const card = document.createElement("div");
         card.className = "ex-q";
+        card.dataset.examId = ex.id;
         const h = document.createElement("p"); h.textContent = ex.title;
         const d = document.createElement("p"); d.style.fontWeight = "400"; d.style.color = "#475569"; d.textContent = (ex.description || "") ;
         const meta = document.createElement("p"); meta.style.fontWeight = "400"; meta.style.color = "#64748B";
