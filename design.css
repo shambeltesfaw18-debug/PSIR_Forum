@@ -808,3 +808,21 @@ html body footer.site-footer .sf-col h3 { white-space: nowrap; }
   .rh-actions { flex-direction: row !important; gap: 24px !important; }
   .rh-actions > #submitOpen, .rh-actions > #booksLinkBtn { width: 260px !important; min-width: 260px !important; }
 }
+
+/* Round 8: Research Hub buttons side by side with wide space on larger screens */
+@media (min-width: 761px) {
+  html body .rh-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    gap: 64px !important;
+  }
+  html body .rh-actions > #submitOpen,
+  html body .rh-actions > #booksLinkBtn {
+    width: 260px !important;
+    min-width: 260px !important;
+    flex: 0 0 260px !important;
+  }
+}
