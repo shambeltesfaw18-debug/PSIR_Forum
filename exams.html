@@ -70,6 +70,7 @@
     .ex-pager { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; margin-top: 6px; }
     .ex-flagbtn { border: 1.5px solid #B7791F; background: #FFFBF0; color: #7A5A00; border-radius: 8px; padding: 10px 14px; font-weight: 700; cursor: pointer; min-height: 44px; }
     .ex-flagbtn.on { background: #E6B75A; color: #1F1600; }
+    .ex-flagicon { width: 48px; min-width: 48px; padding: 0; font-size: 1.25rem; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
     .ex-navbtn { min-height: 44px; padding: 0 16px; border-radius: 8px; font-weight: 700; cursor: pointer; border: 1.5px solid #2855A6; background: #fff; color: #2855A6; }
     .ex-navbtn.primary { background: #2855A6; color: #fff; }
     .ex-navbtn:disabled { opacity: .45; cursor: default; }
@@ -133,7 +134,7 @@
         <div id="ex-nav" class="ex-nav" aria-label="Jump to a question"></div>
         <div class="ex-pager">
           <button type="button" id="ex-prev" class="ex-navbtn">← Previous</button>
-          <button type="button" id="ex-flag" class="ex-flagbtn">Flag this question</button>
+          <button type="button" id="ex-flag" class="ex-flagbtn ex-flagicon" aria-label="Flag this question" title="Flag this question">⚑</button>
           <button type="button" id="ex-next" class="ex-navbtn primary">Next →</button>
         </div>
       </div>
@@ -339,7 +340,7 @@
       const total = current.questions.length;
       let answered = 0;
       for (let i = 0; i < total; i++) if (answeredCount(i)) answered++;
-      $("ex-counter").textContent = answered + " of " + total + " answered" + (flags.size ? " · " + flags.size + " flagged" : "");
+      $("ex-counter").textContent = answered + " of " + total + " answered";
       $("ex-bar").style.width = Math.round(100 * answered / total) + "%";
       renderNav();
     }
@@ -365,7 +366,9 @@
       $("ex-prev").disabled = page === 0;
       $("ex-next").disabled = page === current.questions.length - 1;
       const on = flags.has(page);
-      $("ex-flag").textContent = on ? "Flagged ⚑ (tap to remove)" : "Flag this question";
+      $("ex-flag").textContent = "⚑";
+      $("ex-flag").setAttribute("aria-label", on ? "Remove flag" : "Flag this question");
+      $("ex-flag").title = on ? "Remove flag" : "Flag this question";
       $("ex-flag").classList.toggle("on", on);
       $("ex-pagecount").textContent = "Question " + (page + 1) + " of " + current.questions.length;
       renderNav();
@@ -443,7 +446,7 @@
       const answers = current.questions.map((q, i) =>
         Array.from(document.querySelectorAll('input[name="q' + i + '"]:checked')).map(x => Number(x.value)));
       const unanswered = answers.filter(a => a.length === 0).length;
-      if (!auto && (unanswered || flags.size) && !window.confirm(unanswered + " question(s) not answered" + (flags.size ? ", " + flags.size + " flagged" : "") + ". Submit anyway?")) return;
+      if (!auto && unanswered && !window.confirm(unanswered + " question(s) not answered. Submit anyway?")) return;
       $("ex-submit").disabled = true;
       const r = await db.rpc("submit_exam", { p_exam: current.id, p_answers: answers });
       $("ex-submit").disabled = false;
