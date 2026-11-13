@@ -7,10 +7,11 @@ const DAILY_LIMIT = 20;
 // Models to try, in order. GEMINI_MODEL (optional, set in Vercel) is tried first.
 const MODELS = [
   process.env.GEMINI_MODEL,
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite",
   "gemini-2.0-flash",
   "gemini-2.0-flash-lite",
   "gemini-1.5-flash",
-  "gemini-1.5-flash-latest",
 ].filter(Boolean);
 
 const SYSTEM = `You are the assistant for PSIR Forum, an online community for political science and international relations in Ethiopia.
