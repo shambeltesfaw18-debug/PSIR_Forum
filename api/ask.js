@@ -4,15 +4,32 @@ const SUPABASE_URL = "https://updxillknwufqekfzkur.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ctcI-xHdTj4TDIS9wC8n-Q_waZAg4F5";
 const DAILY_LIMIT = 20;
 
-// Models to try, in order. GEMINI_MODEL (optional, set in Vercel) is tried first.
-const MODELS = [
-  process.env.GEMINI_MODEL,
-  "gemini-2.5-flash",
-  "gemini-2.5-flash-lite",
-  "gemini-2.0-flash",
-  "gemini-2.0-flash-lite",
-  "gemini-1.5-flash",
-].filter(Boolean);
+// Models this key can use. Asked from Google, so no guessing. GEMINI_MODEL (optional) is tried first.
+let cachedModels = null;
+async function usableModels(key) {
+  if (cachedModels) return cachedModels;
+  const fallback = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-1.5-flash"];
+  try {
+    const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", {
+      headers: { "x-goog-api-key": key },
+    });
+    if (!r.ok) return fallback;
+    const data = await r.json();
+    const names = (data.models || [])
+      .filter((m) => (m.supportedGenerationMethods || []).indexOf("generateContent") !== -1)
+      .map((m) => String(m.name || "").replace(/^models\//, ""))
+      .filter((n) => /^gemini-/.test(n) && !/(tts|image|embedding|live|audio|preview|exp|vision|robotics|computer|thinking)/i.test(n));
+    const score = (n) => {
+      const v = n.match(/(\d+)\.(\d+)/);
+      return (v ? parseFloat(v[1] + "." + v[2]) * 10 : 0) + (/flash/.test(n) ? 5 : 0) - (/lite/.test(n) ? 1 : 0);
+    };
+    names.sort((a, b) => score(b) - score(a));
+    cachedModels = [process.env.GEMINI_MODEL].concat(names.slice(0, 4)).filter(Boolean);
+    return cachedModels.length ? cachedModels : fallback;
+  } catch (e) {
+    return fallback;
+  }
+}
 
 const SYSTEM = `You are the assistant for PSIR Forum, an online community for political science and international relations in Ethiopia.
 Answer only questions about how to use PSIR Forum. Keep answers short, clear and friendly. If you are not sure, say so and suggest psirforum@gmail.com.
@@ -62,7 +79,8 @@ export default async function handler(req, res) {
   if (!key) { await refund(); return res.status(500).json({ error: "The assistant is not set up yet." }); }
 
   let lastStatus = 0, lastDetail = "";
-  for (const model of MODELS) {
+  const models = await usableModels(key);
+  for (const model of models) {
     const r = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent",
       {
