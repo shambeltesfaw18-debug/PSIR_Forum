@@ -69,8 +69,7 @@ export default async function handler(req, res) {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": key.trim() },
         body: JSON.stringify({
-          systemInstruction: { parts: [{ text: SYSTEM }] },
-          contents: [{ role: "user", parts: [{ text: question }] }],
+          contents: [{ role: "user", parts: [{ text: SYSTEM + "\n\nMember question: " + question + "\n\nAnswer the member's question about PSIR Forum only, using the information above." }] }],
           generationConfig: { maxOutputTokens: 400, temperature: 0.3 },
         }),
       }
