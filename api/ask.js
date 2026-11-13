@@ -161,6 +161,16 @@ export default async function handler(req, res) {
   let lastStatus = 0, lastDetail = "";
   const models = await usableModels(key);
   for (const model of models) {
+    const body = {
+      systemInstruction: { parts: [{ text: SYSTEM }] },
+      contents: [{ role: "user", parts: [{ text: question }] }],
+      generationConfig: { maxOutputTokens: 350, temperature: 0.3 },
+    };
+    // Answers only repeat the forum guide, so skip the extra "thinking" time on 2.5 models.
+    if (/2\.5/.test(model)) body.generationConfig.thinkingConfig = { thinkingBudget: 0 };
+
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 20000);
     let r;
     try {
       r = await fetch(
@@ -168,19 +178,18 @@ export default async function handler(req, res) {
         {
           method: "POST",
           headers: { "Content-Type": "application/json", "x-goog-api-key": key.trim() },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: SYSTEM }] },
-            contents: [{ role: "user", parts: [{ text: question }] }],
-            generationConfig: genConfig(model),
-          }),
-          signal: AbortSignal.timeout(20000),
+          body: JSON.stringify(body),
+          signal: ctrl.signal,
         }
       );
-    } catch (err) {
+    } catch (e) {
+      clearTimeout(timer);
       lastStatus = 0;
-      lastDetail = "No answer from " + model + " in time.";
+      lastDetail = "The request took too long.";
       continue;
     }
+    clearTimeout(timer);
+
     if (r.ok) {
       const data = await r.json();
       const answer = ((data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [])
@@ -191,11 +200,10 @@ export default async function handler(req, res) {
     lastDetail = (await r.text()).slice(0, 300);
     console.error("Gemini error", model, r.status, lastDetail);
     if (r.status === 503 || r.status === 429) {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      continue;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    } else if (r.status !== 404 && r.status !== 400) {
+      break;
     }
-    if (r.status === 404 || r.status === 400) continue;
-    break;
   }
 
   await refund();
