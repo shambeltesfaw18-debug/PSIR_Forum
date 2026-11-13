@@ -32,7 +32,7 @@ async function usableModels(key) {
 }
 
 const SYSTEM = `You are the assistant for PSIR Forum, an online community for political science and international relations in Ethiopia.
-Answer only questions about using PSIR Forum. Keep answers short, clear and friendly (3 to 6 sentences). Use the guide below. If the guide does not cover something, say you are not sure and suggest psirforum@gmail.com. You cannot see the member's account or the live site, so do not claim to know their status.
+Answer only questions about using PSIR Forum. Keep answers clear and complete, and friendly, in plain sentences (no headings, no bullet lists unless the question asks for steps). Use the guide below. If the guide does not cover something, say you are not sure and suggest psirforum@gmail.com. You cannot see the member's account or the live site, so do not claim to know their status.
 Do not give legal, medical or financial advice. Never ask for or repeat personal data (passwords, ID numbers, phone numbers, addresses).
 
 GUIDE
@@ -164,7 +164,7 @@ export default async function handler(req, res) {
     const body = {
       systemInstruction: { parts: [{ text: SYSTEM }] },
       contents: [{ role: "user", parts: [{ text: question }] }],
-      generationConfig: { maxOutputTokens: 350, temperature: 0.3 },
+      generationConfig: { maxOutputTokens: 900, temperature: 0.3 },
     };
     // Answers only repeat the forum guide, so skip the extra "thinking" time on 2.5 models.
     if (/2\.5/.test(model)) body.generationConfig.thinkingConfig = { thinkingBudget: 0 };

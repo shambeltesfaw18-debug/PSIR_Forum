@@ -25,6 +25,30 @@
   document.body.appendChild(btn);
   document.body.appendChild(panel);
 
+  // Common questions: answers are ready in advance, so they open at once and do not use a daily question.
+  var QA = [
+    { q: "How do I join the forum?", a: "Click \"Join forum\" at the top of the home page. Sign up with your email or Google account. Then accept the Terms of Use and confirm you have read the Privacy Policy. After that you can use the forum." },
+    { q: "How do I take an exam?", a: "Open the Exams page from the menu or the Explore row. Choose an exam and tap \"Start exam\". Answer one question per page, and use Previous and Next to move between them. Tap the flag icon to mark a question to come back to. When you finish, tap \"Submit exam\". You get three attempts per exam each day. After submitting, you see your score, and each question shows your answer, the correct answer and, where included, an explanation." },
+    { q: "How do I send a message?", a: "Open a member's profile and tap \"Send message\". You and the other member both need a completed profile (name, and university or institution). Type your message, or attach a photo, short video or PDF up to 10 MB. To open your messages later, tap the blue chat button at the bottom left." },
+    { q: "How do I submit research?", a: "Open the Research Hub and tap \"Submit Research\". Fill in the form, or paste a link to fill in some details, and attach your PDF. A moderator checks it before it is published. This is editorial checking, not formal peer review. You can follow its status under \"My submissions\"." },
+    { q: "How do I share a book or material?", a: "Open Books and Materials, tap \"Share a material\", and add a link or upload a PDF up to 10 MB. Only share material you own or are allowed to share. A moderator checks it first. You can also upload a thumbnail image." },
+    { q: "How do I delete my account?", a: "Open your profile, go to \"Your privacy\", write an optional note, and tap \"Request account deletion\". A moderator confirms when it is done. You can also email psirforum@gmail.com." }
+  ];
+  var chips = document.createElement("div");
+  chips.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;";
+  QA.forEach(function (item) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.textContent = item.q;
+    b.style.cssText = "border:1px solid #CBD5E1;background:#F5F9FF;color:#1E3F82;border-radius:999px;padding:6px 10px;font:600 .8rem system-ui,sans-serif;cursor:pointer;text-align:left;";
+    b.addEventListener("click", function () {
+      document.getElementById("psirAskQ").value = "";
+      document.getElementById("psirAskOut").textContent = item.a;
+    });
+    chips.appendChild(b);
+  });
+  panel.insertBefore(chips, panel.children[1]);
+
   function out(text) { document.getElementById("psirAskOut").textContent = text; }
 
   btn.addEventListener("click", function () {
