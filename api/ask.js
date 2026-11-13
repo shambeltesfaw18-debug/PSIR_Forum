@@ -174,7 +174,9 @@ export default async function handler(req, res) {
     lastDetail = (await r.text()).slice(0, 300);
     console.error("Gemini error", model, r.status, lastDetail);
     // Try the next model only if this one does not exist or the request was rejected.
-    if (r.status !== 404 && r.status !== 400) break;
+    // Busy (503, 429) or unavailable (404, 400): wait briefly, then try the next model.
+    if (r.status === 503 || r.status === 429) await new Promise((resolve) => setTimeout(resolve, 1500));
+    else if (r.status !== 404 && r.status !== 400) break;
   }
 
   await refund();
