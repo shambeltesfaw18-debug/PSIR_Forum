@@ -129,6 +129,14 @@ async function callSupabase(path, token, body) {
   });
 }
 
+// Settings per model. The 2.5 models pause to "think" before answering, which slows replies,
+// so that step is switched off for them.
+function genConfig(model) {
+  const cfg = { maxOutputTokens: 400, temperature: 0.3 };
+  if (/2\.5/.test(model)) cfg.thinkingConfig = { thinkingBudget: 0 };
+  return cfg;
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed." });
   const token = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
@@ -153,17 +161,26 @@ export default async function handler(req, res) {
   let lastStatus = 0, lastDetail = "";
   const models = await usableModels(key);
   for (const model of models) {
-    const r = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": key.trim() },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: SYSTEM + "\n\nMember question: " + question + "\n\nAnswer the member's question about PSIR Forum only, using the information above." }] }],
-          generationConfig: { maxOutputTokens: 400, temperature: 0.3 },
-        }),
-      }
-    );
+    let r;
+    try {
+      r = await fetch(
+        "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-goog-api-key": key.trim() },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: SYSTEM }] },
+            contents: [{ role: "user", parts: [{ text: question }] }],
+            generationConfig: genConfig(model),
+          }),
+          signal: AbortSignal.timeout(20000),
+        }
+      );
+    } catch (err) {
+      lastStatus = 0;
+      lastDetail = "No answer from " + model + " in time.";
+      continue;
+    }
     if (r.ok) {
       const data = await r.json();
       const answer = ((data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [])
@@ -173,10 +190,12 @@ export default async function handler(req, res) {
     lastStatus = r.status;
     lastDetail = (await r.text()).slice(0, 300);
     console.error("Gemini error", model, r.status, lastDetail);
-    // Try the next model only if this one does not exist or the request was rejected.
-    // Busy (503, 429) or unavailable (404, 400): wait briefly, then try the next model.
-    if (r.status === 503 || r.status === 429) await new Promise((resolve) => setTimeout(resolve, 1500));
-    else if (r.status !== 404 && r.status !== 400) break;
+    if (r.status === 503 || r.status === 429) {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      continue;
+    }
+    if (r.status === 404 || r.status === 400) continue;
+    break;
   }
 
   await refund();
