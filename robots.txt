@@ -4,6 +4,23 @@ Disallow: /moderation.html
 Disallow: /notifications.html
 Disallow: /profile.html
 Disallow: /saved.html
+Disallow: /messages.html
+Disallow: /api/
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
 
 Sitemap: https://psirforum.vercel.app/sitemap.xml
 Sitemap: https://psirforum.vercel.app/sitemap-papers.xml

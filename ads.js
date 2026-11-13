@@ -10,7 +10,7 @@
 
   var css = document.createElement("style");
   css.textContent =
-    ".psir-ad{position:relative;width:min(640px,calc(100% - 24px));margin:12px auto 0;background:#FFFFFF;border:1px solid #E6B75A;border-radius:12px;box-shadow:0 10px 26px rgba(10,30,70,.22);overflow:hidden;box-sizing:border-box;opacity:0;transform:translateY(-8px);transition:opacity .4s ease,transform .4s ease;}" +
+    ".psir-ad{position:fixed;top:76px;left:0;right:0;margin:0 auto;width:min(640px,calc(100% - 24px));z-index:8000;background:#FFFFFF;border:1px solid #E6B75A;border-radius:12px;box-shadow:0 10px 26px rgba(10,30,70,.22);overflow:hidden;box-sizing:border-box;opacity:0;transform:translateY(-8px);transition:opacity .4s ease,transform .4s ease;}" +
     ".psir-ad.psir-ad-in{opacity:1;transform:none;}" +
     ".psir-ad.psir-ad-out{opacity:0;transform:translateY(-8px);}" +
     ".psir-ad-top{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;}" +

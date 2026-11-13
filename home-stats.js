@@ -10,7 +10,7 @@
 
   var css = document.createElement("style");
   css.textContent =
-    ".psir-stats{width:min(1100px,calc(100% - 24px));margin:18px auto 6px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}" +
+    ".psir-stats{width:min(1100px,calc(100% - 24px));margin:18px auto 6px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;min-height:112px;}" +
     ".psir-stat{background:#FFFFFF;border:1px solid #E6B75A;border-radius:12px;padding:14px 12px;text-align:center;box-shadow:0 8px 20px rgba(10,30,70,.12);}" +
     ".psir-stat strong{display:block;font-size:1.7rem;color:#1E3F82;line-height:1.1;}" +
     ".psir-stat span{font-size:.85rem;color:#475569;font-weight:600;}" +
