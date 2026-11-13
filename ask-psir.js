@@ -49,7 +49,7 @@
         body: JSON.stringify({ question: q })
       });
       var data = await r.json().catch(function () { return {}; });
-      out(r.ok ? data.answer : (data.error || "Could not get an answer. Please try again."));
+      out(r.ok ? data.answer : ((data.error || "Could not get an answer.") + (data.detail ? "\n\nDetail: " + data.detail : "")));
     } catch (err) {
       out("Could not reach the assistant. Please check your connection and try again.");
     }

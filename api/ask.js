@@ -89,5 +89,9 @@ export default async function handler(req, res) {
 
   await refund();
   console.error("Assistant failed. Last status:", lastStatus);
-  return res.status(502).json({ error: "The assistant is busy. Please try again shortly." });
+  const safe = String(lastDetail || "").replace(/key=[^&\s"]+/g, "key=***").slice(0, 240);
+  return res.status(502).json({
+    error: "The assistant is busy. Please try again shortly.",
+    detail: lastStatus ? "Google returned " + lastStatus + ": " + safe : "No response from Google.",
+  });
 }
