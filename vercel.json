@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/categories",
+      "destination": "/categories.html"
+    },
+    {
       "source": "/live",
       "destination": "/live.html"
     },
