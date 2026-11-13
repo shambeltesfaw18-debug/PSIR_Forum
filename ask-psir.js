@@ -12,13 +12,13 @@
   var panel = document.createElement("section");
   panel.id = "psirAskPanel";
   panel.setAttribute("aria-label", "PSIR Forum assistant");
-  panel.style.cssText = "position:fixed;left:12px;bottom:136px;z-index:9001;width:min(380px,calc(100% - 24px));max-height:60vh;display:none;flex-direction:column;background:#fff;color:#263238;border:1px solid #DCE3EE;border-radius:14px;box-shadow:0 16px 36px rgba(10,30,70,.28);padding:12px;box-sizing:border-box;";
+  panel.style.cssText = "position:fixed;left:12px;bottom:136px;z-index:9001;width:min(380px,calc(100% - 24px));height:min(560px,72vh);display:none;flex-direction:column;overflow:hidden;background:#fff;color:#263238;border:1px solid #DCE3EE;border-radius:14px;box-shadow:0 16px 36px rgba(10,30,70,.28);padding:12px;box-sizing:border-box;";
   panel.innerHTML =
     '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;">' +
     '<strong style="color:#1E3F82;">Ask PSIR</strong>' +
     '<button type="button" id="psirAskClose" aria-label="Close" style="border:1px solid #CBD5E1;background:#fff;border-radius:8px;padding:4px 10px;cursor:pointer;">Close</button></div>' +
     '<p style="margin:0 0 8px;font-size:.78rem;color:#64748B;">AI assistant. It can make mistakes. Do not type personal details.</p>' +
-    '<div id="psirAskOut" style="overflow:auto;flex:1;min-height:60px;font-size:.92rem;line-height:1.5;white-space:pre-wrap;"></div>' +
+    '<div id="psirAskOut" style="overflow:auto;flex:1 1 0;min-height:0;font-size:.92rem;line-height:1.5;white-space:pre-wrap;"></div>' +
     '<form id="psirAskForm" style="display:flex;gap:8px;margin-top:8px;">' +
     '<input id="psirAskQ" maxlength="500" placeholder="Ask about the forum" style="flex:1;min-height:40px;border:1px solid #CBD5E1;border-radius:8px;padding:8px;font:inherit;">' +
     '<button type="submit" id="psirAskSend" style="min-height:40px;padding:0 14px;border:0;border-radius:8px;background:#2855A6;color:#fff;font-weight:700;cursor:pointer;">Send</button></form>';
@@ -35,12 +35,12 @@
     { q: "How do I delete my account?", a: "Open your profile, go to \"Your privacy\", write an optional note, and tap \"Request account deletion\". A moderator confirms when it is done. You can also email psirforum@gmail.com." }
   ];
   var chips = document.createElement("div");
-  chips.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;";
+  chips.style.cssText = "display:flex;flex-wrap:nowrap;gap:6px;margin-bottom:8px;overflow-x:auto;flex:0 0 auto;padding-bottom:4px;";
   QA.forEach(function (item) {
     var b = document.createElement("button");
     b.type = "button";
     b.textContent = item.q;
-    b.style.cssText = "border:1px solid #CBD5E1;background:#F5F9FF;color:#1E3F82;border-radius:999px;padding:6px 10px;font:600 .8rem system-ui,sans-serif;cursor:pointer;text-align:left;";
+    b.style.cssText = "border:1px solid #CBD5E1;background:#F5F9FF;color:#1E3F82;border-radius:999px;padding:6px 10px;font:600 .8rem system-ui,sans-serif;cursor:pointer;text-align:left;white-space:nowrap;flex:0 0 auto;";
     b.addEventListener("click", function () {
       document.getElementById("psirAskQ").value = "";
       document.getElementById("psirAskOut").textContent = item.a;
