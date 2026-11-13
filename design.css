@@ -851,3 +851,13 @@ html body .rh-actions > #booksLinkBtn {
 @media (min-width: 761px) {
   html body .rh-actions { gap: 80px !important; }
 }
+
+/* Audit fixes: larger tap targets for Explore dots; readable meta text */
+.psir-dot { width: 24px !important; height: 24px !important; background: transparent !important; position: relative; }
+.psir-dot::before {
+  content: ""; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 10px; height: 10px; border-radius: 999px; background: rgba(120, 130, 150, 0.5);
+  transition: width .25s ease, background .25s ease;
+}
+.psir-dot.on::before { width: 28px; background: #E6B75A; box-shadow: 0 0 0 2px rgba(230, 183, 90, 0.25); }
+html:not([data-theme="dark"]) body .featured-meta { color: #475569 !important; }
